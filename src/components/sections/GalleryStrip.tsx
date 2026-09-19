@@ -4,7 +4,7 @@ import { Reveal } from '../motion/Reveal'
 import { localePath, mediaAlt, mediaUrl } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
-import type { GalleryItem } from '../../payload-types'
+import type { GalleryItem } from '../../content/schema'
 
 export function GalleryStrip({
   locale,

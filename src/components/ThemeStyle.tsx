@@ -1,3 +1,4 @@
+import { defaultLocale } from '../i18n/config'
 import { getTheme } from '../lib/data'
 
 const RADIUS: Record<string, string> = {
@@ -15,9 +16,10 @@ const HEADING_SCALE: Record<string, string> = {
 /**
  * Emits the Theme global as CSS custom properties before first paint, so the
  * clinic's colour choices apply without a flash of the default palette.
+ * Theme fields are not localised; any locale works for the resolve pass.
  */
 export async function ThemeStyle() {
-  const theme = await getTheme().catch(() => null)
+  const theme = await getTheme(defaultLocale).catch(() => null)
 
   const vars: Record<string, string | undefined> = {
     '--c-primary': theme?.primary || undefined,

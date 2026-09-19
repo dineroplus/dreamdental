@@ -71,7 +71,10 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       <ContactSection
         locale={locale}
         dict={dict}
-        services={services.map((s) => ({ id: s.id, title: s.shortTitle || s.title }))}
+        services={services.flatMap((s) => {
+          const title = s.shortTitle || s.title
+          return title ? [{ id: s.slug, title }] : []
+        })}
         heading={dict.cta.bookNow}
         addressLine={addressLine}
         city={city}

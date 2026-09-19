@@ -37,10 +37,11 @@ export async function generateMetadata({
   const page = await getPageBySlug(locale, slug).catch(() => null)
   if (!page) return {}
 
+  const title = page.seo?.title || page.title || slug
   return buildMetadata({
     locale,
     path: `/${slug}`,
-    title: page.seo?.title || page.title,
+    title,
     description: page.seo?.description || (page.subtitle ? truncate(page.subtitle, 158) : undefined),
     image: mediaUrl(page.seo?.image) || mediaUrl(page.heroImage),
     noindex: page.seo?.noindex ?? false,
@@ -60,6 +61,7 @@ export default async function CmsPage({
   const page = await getPageBySlug(locale, slug).catch(() => null)
   if (!page) notFound()
 
+  const title = page.title || slug
   const hero = mediaUrl(page.heroImage, 'hero')
   const heroDims = mediaDimensions(page.heroImage)
 
@@ -67,9 +69,9 @@ export default async function CmsPage({
     <>
       <PageHeader
         locale={locale}
-        title={page.title}
+        title={title}
         subtitle={page.subtitle}
-        breadcrumbs={[{ label: dict.nav.home, href: '/' }, { label: page.title }]}
+        breadcrumbs={[{ label: dict.nav.home, href: '/' }, { label: title }]}
       />
 
       {hero && (

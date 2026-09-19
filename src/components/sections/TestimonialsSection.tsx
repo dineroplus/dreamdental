@@ -4,7 +4,7 @@ import { Reveal } from '../motion/Reveal'
 import { REVIEW_PLATFORMS } from '../../lib/reviews'
 import { mediaAlt, mediaUrl } from '../../lib/utils'
 import type { Dictionary } from '../../i18n/dictionaries'
-import type { Testimonial } from '../../payload-types'
+import type { Testimonial } from '../../content/schema'
 
 function Stars({ rating }: { rating: number }) {
   return (
@@ -109,7 +109,7 @@ export function TestimonialsSection({
                       />
                     ) : (
                       <span className="bg-brand-soft text-brand grid h-10 w-10 place-items-center rounded-full text-sm font-semibold">
-                        {item.patientName.trim().charAt(0)}
+                        {(item.patientName ?? '?').trim().charAt(0) || '?'}
                       </span>
                     )}
                     <div className="min-w-0">

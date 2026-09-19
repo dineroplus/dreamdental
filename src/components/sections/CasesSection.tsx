@@ -3,7 +3,7 @@ import { Reveal } from '../motion/Reveal'
 import { BeforeAfterSlider } from '../BeforeAfterSlider'
 import { mediaAlt, mediaUrl } from '../../lib/utils'
 import type { Dictionary } from '../../i18n/dictionaries'
-import type { Case } from '../../payload-types'
+import type { CaseStudy as Case } from '../../content/schema'
 
 export function CasesSection({
   dict,

@@ -1,13 +1,13 @@
-import type { Media } from '../payload-types'
+import type { MediaRef } from '../content/fields'
 import type { Locale } from '../i18n/config'
 
 export function cn(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ')
 }
 
-type MediaLike = number | Media | null | undefined
+type MediaLike = number | MediaRef | null | undefined
 
-export function isMedia(value: MediaLike): value is Media {
+export function isMedia(value: MediaLike): value is MediaRef {
   return typeof value === 'object' && value !== null && 'url' in value
 }
 
@@ -19,10 +19,9 @@ export function mediaUrl(value: MediaLike, size?: 'thumb' | 'card' | 'wide' | 'h
 }
 
 /**
- * Payload prefixes uploads with `serverURL`, so src becomes
- * `http://localhost:3000/api/media/file/…`. next/image treats that as a remote
- * URL and rejects it (`"url" parameter is not allowed`). Same-origin paths
- * go through the local optimizer. CDN/R2 hosts stay absolute.
+ * Stored media URLs are site-relative paths. Anything absolute comes from R2,
+ * and next/image rejects a same-origin absolute URL (`"url" parameter is not
+ * allowed`), so those are reduced back to a path.
  */
 function toLocalImageSrc(url: string): string {
   if (!/^https?:\/\//i.test(url)) return url
@@ -61,19 +60,6 @@ export function formatPhone(raw?: string | null): string {
   const match = digits.match(/^\+995(\d{3})(\d{2})(\d{2})(\d{2})$/)
   if (match) return `+995 ${match[1]} ${match[2]} ${match[3]} ${match[4]}`
   return raw
-}
-
-/** Strips Lexical rich text down to plain text for meta descriptions. */
-export function richTextToPlain(node: unknown, limit = 300): string {
-  const out: string[] = []
-  const walk = (n: any) => {
-    if (!n || out.join(' ').length > limit) return
-    if (typeof n.text === 'string') out.push(n.text)
-    if (Array.isArray(n.children)) n.children.forEach(walk)
-    if (n.root) walk(n.root)
-  }
-  walk(node)
-  return out.join(' ').replace(/\s+/g, ' ').trim().slice(0, limit)
 }
 
 export function truncate(text: string, limit: number): string {

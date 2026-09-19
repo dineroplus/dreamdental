@@ -26,6 +26,9 @@ import { TestimonialsSection } from '../../../components/sections/TestimonialsSe
 import { GalleryStrip } from '../../../components/sections/GalleryStrip'
 import { FeatureBanner } from '../../../components/sections/FeatureBanner'
 import { ContactSection } from '../../../components/sections/ContactSection'
+import type { Home } from '../../../content/schema'
+
+type HomeSection = NonNullable<Home['sections']>[number]
 
 export const revalidate = 300
 
@@ -74,20 +77,29 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ])
 
   const featuredServices = services.filter((s) => s.featured)
+
+  // The booking form identifies a service by slug, so a renamed or deleted
+  // service never orphans an existing enquiry.
+  const serviceOptions = services.flatMap((service) => {
+    const title = service.shortTitle || service.title
+    return title ? [{ id: service.slug, title }] : []
+  })
+
   const cmsSections = home?.sections?.filter((s) => s.enabled !== false) ?? []
-  const sections =
-    cmsSections.length > 0
-      ? cmsSections
-      : [
-          'stats',
-          'services',
-          'whyUs',
-          'cases',
-          'doctors',
-          'testimonials',
-          'gallery',
-          'contact',
-        ].map((blockType) => ({ blockType, enabled: true, id: blockType }))
+
+  /** Used until someone arranges the sections in the admin. */
+  const defaultSections: HomeSection[] = [
+    'stats',
+    'services',
+    'whyUs',
+    'cases',
+    'doctors',
+    'testimonials',
+    'gallery',
+    'contact',
+  ].map((blockType) => ({ blockType: blockType as HomeSection['blockType'], enabled: true }))
+
+  const sections = cmsSections.length > 0 ? cmsSections : defaultSections
   const sectionFor = (type: string) => sections.find((s) => s.blockType === type)
 
   const phonePrimary = settings?.phonePrimary || CLINIC.phonePrimary
@@ -231,7 +243,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <ContactSection
           locale={locale}
           dict={dict}
-          services={services.map((s) => ({ id: s.id, title: s.shortTitle || s.title }))}
+          services={serviceOptions}
           heading={section?.heading}
           subheading={section?.subheading}
           addressLine={settings?.addressLine || CLINIC.street}
@@ -258,10 +270,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     cmsTitle === CLINIC.legalName
   const heroTitle = brandOnlyTitle ? hero.title : cmsTitle
   const heroSubtitle = home?.heroSubtitle?.trim() || hero.subtitle
-  const heroBullets =
-    (home?.heroBullets?.length ?? 0) > 0
-      ? (home?.heroBullets ?? []).map((b) => b.text)
-      : hero.bullets
+  const cmsBullets = (home?.heroBullets ?? []).filter(Boolean)
+  const heroBullets = cmsBullets.length > 0 ? cmsBullets : hero.bullets
 
   return (
     <>
@@ -280,8 +290,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       />
 
       {sections.map((section) => {
-        const render = renderers[section.blockType]
-        return render ? <div key={section.id ?? section.blockType}>{render()}</div> : null
+        const render = section.blockType ? renderers[section.blockType] : undefined
+        return render ? <div key={section.blockType}>{render()}</div> : null
       })}
 
       <JsonLd data={websiteLd} />

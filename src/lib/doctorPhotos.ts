@@ -1,4 +1,4 @@
-import type { Doctor } from '../payload-types'
+import type { Doctor } from '../content/schema'
 import { mediaUrl } from './utils'
 
 /**

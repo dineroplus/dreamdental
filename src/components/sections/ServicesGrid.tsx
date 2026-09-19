@@ -4,7 +4,7 @@ import { Reveal } from '../motion/Reveal'
 import { localePath } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
-import type { Service } from '../../payload-types'
+import type { Service } from '../../content/schema'
 
 type Props = {
   locale: Locale

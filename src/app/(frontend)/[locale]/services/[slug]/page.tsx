@@ -42,11 +42,12 @@ export async function generateMetadata({
   const service = await getServiceBySlug(locale, slug).catch(() => null)
   if (!service) return {}
 
+  const title = service.seo?.title || service.title || slug
   return buildMetadata({
     locale,
     path: `/services/${slug}`,
-    title: service.seo?.title || `${service.title} - Dream Dental Group`,
-    description: service.seo?.description || truncate(service.excerpt, 158),
+    title: service.seo?.title ? title : `${title} - Dream Dental Group`,
+    description: service.seo?.description || (service.excerpt ? truncate(service.excerpt, 158) : undefined),
     image: mediaUrl(service.seo?.image) || mediaUrl(service.image),
     noindex: service.seo?.noindex ?? false,
   })
@@ -81,6 +82,8 @@ export default async function ServiceDetailPage({
     (d): d is Exclude<typeof d, number> => typeof d === 'object' && d !== null,
   )
 
+  const title = service.title || slug
+  const shortTitle = service.shortTitle || title
   const hero = mediaUrl(service.image, 'wide')
   const heroDims = mediaDimensions(service.image)
   const phone = settings?.phonePrimary || CLINIC.phonePrimary
@@ -90,12 +93,12 @@ export default async function ServiceDetailPage({
       <PageHeader
         locale={locale}
         eyebrow={dict.nav.services}
-        title={service.title}
+        title={title}
         subtitle={service.excerpt}
         breadcrumbs={[
           { label: dict.nav.home, href: '/' },
           { label: dict.nav.services, href: '/services' },
-          { label: service.shortTitle || service.title },
+          { label: shortTitle },
         ]}
       />
 
@@ -114,7 +117,7 @@ export default async function ServiceDetailPage({
               />
             )}
 
-            <RichText data={service.body} />
+            <RichText value={service.body} />
           </div>
 
           {/* Sticky summary: price, duration, key points and the booking CTA. */}
@@ -161,8 +164,8 @@ export default async function ServiceDetailPage({
 
             {service.highlights && service.highlights.length > 0 && (
               <ul className="card mt-4 space-y-3 p-6">
-                {service.highlights.map((item) => (
-                  <li key={item.id} className="flex gap-3">
+                {service.highlights.map((item, index) => (
+                  <li key={`${index}-${item.text}`} className="flex gap-3">
                     <Icon name={item.icon} className="text-accent mt-0.5 h-5 w-5 shrink-0" />
                     <span className="text-ink-muted text-sm leading-relaxed">{item.text}</span>
                   </li>

@@ -51,7 +51,15 @@ export type BlockDef = { label: string; fields: FieldMap }
 /* Derived TypeScript types                                                   */
 /* -------------------------------------------------------------------------- */
 
-type Leaf<F> = F extends {
+/**
+ * The same field description yields two shapes. `stored` is what sits in the
+ * database, with every localised value held as `{ ka, en, ru }`. `view` is
+ * what pages receive once `resolveFields` has picked one language, which
+ * keeps components free of locale plumbing.
+ */
+export type Mode = 'stored' | 'view'
+
+type Leaf<F, M extends Mode> = F extends {
   kind: 'text' | 'textarea' | 'markdown' | 'slug' | 'url' | 'color' | 'date'
 }
   ? string
@@ -63,35 +71,67 @@ type Leaf<F> = F extends {
         ? V
         : F extends { kind: 'multiselect'; options: readonly { value: infer V }[] }
           ? V[]
-          : F extends { kind: 'image' | 'relation' }
-            ? number
-            : F extends { kind: 'imageList' | 'relationList' }
-              ? number[]
-              : F extends { kind: 'list'; of: infer I }
-                ? Value<I>[]
-                : F extends { kind: 'objectList'; fields: infer M }
-                  ? Shape<M>[]
-                  : F extends { kind: 'group'; fields: infer M }
-                    ? Shape<M>
-                    : F extends { kind: 'blocks'; blocks: infer B }
-                      ? BlockValue<B>[]
-                      : never
+          : F extends { kind: 'image' }
+            ? M extends 'view'
+              ? MediaRef
+              : number
+            : F extends { kind: 'imageList' }
+              ? M extends 'view'
+                ? MediaRef[]
+                : number[]
+              : F extends { kind: 'relation' }
+                ? number
+                : F extends { kind: 'relationList' }
+                  ? number[]
+                  : F extends { kind: 'list'; of: infer I }
+                    ? Value<I, M>[]
+                    : F extends { kind: 'objectList'; fields: infer FM }
+                      ? Shape<FM, M>[]
+                      : F extends { kind: 'group'; fields: infer FM }
+                        ? Shape<FM, M>
+                        : F extends { kind: 'blocks'; blocks: infer B }
+                          ? BlockValue<B, M>[]
+                          : never
 
-type BlockValue<B> = {
-  [K in keyof B]: { type: K; id: string } & (B[K] extends { fields: infer M } ? Shape<M> : never)
+/**
+ * An image once the data layer has swapped its id for the stored record.
+ * `alt` arrives already resolved to the requested language.
+ */
+export type MediaRef = {
+  id: number
+  filename: string
+  url: string
+  mimeType: string
+  width: number | null
+  height: number | null
+  alt: string
+  sizes: Record<string, { url: string; width: number; height: number }>
+}
+
+type BlockValue<B, M extends Mode> = {
+  [K in keyof B]: { type: K; id: string } & (B[K] extends { fields: infer FM }
+    ? Shape<FM, M>
+    : never)
 }[keyof B]
 
 /** Localised fields hold one value per locale; `ka` acts as the fallback. */
 export type Localized<T> = Partial<Record<Locale, T>>
 
-export type Value<F> = F extends { localized: true } ? Localized<Leaf<F>> : Leaf<F>
+export type Value<F, M extends Mode = 'stored'> = M extends 'stored'
+  ? F extends { localized: true }
+    ? Localized<Leaf<F, M>>
+    : Leaf<F, M>
+  : Leaf<F, M>
 
 /**
  * Every key is optional. Documents are edited incrementally and older rows
  * predate newer fields, so pages must treat any value as possibly missing -
  * exactly how they already behaved with the previous CMS.
  */
-export type Shape<M> = { [K in keyof M]?: Value<M[K]> }
+export type Shape<FM, M extends Mode = 'stored'> = { [K in keyof FM]?: Value<FM[K], M> }
+
+/** A document as pages see it: one language, no `{ ka, en, ru }` wrappers. */
+export type View<FM> = Shape<FM, 'view'>
 
 /* -------------------------------------------------------------------------- */
 /* Runtime validation                                                          */

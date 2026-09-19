@@ -1,16 +1,21 @@
 import { CountUp } from '../motion/CountUp'
 import { Reveal } from '../motion/Reveal'
 
-type Stat = { value: string; suffix?: string | null; label: string }
+/** Every field is optional: a counter is saved as soon as it is added. */
+type Stat = { value?: string; suffix?: string; label?: string }
 
 export function Stats({ items }: { items: Stat[] }) {
-  if (items.length === 0) return null
+  const usable = items.filter(
+    (stat): stat is { value: string; suffix?: string; label: string } =>
+      Boolean(stat.value && stat.label),
+  )
+  if (usable.length === 0) return null
 
   return (
     <section className="section pt-0">
       <div className="container-page">
         <div className="card grid grid-cols-2 gap-y-8 px-6 py-8 md:grid-cols-4 md:px-10 md:py-10">
-          {items.map((stat, index) => (
+          {usable.map((stat, index) => (
             <Reveal key={stat.label} delay={index} className="text-center">
               <div className="text-gradient font-display text-[clamp(1.9rem,5vw,3rem)] leading-none font-semibold">
                 <CountUp value={stat.value} suffix={stat.suffix} />

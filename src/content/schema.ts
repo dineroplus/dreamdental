@@ -1,4 +1,4 @@
-import type { FieldMap, Shape } from './fields'
+import type { FieldMap, Shape, View } from './fields'
 
 /**
  * The whole content model of the site. Collections become rows in `documents`
@@ -693,18 +693,58 @@ export type DocMeta = {
   updatedAt: string
 }
 
-export type Service = DocMeta & Shape<typeof serviceFields>
-export type Doctor = DocMeta & Shape<typeof doctorFields>
-export type CaseStudy = DocMeta & Shape<typeof caseFields>
-export type Testimonial = DocMeta & Shape<typeof testimonialFields>
-export type GalleryItem = DocMeta & Shape<typeof galleryFields>
-export type Page = DocMeta & Shape<typeof pageFields>
-export type Post = DocMeta & Shape<typeof postFields>
+/**
+ * Pages work with the view types: one language already picked, so a title is
+ * a `string` rather than `{ ka, en, ru }`. The admin works with the stored
+ * types, which keep every language.
+ */
+export type Doctor = DocMeta & View<typeof doctorFields>
+export type GalleryItem = DocMeta & View<typeof galleryFields>
+export type Page = DocMeta & View<typeof pageFields>
 
-export type Home = Shape<typeof homeFields>
-export type Settings = Shape<typeof settingsFields>
-export type Navigation = Shape<typeof navigationFields>
-export type Theme = Shape<typeof themeFields>
+/**
+ * Relations come back populated, one level deep: a related service is a whole
+ * service, but its own relations stay as ids. That is the same depth the site
+ * has always rendered with, and it keeps the types free of cycles.
+ */
+export type Service = DocMeta &
+  Omit<View<typeof serviceFields>, 'relatedDoctors'> & { relatedDoctors?: Doctor[] }
+
+export type CaseStudy = DocMeta &
+  Omit<View<typeof caseFields>, 'treatment' | 'doctor'> & { treatment?: Service; doctor?: Doctor }
+
+export type Testimonial = DocMeta &
+  Omit<View<typeof testimonialFields>, 'treatment' | 'doctor'> & {
+    treatment?: Service
+    doctor?: Doctor
+  }
+
+export type Post = DocMeta &
+  Omit<View<typeof postFields>, 'author' | 'relatedServices'> & {
+    author?: Doctor
+    relatedServices?: Service[]
+  }
+
+export type Home = View<typeof homeFields>
+export type Navigation = View<typeof navigationFields>
+export type Theme = View<typeof themeFields>
+
+/**
+ * Settings are grouped in the admin because a flat list of thirty inputs is
+ * hard to scan, but the site reads them flat. `getSettings` merges the groups
+ * so pages keep saying `settings.phonePrimary`.
+ */
+type SettingsGroups = View<typeof settingsFields>
+
+export type Settings = NonNullable<SettingsGroups['identity']> &
+  NonNullable<SettingsGroups['contact']> &
+  NonNullable<SettingsGroups['hours']> &
+  NonNullable<SettingsGroups['social']> &
+  NonNullable<SettingsGroups['analytics']> &
+  Pick<SettingsGroups, 'stats' | 'insurancePartners' | 'awards'>
+
+export type StoredDoc<T extends CollectionName> = Shape<(typeof collections)[T]['fields']>
+export type StoredSingleton<T extends SingletonName> = Shape<(typeof singletons)[T]['fields']>
 
 export type DocOf<T extends CollectionName> = {
   services: Service

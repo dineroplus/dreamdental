@@ -4,7 +4,7 @@ import { Reveal } from './motion/Reveal'
 import { RichText } from './RichText'
 import { localePath, mediaAlt, mediaDimensions, mediaUrl } from '../lib/utils'
 import type { Locale } from '../i18n/config'
-import type { Page } from '../payload-types'
+import type { Page } from '../content/schema'
 
 type Blocks = NonNullable<Page['layout']>
 
@@ -18,7 +18,7 @@ export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks
   return (
     <>
       {blocks.map((block) => {
-        switch (block.blockType) {
+        switch (block.type) {
           case 'richText':
             return (
               <section key={block.id} className="section pb-0 last:pb-[var(--section-y)]">
@@ -27,7 +27,7 @@ export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks
                     {block.heading && (
                       <h2 className="text-ink mb-5 text-[clamp(1.5rem,4vw,2.25rem)]">{block.heading}</h2>
                     )}
-                    <RichText data={block.content} />
+                    <RichText value={block.content} />
                   </div>
                 </div>
               </section>
@@ -55,7 +55,7 @@ export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks
                     {block.heading && (
                       <h2 className="text-ink mb-4 text-[clamp(1.4rem,3.6vw,2rem)]">{block.heading}</h2>
                     )}
-                    <RichText data={block.content} />
+                    <RichText value={block.content} />
                   </Reveal>
                 </div>
               </section>
@@ -68,8 +68,8 @@ export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks
                 <div className="container-page">
                   {block.heading && <SectionHeading title={block.heading} />}
                   <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {(block.items ?? []).map((item, index) => (
-                      <Reveal key={item.id ?? index} delay={index % 3}>
+                    {(block.items ?? []).map((item, index: number) => (
+                      <Reveal key={index} delay={index % 3}>
                         <div className="card h-full p-6">
                           <h3 className="text-ink text-base leading-snug">{item.title}</h3>
                           {item.description && (

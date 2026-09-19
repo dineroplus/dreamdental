@@ -32,11 +32,12 @@ export async function generateMetadata({
   const post = await getPostBySlug(locale, slug).catch(() => null)
   if (!post) return {}
 
+  const title = post.seo?.title || post.title || slug
   return buildMetadata({
     locale,
     path: `/blog/${slug}`,
-    title: post.seo?.title || post.title,
-    description: post.seo?.description || truncate(post.excerpt, 158),
+    title,
+    description: post.seo?.description || (post.excerpt ? truncate(post.excerpt, 158) : undefined),
     image: mediaUrl(post.seo?.image) || mediaUrl(post.coverImage),
     noindex: post.seo?.noindex ?? false,
     type: 'article',
@@ -59,29 +60,32 @@ export default async function PostPage({
 
   const settings = await getSettings(locale).catch(() => null)
 
+  const title = post.title || slug
   const cover = mediaUrl(post.coverImage, 'wide')
   const coverDims = mediaDimensions(post.coverImage)
   const author = typeof post.author === 'object' && post.author !== null ? post.author : null
   const related = (post.relatedServices ?? []).filter(
     (s): s is Exclude<typeof s, number> => typeof s === 'object' && s !== null,
   )
-  const published = new Intl.DateTimeFormat(htmlLang[locale], {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(post.publishedAt))
+  const published = post.publishedAt
+    ? new Intl.DateTimeFormat(htmlLang[locale], {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date(post.publishedAt))
+    : null
 
   return (
     <>
       <PageHeader
         locale={locale}
-        eyebrow={`${published}${author ? ` · ${author.name}` : ''}`}
-        title={post.title}
+        eyebrow={[published, author?.name].filter(Boolean).join(' · ') || undefined}
+        title={title}
         subtitle={post.excerpt}
         breadcrumbs={[
           { label: dict.nav.home, href: '/' },
           { label: dict.nav.blog, href: '/blog' },
-          { label: truncate(post.title, 40) },
+          { label: truncate(title, 40) },
         ]}
       />
 
@@ -99,7 +103,7 @@ export default async function PostPage({
         )}
 
         <div className="mx-auto max-w-3xl">
-          <RichText data={post.body} />
+          <RichText value={post.body} />
         </div>
       </article>
 

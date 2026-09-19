@@ -13,8 +13,17 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed": "node --env-file=.env --no-deprecation --import=tsx/esm src/seed/run.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "admin:create": "node --env-file=.env --import=tsx/esm scripts/create-admin.ts",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "content:import": "node --env-file=.env --import=tsx/esm scripts/import-content.ts",
+    "admin:create": "node --env-file=.env --import=tsx/esm scripts/create-admin.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1133.0",

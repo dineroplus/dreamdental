@@ -1,7 +1,7 @@
 import { Icon, SectionHeading } from '../ui'
 import { Reveal } from '../motion/Reveal'
 
-type Advantage = { title: string; description?: string | null; icon?: string | null }
+type Advantage = { title?: string; description?: string; icon?: string }
 
 export function WhyUs({
   heading,
@@ -12,7 +12,8 @@ export function WhyUs({
   subheading?: string | null
   items: Advantage[]
 }) {
-  if (items.length === 0) return null
+  const usable = items.filter((item): item is Advantage & { title: string } => Boolean(item.title))
+  if (usable.length === 0) return null
 
   return (
     <section className="relative isolate overflow-hidden">
@@ -21,7 +22,7 @@ export function WhyUs({
         <SectionHeading title={heading} subtitle={subheading} />
 
         <div className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, index) => (
+          {usable.map((item, index) => (
             <Reveal key={item.title} delay={index % 3}>
               <div className="flex gap-4">
                 <span className="bg-surface text-accent shadow-soft grid h-12 w-12 shrink-0 place-items-center rounded-2xl">

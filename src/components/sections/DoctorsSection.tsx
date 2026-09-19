@@ -6,7 +6,7 @@ import { doctorPhotoUrl } from '../../lib/doctorPhotos'
 import { localePath, mediaAlt } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
-import type { Doctor } from '../../payload-types'
+import type { Doctor } from '../../content/schema'
 
 export function DoctorsSection({
   locale,

@@ -13,7 +13,8 @@ import {
 import { buildMetadata } from '../../../../../lib/metadata'
 import { CLINIC, SITE_URL } from '../../../../../lib/site'
 import { doctorPhotoUrl } from '../../../../../lib/doctorPhotos'
-import { localePath, mediaAlt, mediaUrl, richTextToPlain } from '../../../../../lib/utils'
+import { localePath, mediaAlt, mediaUrl } from '../../../../../lib/utils'
+import { markdownLiteToPlain } from '../../../../../lib/markdownLite'
 import { PageHeader } from '../../../../../components/PageHeader'
 import { RichText } from '../../../../../components/RichText'
 import { JsonLd } from '../../../../../components/JsonLd'
@@ -49,12 +50,14 @@ export async function generateMetadata({
   const doctor = await getDoctorBySlug(locale, slug).catch(() => null)
   if (!doctor) return {}
 
+  const name = doctor.name || slug
+  const specialty = doctor.specialty || ''
   return buildMetadata({
     locale,
     path: `/doctors/${slug}`,
-    title: doctor.seo?.title || `${doctor.name} - ${doctor.specialty}`,
+    title: doctor.seo?.title || `${name}${specialty ? ` - ${specialty}` : ''}`,
     description:
-      doctor.seo?.description || richTextToPlain(doctor.bio, 158) || `${doctor.name} - ${doctor.specialty}`,
+      doctor.seo?.description || markdownLiteToPlain(doctor.bio, 158) || `${name}${specialty ? ` - ${specialty}` : ''}`,
     image: mediaUrl(doctor.seo?.image) || doctorPhotoUrl(doctor),
     noindex: doctor.seo?.noindex ?? false,
   })
@@ -88,17 +91,19 @@ export default async function DoctorDetailPage({
   const phone = settings?.phonePrimary || CLINIC.phonePrimary
   const years = doctor.experienceSince ? new Date().getFullYear() - doctor.experienceSince : null
 
+  const name = doctor.name || slug
+
   return (
     <>
       <PageHeader
         locale={locale}
         eyebrow={doctor.role || dict.labels.ourDoctors}
-        title={doctor.name}
+        title={name}
         subtitle={doctor.specialty}
         breadcrumbs={[
           { label: dict.nav.home, href: '/' },
           { label: dict.nav.doctors, href: '/doctors' },
-          { label: doctor.name },
+          { label: name },
         ]}
       />
 
@@ -109,7 +114,7 @@ export default async function DoctorDetailPage({
               {photo ? (
                 <Image
                   src={photo}
-                  alt={mediaAlt(doctor.photo, doctor.name)}
+                  alt={mediaAlt(doctor.photo, name)}
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 38vw"
@@ -161,14 +166,14 @@ export default async function DoctorDetailPage({
           </div>
 
           <div className="min-w-0">
-            <RichText data={doctor.bio} />
+            <RichText value={doctor.bio} />
 
             {doctor.credentials && doctor.credentials.length > 0 && (
               <ul className="mt-10 space-y-3">
-                {doctor.credentials.map((item) => (
-                  <li key={item.id} className="flex gap-3">
+                {doctor.credentials.map((item, index) => (
+                  <li key={`${index}-${item}`} className="flex gap-3">
                     <Icon name="check" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                    <span className="text-ink-muted text-sm leading-relaxed">{item.text}</span>
+                    <span className="text-ink-muted text-sm leading-relaxed">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -185,7 +190,7 @@ export default async function DoctorDetailPage({
         data={{
           '@context': 'https://schema.org',
           '@type': 'Physician',
-          name: doctor.name,
+          name,
           medicalSpecialty: doctor.specialty,
           url: `${SITE_URL}/${locale}/doctors/${doctor.slug}`,
           ...(photo ? { image: photo.startsWith('http') ? photo : `${SITE_URL}${photo}` } : {}),

@@ -85,14 +85,29 @@ export default async function LocaleLayout({
     getNavigation(locale).catch(() => null),
   ])
 
+  // A menu row exists in the admin as soon as it is added, so entries without
+  // both a label and a link are skipped rather than rendered empty.
+  const isLink = <T extends { label?: string; href?: string }>(
+    item: T,
+  ): item is T & { label: string; href: string } => Boolean(item.label && item.href)
+
+  const cmsNav: NavItem[] = (navigation?.header ?? []).flatMap((item) =>
+    isLink(item)
+      ? [
+          {
+            label: item.label,
+            href: item.href,
+            children: item.children?.filter(isLink).map((child) => ({
+              label: child.label,
+              href: child.href,
+            })),
+          },
+        ]
+      : [],
+  )
+
   const navItems: NavItem[] =
-    navigation?.header && navigation.header.length > 0
-      ? navigation.header.map((item) => ({
-          label: item.label,
-          href: item.href,
-          children: item.children?.map((c) => ({ label: c.label, href: c.href })) ?? undefined,
-        }))
-      : FALLBACK_NAV.map(({ key, href }) => ({ label: dict.nav[key], href }))
+    cmsNav.length > 0 ? cmsNav : FALLBACK_NAV.map(({ key, href }) => ({ label: dict.nav[key], href }))
 
   const clinicName = settings?.clinicName || SITE_NAME
   const phonePrimary = settings?.phonePrimary || CLINIC.phonePrimary
@@ -105,7 +120,11 @@ export default async function LocaleLayout({
 
   const footerColumns =
     settings && navigation?.footerColumns?.length
-      ? navigation.footerColumns.map((c) => ({ title: c.title, links: c.links }))
+      ? navigation.footerColumns.flatMap((column) => {
+          const links = (column.links ?? []).filter(isLink)
+          if (!column.title || links.length === 0) return []
+          return [{ title: column.title, links }]
+        })
       : [
           {
             title: dict.nav.services,

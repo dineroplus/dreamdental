@@ -92,11 +92,13 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
                         dateTime={post.publishedAt}
                         className="text-ink-muted text-xs tracking-wide uppercase"
                       >
-                        {new Intl.DateTimeFormat(htmlLang[locale], {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        }).format(new Date(post.publishedAt))}
+                        {post.publishedAt
+                          ? new Intl.DateTimeFormat(htmlLang[locale], {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                            }).format(new Date(post.publishedAt))
+                          : null}
                       </time>
 
                       <h2 className="text-ink mt-2 text-base leading-snug">{post.title}</h2>
