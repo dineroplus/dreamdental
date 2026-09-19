@@ -20,7 +20,7 @@ export async function getSession(): Promise<SessionUser | null> {
 /** Redirects to login when there is no valid session. */
 export async function requireUser(): Promise<SessionUser> {
   const session = await getSession()
-  if (!session) redirect('/studio/login')
+  if (!session) redirect('/admin/login')
   return session
 }
 

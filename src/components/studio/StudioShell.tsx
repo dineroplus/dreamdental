@@ -20,10 +20,10 @@ export function StudioShell({
 
         <nav className="space-y-6 px-3 pb-6 text-sm">
           <div>
-            <Link href="/studio" className="hover:bg-brand-soft block rounded-xl px-3 py-2">
+            <Link href="/admin" className="hover:bg-brand-soft block rounded-xl px-3 py-2">
               მთავარი
             </Link>
-            <Link href="/studio/bookings" className="hover:bg-brand-soft block rounded-xl px-3 py-2">
+            <Link href="/admin/bookings" className="hover:bg-brand-soft block rounded-xl px-3 py-2">
               ჯავშნები
             </Link>
           </div>
@@ -33,7 +33,7 @@ export function StudioShell({
             {Object.entries(collections).map(([key, definition]) => (
               <Link
                 key={key}
-                href={`/studio/${key}`}
+                href={`/admin/${key}`}
                 className="hover:bg-brand-soft block rounded-xl px-3 py-2"
               >
                 {definition.label}
@@ -46,7 +46,7 @@ export function StudioShell({
             {Object.entries(singletons).map(([key, definition]) => (
               <Link
                 key={key}
-                href={`/studio/singletons/${key}`}
+                href={`/admin/singletons/${key}`}
                 className="hover:bg-brand-soft block rounded-xl px-3 py-2"
               >
                 {definition.label}

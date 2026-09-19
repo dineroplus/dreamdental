@@ -1,7 +1,7 @@
 import type { Locale } from '../i18n/config'
 
 /**
- * Homepage hero fallbacks from CONTENT-DATA.md when Payload Home is empty.
+ * Homepage hero fallbacks from CONTENT-DATA.md when the Home singleton is empty.
  * Brand stays the hero-level signal; slogan + tagline fill the empty frame.
  */
 export type HeroCopy = {

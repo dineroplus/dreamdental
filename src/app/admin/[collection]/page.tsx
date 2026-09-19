@@ -46,7 +46,7 @@ export default async function CollectionListPage({
             <p className="text-ink-muted mt-1 text-sm">{rows.length} ჩანაწერი</p>
           </div>
           <Link
-            href={`/studio/${collection}/new`}
+            href={`/admin/${collection}/new`}
             className="bg-brand rounded-full px-4 py-2 text-sm font-semibold text-white"
           >
             ახალი {definition.singular}
@@ -66,7 +66,7 @@ export default async function CollectionListPage({
               {rows.map((row) => (
                 <tr key={row.id} className="hover:bg-brand-soft/20">
                   <td className="px-4 py-3">
-                    <Link href={`/studio/${collection}/${row.id}`} className="font-medium">
+                    <Link href={`/admin/${collection}/${row.id}`} className="font-medium">
                       {titleOf(row, definition.titleKey)}
                     </Link>
                   </td>

@@ -3,7 +3,7 @@ import { mediaUrl } from './utils'
 
 /**
  * Cut-out portraits from `src/components/teampictures`, served from /public/team.
- * Used when Payload has no photo yet (and on Vercel before R2 is wired).
+ * Used when a doctor has no CMS photo yet (and on Vercel before R2 is wired).
  */
 export const DOCTOR_PHOTOS: Record<string, string> = {
   'bacho-jimsheleishvili': '/team/bacho-jimsheleishvili.webp',

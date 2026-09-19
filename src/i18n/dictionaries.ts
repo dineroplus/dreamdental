@@ -1,7 +1,7 @@
 import type { Locale } from './config'
 
 /**
- * Interface strings only. All editorial copy lives in Payload so the clinic can
+ * Interface strings only. All editorial copy lives in the CMS so the clinic can
  * change it without a deploy.
  */
 const ka = {

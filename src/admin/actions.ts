@@ -23,12 +23,12 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get('password') ?? '')
   const user = await login(email, password)
   if (!user) return { error: 'ელფოსტა ან პაროლი არასწორია' }
-  redirect('/studio')
+  redirect('/admin')
 }
 
 export async function logoutAction() {
   await logout()
-  redirect('/studio/login')
+  redirect('/admin/login')
 }
 
 const metaSchema = z.object({
@@ -100,7 +100,7 @@ export async function saveDocument(
   })
 
   revalidateContent()
-  redirect(`/studio/${type}/${created.id}`)
+  redirect(`/admin/${type}/${created.id}`)
 }
 
 export async function deleteDocument(type: CollectionName, id: number) {
@@ -109,7 +109,7 @@ export async function deleteDocument(type: CollectionName, id: number) {
     .delete(schema.documents)
     .where(and(eq(schema.documents.id, id), eq(schema.documents.type, type)))
   revalidateContent()
-  redirect(`/studio/${type}`)
+  redirect(`/admin/${type}`)
 }
 
 export async function saveSingleton(key: SingletonName, data: Record<string, unknown>) {

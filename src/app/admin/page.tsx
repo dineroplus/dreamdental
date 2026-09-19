@@ -22,7 +22,7 @@ export default async function StudioDashboardPage() {
             {Object.entries(collections).map(([key, definition]) => (
               <Link
                 key={key}
-                href={`/studio/${key}`}
+                href={`/admin/${key}`}
                 className="border-hairline hover:border-brand rounded-2xl border bg-surface px-4 py-4 transition"
               >
                 <p className="font-medium">{definition.label}</p>
@@ -30,7 +30,7 @@ export default async function StudioDashboardPage() {
               </Link>
             ))}
             <Link
-              href="/studio/bookings"
+              href="/admin/bookings"
               className="border-hairline hover:border-brand rounded-2xl border bg-surface px-4 py-4 transition"
             >
               <p className="font-medium">ჯავშნები</p>
@@ -45,7 +45,7 @@ export default async function StudioDashboardPage() {
             {Object.entries(singletons).map(([key, definition]) => (
               <Link
                 key={key}
-                href={`/studio/singletons/${key}`}
+                href={`/admin/singletons/${key}`}
                 className="border-hairline hover:border-brand rounded-2xl border bg-surface px-4 py-4 transition"
               >
                 <p className="font-medium">{definition.label}</p>

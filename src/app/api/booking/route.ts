@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server'
 import { db, schema } from '../../../db/client'
 
 /**
- * Public endpoint behind the booking form. Writes into `cms.bookings` so Dream
- * Studio can manage them without going through Payload.
+ * Public endpoint behind the booking form. Writes into `cms.bookings`.
  */
 export async function POST(request: Request) {
   let body: Record<string, unknown>

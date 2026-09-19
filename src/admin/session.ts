@@ -2,8 +2,7 @@ import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 
 /**
- * Cookie-backed JWT session for Dream Studio. Kept separate from Payload's
- * `/admin` auth so the two can coexist until Payload is removed.
+ * Cookie-backed JWT session for Dream Studio at `/admin`.
  */
 export const SESSION_COOKIE = 'dream_session'
 
@@ -15,11 +14,9 @@ export type SessionUser = {
 }
 
 function secretKey() {
-  // Prefer ADMIN_SESSION_SECRET; PAYLOAD_SECRET is a temporary bridge while both
-  // admins share an env file. The hard-coded fallback is only for local boots.
+  // Hard-coded fallback is only for local boots.
   const secret =
     process.env.ADMIN_SESSION_SECRET ||
-    process.env.PAYLOAD_SECRET ||
     (process.env.NODE_ENV !== 'production' ? 'dev-only-insecure-secret-change-me' : undefined)
 
   if (!secret) {

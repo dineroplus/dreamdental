@@ -1,4 +1,3 @@
-import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 import { PRIMARY_DOMAIN, REDIRECT_DOMAINS } from './src/lib/site'
 import { defaultLocale } from './src/i18n/config'
@@ -20,6 +19,10 @@ const nextConfig: NextConfig = {
       // Root goes to the main language. Georgian is prefixed like every other
       // locale so there is exactly one canonical URL per page.
       { source: '/', destination: `/${defaultLocale}`, permanent: false },
+
+      // Old Studio URL from the Payload coexistence period.
+      { source: '/studio', destination: '/admin', permanent: false },
+      { source: '/studio/:path*', destination: '/admin/:path*', permanent: false },
 
       // Secondary domains 301 to the canonical host, preserving the path.
       ...REDIRECT_DOMAINS.map((domain) => ({
@@ -46,4 +49,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default nextConfig

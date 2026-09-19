@@ -4,7 +4,7 @@ import { LoginForm } from '../../../components/studio/LoginForm'
 
 export default async function StudioLoginPage() {
   const session = await getSession()
-  if (session) redirect('/studio')
+  if (session) redirect('/admin')
 
   return (
     <div className="bg-canvas grid min-h-screen place-items-center p-6">
