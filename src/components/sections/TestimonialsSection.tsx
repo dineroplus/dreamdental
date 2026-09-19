@@ -45,8 +45,6 @@ export function TestimonialsSection({
   subheading?: string | null
   viewAllHref?: string
 }) {
-  if (testimonials.length === 0) return null
-
   return (
     <section className="bg-surface section">
       <div className="container-page">
@@ -77,66 +75,68 @@ export function TestimonialsSection({
         </ul>
       </div>
 
-      <div className="container-page mt-10">
-        <div className="rail -mx-5 px-5 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-3">
-          {testimonials.map((item, index) => {
-            const photo = mediaUrl(item.photo, 'thumb')
-            return (
-              <Reveal
-                key={item.id}
-                delay={index % 3}
-                as="article"
-                className="w-[80vw] sm:w-[60vw] md:w-auto"
-              >
-                <figure className="card flex flex-col p-4 sm:p-5">
-                  <Stars rating={item.rating ?? 5} />
+      {testimonials.length > 0 && (
+        <div className="container-page mt-10">
+          <div className="rail -mx-5 px-5 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-3">
+            {testimonials.map((item, index) => {
+              const photo = mediaUrl(item.photo, 'thumb')
+              return (
+                <Reveal
+                  key={item.id}
+                  delay={index % 3}
+                  as="article"
+                  className="w-[80vw] sm:w-[60vw] md:w-auto"
+                >
+                  <figure className="card flex flex-col p-4 sm:p-5">
+                    <Stars rating={item.rating ?? 5} />
 
-                  <blockquote
-                    className="text-ink mt-3 line-clamp-6 text-sm leading-relaxed"
-                    title={item.quote}
-                  >
-                    “{item.quote}”
-                  </blockquote>
+                    <blockquote
+                      className="text-ink mt-3 line-clamp-6 text-sm leading-relaxed"
+                      title={item.quote}
+                    >
+                      “{item.quote}”
+                    </blockquote>
 
-                  <figcaption className="mt-4 flex items-center gap-3">
-                    {photo ? (
-                      <Image
-                        src={photo}
-                        alt={mediaAlt(item.photo, item.patientName)}
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="bg-brand-soft text-brand grid h-10 w-10 place-items-center rounded-full text-sm font-semibold">
-                        {(item.patientName ?? '?').trim().charAt(0) || '?'}
-                      </span>
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-ink truncate text-sm font-semibold">{item.patientName}</p>
-                      {item.country && (
-                        <p className="text-ink-muted flex items-center gap-1 text-xs">
-                          <Flag code={item.countryCode} />
-                          {item.country}
-                        </p>
+                    <figcaption className="mt-4 flex items-center gap-3">
+                      {photo ? (
+                        <Image
+                          src={photo}
+                          alt={mediaAlt(item.photo, item.patientName)}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="bg-brand-soft text-brand grid h-10 w-10 place-items-center rounded-full text-sm font-semibold">
+                          {(item.patientName ?? '?').trim().charAt(0) || '?'}
+                        </span>
                       )}
-                    </div>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            )
-          })}
-        </div>
-
-        {viewAllHref && (
-          <div className="mt-10 text-center">
-            <ButtonLink href={viewAllHref} variant="outline">
-              {dict.cta.viewAll}
-              <ArrowIcon />
-            </ButtonLink>
+                      <div className="min-w-0">
+                        <p className="text-ink truncate text-sm font-semibold">{item.patientName}</p>
+                        {item.country && (
+                          <p className="text-ink-muted flex items-center gap-1 text-xs">
+                            <Flag code={item.countryCode} />
+                            {item.country}
+                          </p>
+                        )}
+                      </div>
+                    </figcaption>
+                  </figure>
+                </Reveal>
+              )
+            })}
           </div>
-        )}
-      </div>
+
+          {viewAllHref && (
+            <div className="mt-10 text-center">
+              <ButtonLink href={viewAllHref} variant="outline">
+                {dict.cta.viewAll}
+                <ArrowIcon />
+              </ButtonLink>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   )
 }

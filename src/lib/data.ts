@@ -41,7 +41,7 @@ type Row = typeof schema.documents.$inferSelect
 type MediaRow = typeof schema.media.$inferSelect
 
 /** Bump cache keys when the stored shape changes so Vercel does not keep a stale empty snapshot. */
-const CACHE_VERSION = 'cms-v2'
+const CACHE_VERSION = 'cms-v3'
 
 const loadDocuments = unstable_cache(
   async (): Promise<Row[]> =>
@@ -121,40 +121,47 @@ function populate(
 
     switch (field.kind) {
       case 'image':
-        out[name] = toMediaRef(state.media.get(value as number), locale)
+        out[name] =
+          typeof value === 'number' ? toMediaRef(state.media.get(value), locale) : value
         break
       case 'imageList':
-        out[name] = (value as number[])
+        out[name] = asIdList(value)
           .map((id) => toMediaRef(state.media.get(id), locale))
           .filter(Boolean)
         break
       case 'relation':
-        out[name] = depth > 0 ? relatedDoc(value as number, state, locale, depth - 1) : value
+        out[name] =
+          depth > 0 && typeof value === 'number' ? relatedDoc(value, state, locale, depth - 1) : value
         break
       case 'relationList':
         out[name] =
           depth > 0
-            ? (value as number[])
+            ? asIdList(value)
                 .map((id) => relatedDoc(id, state, locale, depth - 1))
                 .filter(Boolean)
             : value
         break
+      case 'objectList':
+        out[name] = Array.isArray(value)
+          ? value.map((item) => populate(field.fields, item as Record<string, unknown>, state, locale, depth))
+          : []
+        break
+      case 'blocks':
+        out[name] = Array.isArray(value)
+          ? value.map((block) => {
+              const raw = block as Record<string, unknown>
+              const definition = field.blocks[raw.type as string]
+              return definition ? populate(definition.fields, raw, state, locale, depth) : raw
+            })
+          : []
+        break
+      case 'list':
+        out[name] = Array.isArray(value) ? populateList(field.of, value, state, locale, depth) : []
+        break
       case 'group':
         out[name] = populate(field.fields, value as Record<string, unknown>, state, locale, depth)
         break
-      case 'objectList':
-        out[name] = (value as Record<string, unknown>[]).map((item) =>
-          populate(field.fields, item, state, locale, depth),
-        )
-        break
-      case 'blocks':
-        out[name] = (value as Record<string, unknown>[]).map((block) => {
-          const definition = field.blocks[block.type as string]
-          return definition ? populate(definition.fields, block, state, locale, depth) : block
-        })
-        break
-      case 'list':
-        out[name] = populateList(field.of, value as unknown[], state, locale, depth)
+      default:
         break
     }
   }
@@ -186,6 +193,23 @@ function relatedDoc(id: number, state: Snapshot, locale: Locale, depth: number) 
   return buildDoc(row, state, locale, depth)
 }
 
+/**
+ * `unstable_cache` JSON-serializes rows, so a Date comes back as a string on
+ * the next hit. Calling `.toISOString()` on that string threw and the home
+ * page swallowed the error as an empty doctors/reviews/gallery list.
+ */
+function isoDate(value: Date | string | null | undefined): string {
+  if (!value) return ''
+  if (value instanceof Date) return value.toISOString()
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toISOString()
+}
+
+function asIdList(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((id): id is number => typeof id === 'number' && Number.isFinite(id))
+}
+
 function buildDoc(row: Row, state: Snapshot, locale: Locale, depth = 1) {
   const definition = collections[row.type as CollectionName]
   if (!definition) return null
@@ -197,7 +221,7 @@ function buildDoc(row: Row, state: Snapshot, locale: Locale, depth = 1) {
     order: row.order,
     featured: row.featured,
     status: row.status,
-    updatedAt: row.updatedAt.toISOString(),
+    updatedAt: isoDate(row.updatedAt),
     ...populate(definition.fields, resolved, state, locale, depth),
   }
 }
@@ -216,7 +240,15 @@ async function list<T>(type: CollectionName, locale: Locale, options: Options = 
   if (options.featured) rows = rows.filter((row) => row.featured)
   if (options.limit) rows = rows.slice(0, options.limit)
 
-  return rows.map((row) => buildDoc(row, state, locale)) as T[]
+  return rows.flatMap((row) => {
+    try {
+      const doc = buildDoc(row, state, locale)
+      return doc ? [doc as T] : []
+    } catch (error) {
+      console.error(`Failed to build ${type} document ${row.id}`, error)
+      return []
+    }
+  })
 }
 
 async function bySlug<T>(type: CollectionName, locale: Locale, slug: string): Promise<T | null> {
@@ -261,7 +293,7 @@ export async function getAllSlugs(type: CollectionName) {
   const state = await snapshot()
   return state.documents
     .filter((row) => row.type === type && row.status === 'published')
-    .map((row) => ({ slug: row.slug, updatedAt: row.updatedAt.toISOString() }))
+    .map((row) => ({ slug: row.slug, updatedAt: isoDate(row.updatedAt) }))
 }
 
 /* -------------------------------------------------------------------------- */

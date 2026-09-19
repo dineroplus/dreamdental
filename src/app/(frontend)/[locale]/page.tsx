@@ -88,7 +88,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       console.error('getCases failed', error)
       return []
     }),
-    getTestimonials(locale, { featured: true }).catch((error) => {
+    getTestimonials(locale).catch((error) => {
       console.error('getTestimonials failed', error)
       return []
     }),
@@ -99,6 +99,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ])
 
   const featuredServices = services.filter((s) => s.featured)
+  const featuredTestimonials = testimonials.filter((t) => t.featured)
+  const homeTestimonials = featuredTestimonials.length > 0 ? featuredTestimonials : testimonials
 
   // The booking form identifies a service by slug, so a renamed or deleted
   // service never orphans an existing enquiry.
@@ -206,7 +208,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       return (
         <TestimonialsSection
           dict={dict}
-          testimonials={testimonials}
+          testimonials={homeTestimonials}
           heading={section?.heading}
           subheading={section?.subheading}
           viewAllHref={localePath(locale, '/cases')}
