@@ -1,0 +1,364 @@
+@import 'tailwindcss';
+
+/*
+ * Colours are declared as CSS variables rather than literal Tailwind values so
+ * the Theme global in /admin can override them at runtime. The values below are
+ * the shipped defaults, taken from the clinic's existing brand.
+ */
+@theme {
+  --color-brand: var(--c-primary, #8b1220);
+  --color-brand-soft: color-mix(in oklab, var(--c-primary, #8b1220) 10%, white);
+  --color-brand-deep: color-mix(in oklab, var(--c-primary, #8b1220) 78%, black);
+  --color-accent: var(--c-accent, #e8534a);
+  --color-accent-soft: color-mix(in oklab, var(--c-accent, #e8534a) 12%, white);
+  --color-gold: var(--c-gold, #c9a227);
+  --color-gold-soft: color-mix(in oklab, var(--c-gold, #c9a227) 14%, white);
+  --color-canvas: var(--c-background, #fdf8ef);
+  --color-surface: var(--c-surface, #ffffff);
+  --color-ink: var(--c-text, #2a1a1c);
+  --color-ink-muted: color-mix(in oklab, var(--c-text, #2a1a1c) 58%, white);
+  --color-ink-faint: color-mix(in oklab, var(--c-text, #2a1a1c) 38%, white);
+  --color-hairline: color-mix(in oklab, var(--c-text, #2a1a1c) 10%, white);
+
+  --font-sans: var(--font-inter), var(--font-georgian), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-georgian), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: var(--r-card, 1.5rem);
+  --radius-pill: 999px;
+
+  /* Layered, slightly warm shadows read as depth rather than as grey haze. */
+  --shadow-soft: 0 1px 2px rgb(60 20 24 / 0.04), 0 10px 30px -14px rgb(60 20 24 / 0.14);
+  --shadow-lift: 0 2px 6px rgb(60 20 24 / 0.05), 0 30px 60px -24px rgb(60 20 24 / 0.26);
+  --shadow-glow: 0 18px 50px -18px color-mix(in oklab, var(--color-accent) 55%, transparent);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-drift: drift 18s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-marquee: marquee 38s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(-12px * var(--motion-scale, 1))); }
+}
+
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(3%, -4%, 0) scale(1.12); }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(200%); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Header logo entrance. */
+@keyframes ddg-in {
+  from { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+  to { opacity: 1; transform: none; }
+}
+
+@layer base {
+  :root {
+    --r-card: 1.5rem;
+    --heading-scale: 1;
+    /* Set to 0 by ThemeStyle when motion is disabled, so every animation that
+       reads it collapses to an instant transition in one place. */
+    --motion-scale: 1;
+  }
+
+  * {
+    border-color: var(--color-hairline);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header offset for in-page anchors. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    line-height: 1.08;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Mkhedruli → Mtavruli (Noto Sans Georgian). Keep tracking tighter than Latin caps. */
+  :lang(ka) .uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Georgian glyphs sit optically smaller than Latin at the same size. */
+  :lang(ka) h1,
+  :lang(ka) h2,
+  :lang(ka) h3 {
+    letter-spacing: -0.01em;
+    line-height: 1.18;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    :root { --motion-scale: 0; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    max-width: 82rem;
+  }
+
+  @media (min-width: 1024px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Section rhythm. Tighter on phones, where 95% of traffic lands. */
+  .section {
+    padding-block: 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .section {
+      padding-block: 7rem;
+    }
+  }
+
+  /* Fluid display sizes. `--heading-scale` is driven by the Theme global. */
+  .display-1 {
+    font-size: calc(clamp(2.4rem, 8.5vw, 5.25rem) * var(--heading-scale, 1));
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+  }
+
+  .display-2 {
+    font-size: calc(clamp(1.9rem, 5vw, 3.25rem) * var(--heading-scale, 1));
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .display-3 {
+    font-size: calc(clamp(1.35rem, 3vw, 1.9rem) * var(--heading-scale, 1));
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--color-hairline);
+  }
+
+  /*
+   * Gradient hairline. A real border can't be a gradient and keep a radius, so
+   * the gradient lives in a padded wrapper layer behind the card surface.
+   */
+  .card-gradient {
+    position: relative;
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      140deg,
+      color-mix(in oklab, var(--color-accent) 42%, transparent),
+      color-mix(in oklab, var(--color-gold) 28%, transparent) 45%,
+      transparent 75%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Frosted panel used by the floating header and overlay chips. */
+  .glass {
+    background: color-mix(in oklab, var(--color-surface) 72%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid color-mix(in oklab, white 55%, transparent);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  /* Pill-shaped label with a soft tinted background. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
+  }
+
+  /* Warm radial wash used behind hero and feature sections. */
+  .mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(52% 44% at 12% 8%, color-mix(in oklab, var(--color-accent) 22%, transparent), transparent 70%),
+      radial-gradient(44% 40% at 88% 14%, color-mix(in oklab, var(--color-gold) 20%, transparent), transparent 70%),
+      radial-gradient(66% 55% at 50% 102%, color-mix(in oklab, var(--color-brand) 12%, transparent), transparent 70%);
+  }
+
+  /* Single large blurred orb. Composited on the GPU, so the drift is cheap. */
+  .orb {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(70px);
+    opacity: 0.5;
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  /* Inverted section used to break up the warm cream rhythm. */
+  .section-dark {
+    position: relative;
+    isolation: isolate;
+    background:
+      radial-gradient(90% 120% at 15% 0%, color-mix(in oklab, var(--color-brand) 88%, black), transparent 60%),
+      linear-gradient(160deg, var(--color-brand-deep), color-mix(in oklab, var(--color-brand) 86%, black));
+    color: white;
+  }
+
+  .section-dark h1,
+  .section-dark h2,
+  .section-dark h3 {
+    color: white;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(115deg, var(--color-brand) 10%, var(--color-accent) 55%, var(--color-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Very fine grain that stops large flat gradients from banding. */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Hides scrollbars on the horizontal card rails used across mobile layouts. */
+  .rail {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-inline: 1.25rem;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail > * {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+
+  /* Lets a rail bleed to both screen edges while its page stays contained. */
+  .bleed {
+    margin-inline: calc(50% - 50vw);
+    padding-inline: calc(50vw - 50% + 1.25rem);
+  }
+
+  @media (min-width: 1024px) {
+    .bleed {
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+  }
+
+  .hover-lift {
+    transition:
+      transform 0.35s var(--ease-out-soft),
+      box-shadow 0.35s var(--ease-out-soft);
+  }
+
+  @media (hover: hover) {
+    .hover-lift:hover {
+      transform: translateY(calc(-6px * var(--motion-scale, 1)));
+      box-shadow: var(--shadow-lift);
+    }
+  }
+
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 82%, transparent);
+    mask-image: linear-gradient(to right, #000 82%, transparent);
+  }
+}

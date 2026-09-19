@@ -1,0 +1,57 @@
+{
+  "name": "dreamtbilisi",
+  "version": "1.0.0",
+  "description": "Dream Dental Group — Tbilisi dental clinic website",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "seed": "node --env-file=.env --no-deprecation --import=tsx/esm src/seed/run.ts",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "^3.89.0",
+    "@payloadcms/db-sqlite": "3.89.0",
+    "@payloadcms/next": "3.89.0",
+    "@payloadcms/plugin-seo": "3.89.0",
+    "@payloadcms/richtext-lexical": "3.89.0",
+    "@payloadcms/storage-s3": "3.89.0",
+    "@payloadcms/ui": "3.89.0",
+    "cross-env": "10.1.0",
+    "graphql": "^16.8.1",
+    "motion": "13.4.0",
+    "next": "16.3.5",
+    "payload": "3.89.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "0.35.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.12.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "16.3.5",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.22.4",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "allowScripts": {
+    "esbuild@0.18.20": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.12.2": true,
+    "bufferutil@4.1.0": true
+  }
+}
