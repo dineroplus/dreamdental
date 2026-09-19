@@ -1,6 +1,6 @@
 'use server'
 
-import { and, eq } from 'drizzle-orm'
+import { and, asc, eq } from 'drizzle-orm'
 import { revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -9,6 +9,7 @@ import { collections, singletons, type CollectionName, type SingletonName } from
 import { emptyShape, zodForMap } from '../content/fields'
 import { CONTENT_TAG } from '../lib/data'
 import { login, logout, requireUser } from './auth'
+import { slugFromTitle, titleFromStored } from './slug'
 
 /**
  * Next 16 wants a cacheLife profile on `revalidateTag`. `max` marks the tag
@@ -40,6 +41,35 @@ const metaSchema = z.object({
 
 export type DocumentMeta = z.infer<typeof metaSchema>
 
+async function uniqueSlug(type: CollectionName, desired: string, ignoreId: number | null) {
+  const base = desired || `item-${Date.now().toString(36)}`
+  let slug = base
+  let n = 2
+  for (;;) {
+    const rows = await db()
+      .select({ id: schema.documents.id })
+      .from(schema.documents)
+      .where(and(eq(schema.documents.type, type), eq(schema.documents.slug, slug)))
+      .limit(1)
+    if (!rows[0] || rows[0].id === ignoreId) return slug
+    slug = `${base}-${n}`
+    n += 1
+  }
+}
+
+function stripEmpty(value: unknown): unknown {
+  if (value === '') return undefined
+  if (Array.isArray(value)) return value.map(stripEmpty)
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      out[key] = stripEmpty(entry)
+    }
+    return out
+  }
+  return value
+}
+
 export async function saveDocument(
   type: CollectionName,
   id: number | null,
@@ -50,15 +80,31 @@ export async function saveDocument(
   const definition = collections[type]
   if (!definition) throw new Error('unknown collection')
 
-  const parsed = zodForMap(definition.fields).parse(data) as Record<string, unknown>
+  let parsed: Record<string, unknown>
+  try {
+    parsed = zodForMap(definition.fields).parse(stripEmpty(data)) as Record<string, unknown>
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error('შეავსე აუცილებელი ველები')
+    }
+    throw error
+  }
   const safeMeta = metaSchema.parse(meta)
   const now = new Date()
+
+  const title = titleFromStored(parsed[definition.titleKey])
+  const slugNeedsFill = !safeMeta.slug || safeMeta.slug.startsWith('new-')
+  const slug = await uniqueSlug(
+    type,
+    slugNeedsFill ? slugFromTitle(title) : safeMeta.slug,
+    id,
+  )
 
   if (id) {
     await db()
       .update(schema.documents)
       .set({
-        slug: safeMeta.slug,
+        slug,
         order: safeMeta.order,
         featured: safeMeta.featured,
         status: safeMeta.status,
@@ -83,7 +129,7 @@ export async function saveDocument(
     .insert(schema.documents)
     .values({
       type,
-      slug: safeMeta.slug,
+      slug,
       order: safeMeta.order,
       featured: safeMeta.featured,
       status: safeMeta.status,
@@ -117,7 +163,15 @@ export async function saveSingleton(key: SingletonName, data: Record<string, unk
   const definition = singletons[key]
   if (!definition) throw new Error('unknown singleton')
 
-  const parsed = zodForMap(definition.fields).parse(data) as Record<string, unknown>
+  let parsed: Record<string, unknown>
+  try {
+    parsed = zodForMap(definition.fields).parse(stripEmpty(data)) as Record<string, unknown>
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error('შეავსე აუცილებელი ველები')
+    }
+    throw error
+  }
   const now = new Date()
 
   await db()
@@ -174,4 +228,29 @@ export async function newDocumentDefaults(type: CollectionName) {
       status: 'draft' as const,
     },
   }
+}
+
+export type RelationOption = { id: number; title: string }
+
+export async function listRelated(type: CollectionName): Promise<RelationOption[]> {
+  await requireUser()
+  const definition = collections[type]
+  const rows = await db()
+    .select({
+      id: schema.documents.id,
+      data: schema.documents.data,
+      slug: schema.documents.slug,
+      status: schema.documents.status,
+    })
+    .from(schema.documents)
+    .where(eq(schema.documents.type, type))
+    .orderBy(asc(schema.documents.order), asc(schema.documents.id))
+
+  return rows.map((row) => ({
+    id: row.id,
+    title:
+      titleFromStored((row.data as Record<string, unknown>)[definition.titleKey]) ||
+      row.slug ||
+      `#${row.id}`,
+  }))
 }

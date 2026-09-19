@@ -94,8 +94,9 @@ const faqField = {
 
 const seoField = {
   kind: 'group',
-  label: 'SEO',
-  hint: 'განსაზღვრავს, რას აჩვენებს Google და სოციალური ქსელები. ცარიელი დატოვე ავტომატურისთვის.',
+  label: 'Google / SEO',
+  advanced: true,
+  hint: 'ცარიელი დატოვე — საიტი სათაურს და აღწერას თავად აიღებს.',
   fields: {
     title: { kind: 'text', label: 'სათაური', localized: true, hint: '50–60 სიმბოლო.' },
     description: { kind: 'textarea', label: 'აღწერა', localized: true, hint: '140–160 სიმბოლო.' },
@@ -126,9 +127,8 @@ const serviceFields = {
   },
   body: {
     kind: 'markdown',
-    label: 'ძირითადი ტექსტი',
+    label: 'აღწერა',
     localized: true,
-    hint: 'გრძელი, სასარგებლო ტექსტი უკეთ რანჟირდება — მიზანი 600+ სიტყვა თითო ენაზე.',
   },
   highlights: {
     kind: 'objectList',
@@ -235,11 +235,23 @@ const testimonialFields = {
   },
   country: { kind: 'text', label: 'ქვეყანა', localized: true, hint: 'მაგ.: ისრაელი.' },
   countryCode: {
-    kind: 'text',
-    label: 'ქვეყნის კოდი',
-    maxLength: 2,
+    kind: 'select',
+    label: 'დროშა',
     sidebar: true,
-    hint: 'ორასოიანი ISO კოდი დროშისთვის: IL, DE, ES, GE.',
+    options: [
+      { value: 'GE', label: 'საქართველო' },
+      { value: 'IL', label: 'ისრაელი' },
+      { value: 'DE', label: 'გერმანია' },
+      { value: 'RU', label: 'რუსეთი' },
+      { value: 'TR', label: 'თურქეთი' },
+      { value: 'UA', label: 'უკრაინა' },
+      { value: 'US', label: 'აშშ' },
+      { value: 'BR', label: 'ბრაზილია' },
+      { value: 'GB', label: 'დიდი ბრიტანეთი' },
+      { value: 'AE', label: 'არაბეთი' },
+      { value: 'KZ', label: 'ყაზახეთი' },
+      { value: 'ES', label: 'ესპანეთი' },
+    ],
   },
   rating: { kind: 'number', label: 'შეფასება', min: 1, max: 5, sidebar: true },
   treatment: { kind: 'relation', label: 'მკურნალობა', to: 'services', sidebar: true },
@@ -334,7 +346,7 @@ const pageFields = {
   heroImage: { kind: 'image', label: 'მთავარი სურათი' },
   layout: { kind: 'blocks', label: 'გვერდის შიგთავსი', blocks: pageBlocks },
   faq: faqField,
-  showInSitemap: { kind: 'boolean', label: 'sitemap-ში ჩვენება', sidebar: true },
+  showInSitemap: { kind: 'boolean', label: 'sitemap-ში ჩვენება', sidebar: true, advanced: true },
   seo: seoField,
 } as const satisfies FieldMap
 
@@ -523,8 +535,8 @@ const settingsFields = {
       email: { kind: 'text', label: 'ელფოსტა' },
       addressLine: { kind: 'text', label: 'მისამართი', localized: true },
       city: { kind: 'text', label: 'ქალაქი', localized: true },
-      latitude: { kind: 'number', label: 'განედი' },
-      longitude: { kind: 'number', label: 'გრძედი' },
+      latitude: { kind: 'number', label: 'განედი', advanced: true },
+      longitude: { kind: 'number', label: 'გრძედი', advanced: true },
       mapUrl: { kind: 'url', label: 'Google Maps ბმული' },
     },
   },
@@ -584,6 +596,7 @@ const settingsFields = {
   analytics: {
     kind: 'group',
     label: 'ანალიტიკა',
+    advanced: true,
     fields: {
       googleAnalyticsId: { kind: 'text', label: 'Google Analytics ID', hint: 'მაგ.: G-XXXXXXXXXX' },
       googleSiteVerification: { kind: 'text', label: 'Google Search Console' },

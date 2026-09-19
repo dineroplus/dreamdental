@@ -5,6 +5,14 @@ import { defaultLocale } from './src/i18n/config'
 const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
+    localPatterns: [
+      { pathname: '/images/**' },
+      { pathname: '/media/**' },
+      { pathname: '/uploads/**' },
+      { pathname: '/team/**' },
+      { pathname: '/brand/**' },
+      { pathname: '/api/media/**' },
+    ],
     remotePatterns: [
       { protocol: 'http', hostname: 'localhost' },
       { protocol: 'http', hostname: '127.0.0.1' },
@@ -12,6 +20,12 @@ const nextConfig: NextConfig = {
         ? [{ protocol: 'https' as const, hostname: new URL(process.env.NEXT_PUBLIC_S3_PUBLIC_URL).hostname }]
         : []),
     ],
+  },
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '8mb',
+    },
   },
 
   async redirects() {

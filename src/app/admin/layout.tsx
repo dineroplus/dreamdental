@@ -14,7 +14,7 @@ const georgian = Noto_Sans_Georgian({
 })
 
 export const metadata = {
-  title: 'Dream Studio',
+  title: 'კლინიკის პანელი',
   robots: { index: false, follow: false },
 }
 

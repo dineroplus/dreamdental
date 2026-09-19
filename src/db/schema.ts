@@ -80,6 +80,11 @@ export const media = cms.table(
     width: integer('width'),
     height: integer('height'),
     filesize: integer('filesize'),
+    /**
+     * Base64 file body. Vercel’s filesystem is ephemeral, so clinic uploads
+     * live in Postgres and are served from `/api/media/file/[id]`.
+     */
+    blob: text('blob'),
     /** Resized variants keyed by name: thumb, card, wide, hero. */
     sizes: jsonb('sizes').$type<Record<string, MediaSize>>().notNull().default({}),
     alt: jsonb('alt').$type<Localized<string>>().notNull().default({}),

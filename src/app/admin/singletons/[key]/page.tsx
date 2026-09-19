@@ -29,7 +29,7 @@ export default async function SingletonEditPage({
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">{definition.label}</h1>
-          <p className="text-ink-muted mt-1 text-sm">ერთი ჩანაწერი მთელი საიტისთვის.</p>
+          <p className="text-ink-muted mt-1 text-sm">ეს ტექსტები საიტზე ყველგან ჩანს.</p>
         </div>
         <SingletonEditor singletonKey={key} fields={definition.fields} initialData={data} />
       </div>

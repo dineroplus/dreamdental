@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { asc, eq } from 'drizzle-orm'
+import { asc, eq, inArray } from 'drizzle-orm'
 import { requireUser } from '../../../admin/auth'
 import { StudioShell } from '../../../components/studio/StudioShell'
 import { collections, type CollectionName } from '../../../content/schema'
@@ -16,9 +16,17 @@ function titleOf(row: typeof schema.documents.$inferSelect, titleKey: string): s
   const raw = (row.data as Record<string, unknown>)[titleKey]
   if (typeof raw === 'string') return raw
   if (raw && typeof raw === 'object') {
-    return text(raw as Parameters<typeof text>[0], defaultLocale) || row.slug
+    return text(raw as Parameters<typeof text>[0], defaultLocale) || 'უსათაურო'
   }
-  return row.slug
+  return 'უსათაურო'
+}
+
+function thumbId(data: Record<string, unknown>): number | null {
+  for (const key of ['photo', 'image', 'coverImage', 'heroImage', 'beforeImage']) {
+    const value = data[key]
+    if (typeof value === 'number') return value
+  }
+  return null
 }
 
 export default async function CollectionListPage({
@@ -37,6 +45,20 @@ export default async function CollectionListPage({
     .where(eq(schema.documents.type, collection))
     .orderBy(asc(schema.documents.order), asc(schema.documents.id))
 
+  const mediaIds = rows
+    .map((row) => thumbId((row.data ?? {}) as Record<string, unknown>))
+    .filter((id): id is number => id != null)
+
+  const uniqueIds = [...new Set(mediaIds)]
+  const mediaRows =
+    uniqueIds.length > 0
+      ? await db()
+          .select({ id: schema.media.id, url: schema.media.url })
+          .from(schema.media)
+          .where(inArray(schema.media.id, uniqueIds))
+      : []
+  const mediaMap = new Map(mediaRows.map((row) => [row.id, row.url]))
+
   return (
     <StudioShell user={user}>
       <div className="space-y-6">
@@ -53,30 +75,40 @@ export default async function CollectionListPage({
           </Link>
         </div>
 
-        <div className="border-hairline overflow-hidden rounded-2xl border">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-brand-soft/40 text-ink-muted text-xs uppercase">
-              <tr>
-                <th className="px-4 py-3 font-medium">სათაური</th>
-                <th className="px-4 py-3 font-medium">სტატუსი</th>
-                <th className="px-4 py-3 font-medium">რიგი</th>
-              </tr>
-            </thead>
-            <tbody className="divide-hairline divide-y">
-              {rows.map((row) => (
-                <tr key={row.id} className="hover:bg-brand-soft/20">
-                  <td className="px-4 py-3">
-                    <Link href={`/admin/${collection}/${row.id}`} className="font-medium">
-                      {titleOf(row, definition.titleKey)}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-xs uppercase">{row.status}</td>
-                  <td className="px-4 py-3">{row.order}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {rows.length === 0 ? (
+          <p className="text-ink-muted text-sm">ჯერ არაფერია. დაამატე პირველი {definition.singular}.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {rows.map((row) => {
+              const data = (row.data ?? {}) as Record<string, unknown>
+              const image = mediaMap.get(thumbId(data) ?? -1)
+              return (
+                <Link
+                  key={row.id}
+                  href={`/admin/${collection}/${row.id}`}
+                  className="border-hairline hover:border-brand flex gap-3 overflow-hidden rounded-2xl border bg-surface p-3 transition"
+                >
+                  <div className="bg-brand-soft h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+                    {image ? (
+                      <img src={image} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="text-brand/40 grid h-full place-items-center text-lg font-semibold">
+                        {titleOf(row, definition.titleKey).charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 py-1">
+                    <p className="truncate font-medium">{titleOf(row, definition.titleKey)}</p>
+                    <p className="text-ink-muted mt-1 text-xs">
+                      {row.status === 'published' ? 'საიტზე ჩანს' : 'დამალულია'}
+                      {row.featured ? ' · მთავარზე' : ''}
+                    </p>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </div>
     </StudioShell>
   )

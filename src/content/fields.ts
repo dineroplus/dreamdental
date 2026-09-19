@@ -20,6 +20,8 @@ type Base = {
   required?: boolean
   /** Renders in the narrow side column instead of the main form. */
   sidebar?: boolean
+  /** Folded under “დამატებით” so clinic staff are not asked for SEO/IDs first. */
+  advanced?: boolean
 }
 
 export type Field =

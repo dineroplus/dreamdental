@@ -79,7 +79,6 @@ export default async function DocumentEditPage({
           fields={definition.fields}
           initialData={data}
           initialMeta={meta}
-          showSlug={definition.slug}
           showOrder={definition.ordered}
           showFeatured={definition.featurable}
           singular={definition.singular}

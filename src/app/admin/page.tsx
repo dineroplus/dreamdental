@@ -1,58 +1,56 @@
 import Link from 'next/link'
+import { count, eq } from 'drizzle-orm'
 import { requireUser } from '../../admin/auth'
 import { StudioShell } from '../../components/studio/StudioShell'
-import { collections, singletons } from '../../content/schema'
+import { db, schema } from '../../db/client'
+
+const TILES = [
+  { href: '/admin/bookings', title: 'ჯავშნები', text: 'ახალი მოთხოვნები ფორმიდან' },
+  { href: '/admin/doctors', title: 'ექიმები', text: 'ფოტოები, სპეციალობა, ბიოგრაფია' },
+  { href: '/admin/services', title: 'სერვისები', text: 'ფასები და აღწერები' },
+  { href: '/admin/gallery', title: 'გალერეა', text: 'კლინიკის სურათები' },
+  { href: '/admin/testimonials', title: 'შეფასებები', text: 'პაციენტების გამოხმაურება' },
+  { href: '/admin/cases', title: 'მდე / შემდეგ', text: 'მკურნალობის ფოტოები' },
+  { href: '/admin/singletons/home', title: 'მთავარი გვერდი', text: 'სათაური და სექციები' },
+  { href: '/admin/singletons/settings', title: 'კლინიკის მონაცემები', text: 'ტელეფონი, მისამართი, საათები' },
+]
 
 export default async function StudioDashboardPage() {
   const user = await requireUser()
+  const [{ value: newBookings }] = await db()
+    .select({ value: count() })
+    .from(schema.bookings)
+    .where(eq(schema.bookings.status, 'new'))
 
   return (
     <StudioShell user={user}>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">მთავარი</h1>
-          <p className="text-ink-muted mt-2 text-sm">
-            აირჩიე კოლექცია ან გლობალური გვერდი რედაქტირებისთვის.
-          </p>
+          <h1 className="text-3xl font-semibold tracking-tight">გამარჯობა</h1>
+          <p className="text-ink-muted mt-2 text-sm">აირჩიე, რისი შეცვლა გინდა საიტზე.</p>
         </div>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">კონტენტი</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(collections).map(([key, definition]) => (
-              <Link
-                key={key}
-                href={`/admin/${key}`}
-                className="border-hairline hover:border-brand rounded-2xl border bg-surface px-4 py-4 transition"
-              >
-                <p className="font-medium">{definition.label}</p>
-                <p className="text-ink-muted mt-1 text-xs">{definition.singular}</p>
-              </Link>
-            ))}
-            <Link
-              href="/admin/bookings"
-              className="border-hairline hover:border-brand rounded-2xl border bg-surface px-4 py-4 transition"
-            >
-              <p className="font-medium">ჯავშნები</p>
-              <p className="text-ink-muted mt-1 text-xs">ახალი მოთხოვნები ფორმიდან</p>
-            </Link>
-          </div>
-        </section>
+        {Number(newBookings) > 0 ? (
+          <Link
+            href="/admin/bookings"
+            className="bg-brand-soft text-brand block rounded-2xl px-5 py-4 text-sm font-medium"
+          >
+            {Number(newBookings)} ახალი ჯავშანი — ნახვა
+          </Link>
+        ) : null}
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">გლობალური</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(singletons).map(([key, definition]) => (
-              <Link
-                key={key}
-                href={`/admin/singletons/${key}`}
-                className="border-hairline hover:border-brand rounded-2xl border bg-surface px-4 py-4 transition"
-              >
-                <p className="font-medium">{definition.label}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {TILES.map((tile) => (
+            <Link
+              key={tile.href}
+              href={tile.href}
+              className="border-hairline hover:border-brand rounded-2xl border bg-surface px-5 py-5 transition"
+            >
+              <p className="text-base font-semibold">{tile.title}</p>
+              <p className="text-ink-muted mt-1 text-sm">{tile.text}</p>
+            </Link>
+          ))}
+        </div>
       </div>
     </StudioShell>
   )

@@ -1,38 +1,42 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 import { locales, type Locale } from '../../i18n/config'
 import { emptyShape, emptyValue, type Field, type FieldMap } from '../../content/fields'
+import { ImagePicker } from './ImagePicker'
+import { RelationPicker } from './RelationPicker'
 
 const LOCALE_LABEL: Record<Locale, string> = {
-  ka: 'ქარ',
-  en: 'EN',
-  ru: 'RU',
+  ka: 'ქართული',
+  en: 'English',
+  ru: 'Русский',
 }
 
 const INPUT =
-  'w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-accent'
+  'w-full rounded-xl border border-hairline bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand'
+
+const LocaleCtx = createContext<Locale>('ka')
 
 type Props = {
   fields: FieldMap
   value: Record<string, unknown>
   onChange: (next: Record<string, unknown>) => void
+  embedded?: boolean
 }
 
-export function FieldRenderer({ fields, value, onChange }: Props) {
+export function FieldRenderer({ fields, value, onChange, embedded = false }: Props) {
   const [locale, setLocale] = useState<Locale>('ka')
-  const entries = useMemo(() => Object.entries(fields), [fields])
-  const main = entries.filter(([, field]) => !field.sidebar)
-  const side = entries.filter(([, field]) => field.sidebar)
 
-  const setField = (name: string, next: unknown) => {
-    onChange({ ...value, [name]: next })
-  }
+  const body = (
+    <FieldSet fields={fields} value={value} onChange={onChange} />
+  )
+
+  if (embedded) return body
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="space-y-5">
-        <div className="flex gap-2">
+    <LocaleCtx.Provider value={locale}>
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center gap-2">
           {locales.map((code) => (
             <button
               key={code}
@@ -40,41 +44,80 @@ export function FieldRenderer({ fields, value, onChange }: Props) {
               onClick={() => setLocale(code)}
               className={
                 locale === code
-                  ? 'bg-brand rounded-full px-3 py-1 text-xs font-semibold text-white'
-                  : 'bg-brand-soft text-brand rounded-full px-3 py-1 text-xs font-semibold'
+                  ? 'bg-brand rounded-full px-3.5 py-1.5 text-xs font-semibold text-white'
+                  : 'bg-brand-soft text-brand rounded-full px-3.5 py-1.5 text-xs font-semibold'
               }
             >
               {LOCALE_LABEL[code]}
             </button>
           ))}
+          <p className="text-ink-muted text-xs">ჯერ ქართული შეავსე. სხვა ენები სურვილისამებრ.</p>
         </div>
+        {body}
+      </div>
+    </LocaleCtx.Provider>
+  )
+}
 
+function FieldSet({
+  fields,
+  value,
+  onChange,
+}: {
+  fields: FieldMap
+  value: Record<string, unknown>
+  onChange: (next: Record<string, unknown>) => void
+}) {
+  const entries = useMemo(() => Object.entries(fields), [fields])
+  const setField = (name: string, next: unknown) => onChange({ ...value, [name]: next })
+
+  const main = entries.filter(([, field]) => !field.sidebar && !field.advanced)
+  const side = entries.filter(([, field]) => field.sidebar && !field.advanced)
+  const extra = entries.filter(([, field]) => field.advanced)
+
+  return (
+    <div className={side.length > 0 ? 'grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]' : ''}>
+      <div className="space-y-5">
         {main.map(([name, field]) => (
           <FieldControl
             key={name}
             name={name}
             field={field}
-            locale={locale}
             value={value[name]}
             onChange={(next) => setField(name, next)}
           />
         ))}
+        {extra.length > 0 ? (
+          <details className="border-hairline rounded-2xl border bg-surface px-4 py-3">
+            <summary className="text-ink-muted cursor-pointer text-sm font-medium">დამატებით</summary>
+            <div className="mt-4 space-y-5">
+              {extra.map(([name, field]) => (
+                <FieldControl
+                  key={name}
+                  name={name}
+                  field={field}
+                  value={value[name]}
+                  onChange={(next) => setField(name, next)}
+                />
+              ))}
+            </div>
+          </details>
+        ) : null}
       </div>
 
-      {side.length > 0 && (
+      {side.length > 0 ? (
         <aside className="space-y-5">
           {side.map(([name, field]) => (
             <FieldControl
               key={name}
               name={name}
               field={field}
-              locale={locale}
               value={value[name]}
               onChange={(next) => setField(name, next)}
             />
           ))}
         </aside>
-      )}
+      ) : null}
     </div>
   )
 }
@@ -82,48 +125,45 @@ export function FieldRenderer({ fields, value, onChange }: Props) {
 function FieldControl({
   name,
   field,
-  locale,
   value,
   onChange,
 }: {
   name: string
   field: Field
-  locale: Locale
   value: unknown
   onChange: (next: unknown) => void
 }) {
   return (
-    <label className="block space-y-1.5">
+    <div className="block space-y-1.5">
       <span className="text-ink text-sm font-medium">
         {field.label}
         {field.required ? <span className="text-brand"> *</span> : null}
       </span>
       {field.hint ? <span className="text-ink-muted block text-xs">{field.hint}</span> : null}
-      <FieldInput field={field} locale={locale} value={value} onChange={onChange} name={name} />
-    </label>
+      <FieldInput field={field} value={value} onChange={onChange} name={name} />
+    </div>
   )
 }
 
 function FieldInput({
   field,
-  locale,
   value,
   onChange,
   name,
 }: {
   field: Field
-  locale: Locale
   value: unknown
   onChange: (next: unknown) => void
   name: string
 }) {
+  const locale = useContext(LocaleCtx)
+
   if (field.localized) {
     const map = (value as Record<string, unknown> | undefined) ?? {}
     const setLocaleValue = (next: unknown) => onChange({ ...map, [locale]: next })
     return (
       <FieldInput
         field={{ ...field, localized: false }}
-        locale={locale}
         value={map[locale]}
         onChange={setLocaleValue}
         name={name}
@@ -137,7 +177,7 @@ function FieldInput({
       return (
         <textarea
           className={INPUT}
-          rows={field.kind === 'markdown' ? 12 : field.rows ?? 4}
+          rows={field.kind === 'markdown' ? 8 : field.rows ?? 4}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value)}
         />
@@ -155,19 +195,22 @@ function FieldInput({
       )
     case 'boolean':
       return (
-        <input
-          type="checkbox"
-          checked={Boolean(value)}
-          onChange={(event) => onChange(event.target.checked)}
-          className="h-4 w-4 accent-[var(--c-primary)]"
-        />
+        <label className="flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            checked={Boolean(value)}
+            onChange={(event) => onChange(event.target.checked)}
+            className="h-4 w-4 accent-[var(--c-primary)]"
+          />
+          <span className="text-ink-muted">{value ? 'ჩართული' : 'გამორთული'}</span>
+        </label>
       )
     case 'select':
       return (
         <select
           className={INPUT}
           value={typeof value === 'string' ? value : ''}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(event) => onChange(event.target.value || undefined)}
         >
           <option value="">—</option>
           {field.options.map((option) => (
@@ -188,8 +231,8 @@ function FieldInput({
                 type="button"
                 className={
                   selected
-                    ? 'bg-brand rounded-full px-3 py-1 text-xs text-white'
-                    : 'border-hairline rounded-full border px-3 py-1 text-xs'
+                    ? 'bg-brand rounded-full px-3 py-1.5 text-xs text-white'
+                    : 'border-hairline rounded-full border px-3 py-1.5 text-xs'
                 }
                 onClick={() => {
                   const current = Array.isArray(value) ? [...value] : []
@@ -225,40 +268,18 @@ function FieldInput({
         />
       )
     case 'image':
-    case 'relation':
-      return (
-        <input
-          type="number"
-          className={INPUT}
-          placeholder="ID"
-          value={typeof value === 'number' ? value : ''}
-          onChange={(event) =>
-            onChange(event.target.value === '' ? undefined : Number(event.target.value))
-          }
-        />
-      )
+      return <ImagePicker value={value} onChange={onChange} />
     case 'imageList':
+      return <ImagePicker value={value} onChange={onChange} multiple />
+    case 'relation':
+      return <RelationPicker to={field.to} value={value} onChange={onChange} />
     case 'relationList':
-      return (
-        <input
-          className={INPUT}
-          placeholder="1, 2, 3"
-          value={Array.isArray(value) ? value.join(', ') : ''}
-          onChange={(event) => {
-            const ids = event.target.value
-              .split(',')
-              .map((part) => Number(part.trim()))
-              .filter((id) => Number.isFinite(id) && id > 0)
-            onChange(ids)
-          }}
-        />
-      )
+      return <RelationPicker to={field.to} value={value} onChange={onChange} multiple />
     case 'list':
       return (
         <ListEditor
           field={field}
           value={Array.isArray(value) ? value : []}
-          locale={locale}
           onChange={onChange}
         />
       )
@@ -267,14 +288,13 @@ function FieldInput({
         <ObjectListEditor
           field={field}
           value={Array.isArray(value) ? (value as Record<string, unknown>[]) : []}
-          locale={locale}
           onChange={onChange}
         />
       )
     case 'group':
       return (
         <div className="border-hairline space-y-3 rounded-2xl border p-4">
-          <FieldRenderer
+          <FieldSet
             fields={field.fields}
             value={(value as Record<string, unknown>) ?? {}}
             onChange={onChange}
@@ -283,9 +303,11 @@ function FieldInput({
       )
     case 'blocks':
       return (
-        <p className="text-ink-muted text-xs">
-          ბლოკების რედაქტორი მალე დაემატება. ახლა კონტენტი DB-ში უკვე შენახულია.
-        </p>
+        <BlocksEditor
+          field={field}
+          value={Array.isArray(value) ? (value as Record<string, unknown>[]) : []}
+          onChange={onChange}
+        />
       )
     default:
       return (
@@ -301,12 +323,10 @@ function FieldInput({
 function ListEditor({
   field,
   value,
-  locale,
   onChange,
 }: {
   field: Extract<Field, { kind: 'list' }>
   value: unknown[]
-  locale: Locale
   onChange: (next: unknown) => void
 }) {
   return (
@@ -316,7 +336,6 @@ function ListEditor({
           <div className="min-w-0 flex-1">
             <FieldInput
               field={field.of}
-              locale={locale}
               value={item}
               onChange={(next) => {
                 const copy = [...value]
@@ -346,15 +365,24 @@ function ListEditor({
   )
 }
 
+function itemTitle(item: Record<string, unknown>, titleKey?: string) {
+  if (!titleKey) return ''
+  const raw = item[titleKey]
+  if (typeof raw === 'string') return raw
+  if (raw && typeof raw === 'object') {
+    const map = raw as Record<string, unknown>
+    return String(map.ka || map.en || map.ru || '')
+  }
+  return ''
+}
+
 function ObjectListEditor({
   field,
   value,
-  locale,
   onChange,
 }: {
   field: Extract<Field, { kind: 'objectList' }>
   value: Record<string, unknown>[]
-  locale: Locale
   onChange: (next: unknown) => void
 }) {
   return (
@@ -362,7 +390,9 @@ function ObjectListEditor({
       {value.map((item, index) => (
         <div key={index} className="border-hairline space-y-3 rounded-2xl border p-4">
           <div className="flex items-center justify-between">
-            <span className="text-ink-muted text-xs">#{index + 1}</span>
+            <span className="text-ink text-sm font-medium">
+              {itemTitle(item, field.titleKey) || `ჩანაწერი ${index + 1}`}
+            </span>
             <button
               type="button"
               className="text-ink-muted text-xs"
@@ -376,7 +406,6 @@ function ObjectListEditor({
               key={key}
               name={key}
               field={child}
-              locale={locale}
               value={item[key]}
               onChange={(next) => {
                 const copy = [...value]
@@ -401,12 +430,10 @@ function ObjectListEditor({
 function BlocksEditor({
   field,
   value,
-  locale,
   onChange,
 }: {
   field: Extract<Field, { kind: 'blocks' }>
   value: Record<string, unknown>[]
-  locale: Locale
   onChange: (next: unknown) => void
 }) {
   const blockTypes = Object.entries(field.blocks)
@@ -454,7 +481,6 @@ function BlocksEditor({
                     key={key}
                     name={key}
                     field={child}
-                    locale={locale}
                     value={block[key]}
                     onChange={(next) => {
                       const copy = [...value]
@@ -472,12 +498,9 @@ function BlocksEditor({
           <button
             key={key}
             type="button"
-            className="text-accent text-xs font-semibold"
+            className="border-hairline rounded-full border px-3 py-1.5 text-xs font-semibold"
             onClick={() =>
-              onChange([
-                ...value,
-                { type: key, id: crypto.randomUUID(), ...emptyShape(def.fields) },
-              ])
+              onChange([...value, { type: key, id: crypto.randomUUID(), ...emptyShape(def.fields) }])
             }
           >
             + {def.label}

@@ -10,11 +10,11 @@ export function LoginForm() {
   )
 
   return (
-    <form action={action} className="card w-full max-w-md space-y-4 p-8">
+    <form action={action} className="card w-full max-w-md space-y-5 p-8">
       <div>
-        <p className="text-brand text-xs font-semibold tracking-wide uppercase">Dream Studio</p>
-        <h1 className="text-ink mt-2 text-2xl font-semibold">შესვლა</h1>
-        <p className="text-ink-muted mt-1 text-sm">კონტენტის მართვა კლინიკის გუნდისთვის.</p>
+        <p className="text-brand text-xs font-semibold tracking-[0.18em] uppercase">Dream</p>
+        <h1 className="text-ink mt-2 text-2xl font-semibold">კლინიკის პანელი</h1>
+        <p className="text-ink-muted mt-1 text-sm">შეიყვანე იმეილი და პაროლი.</p>
       </div>
 
       {state?.error ? (

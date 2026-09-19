@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
-import { asc, eq } from 'drizzle-orm'
+import { asc } from 'drizzle-orm'
 import { db, schema } from '../db/client'
 import { collections, singletons, type CollectionName, type SingletonName } from '../content/schema'
 import type {
@@ -38,10 +38,10 @@ const REVALIDATE_SECONDS = 300
 /* -------------------------------------------------------------------------- */
 
 type Row = typeof schema.documents.$inferSelect
-type MediaRow = typeof schema.media.$inferSelect
+type MediaRow = Omit<typeof schema.media.$inferSelect, 'blob'>
 
 /** Bump cache keys when the stored shape changes so Vercel does not keep a stale empty snapshot. */
-const CACHE_VERSION = 'cms-v3'
+const CACHE_VERSION = 'cms-v4'
 
 const loadDocuments = unstable_cache(
   async (): Promise<Row[]> =>
@@ -56,10 +56,30 @@ const loadSingletons = unstable_cache(
   { tags: [CONTENT_TAG], revalidate: REVALIDATE_SECONDS },
 )
 
-const loadMedia = unstable_cache(async (): Promise<MediaRow[]> => db().select().from(schema.media), [CACHE_VERSION, 'media'], {
-  tags: [CONTENT_TAG],
-  revalidate: REVALIDATE_SECONDS,
-})
+const loadMedia = unstable_cache(
+  async (): Promise<MediaRow[]> =>
+    db()
+      .select({
+        id: schema.media.id,
+        filename: schema.media.filename,
+        url: schema.media.url,
+        mimeType: schema.media.mimeType,
+        width: schema.media.width,
+        height: schema.media.height,
+        filesize: schema.media.filesize,
+        sizes: schema.media.sizes,
+        alt: schema.media.alt,
+        caption: schema.media.caption,
+        credit: schema.media.credit,
+        createdAt: schema.media.createdAt,
+      })
+      .from(schema.media),
+  [CACHE_VERSION, 'media'],
+  {
+    tags: [CONTENT_TAG],
+    revalidate: REVALIDATE_SECONDS,
+  },
+)
 
 /**
  * The whole content set is a few hundred rows, so it is loaded once per

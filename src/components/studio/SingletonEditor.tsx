@@ -22,12 +22,17 @@ export function SingletonEditor({
   const [pending, startTransition] = useTransition()
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
+    <div className="space-y-6 pb-24">
+      {error ? <p className="rounded-xl bg-accent-soft px-3 py-2 text-sm text-accent">{error}</p> : null}
+      {message ? <p className="text-brand text-sm">{message}</p> : null}
+
+      <FieldRenderer fields={fields} value={data} onChange={setData} />
+
+      <div className="border-hairline bg-canvas/95 sticky bottom-4 z-10 flex justify-end rounded-full border p-2 shadow-soft backdrop-blur">
         <button
           type="button"
           disabled={pending}
-          className="bg-brand rounded-full px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="bg-brand rounded-full px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           onClick={() => {
             setError(null)
             setMessage(null)
@@ -45,11 +50,6 @@ export function SingletonEditor({
           {pending ? 'ინახება…' : 'შენახვა'}
         </button>
       </div>
-
-      {error ? <p className="rounded-xl bg-accent-soft px-3 py-2 text-sm text-accent">{error}</p> : null}
-      {message ? <p className="text-brand text-sm">{message}</p> : null}
-
-      <FieldRenderer fields={fields} value={data} onChange={setData} />
     </div>
   )
 }
