@@ -19,10 +19,14 @@ export function CountUp({ value, suffix, className }: Props) {
   const reduced = useReducedMotion()
   const target = Number(value)
   const isNumeric = value.trim() !== '' && Number.isFinite(target)
-  const [display, setDisplay] = useState(() => (isNumeric && !reduced ? 0 : target))
+  const [display, setDisplay] = useState(() => (isNumeric ? target : 0))
 
   useEffect(() => {
-    if (!isNumeric || reduced || !inView) return
+    if (!isNumeric || reduced) {
+      setDisplay(isNumeric ? target : 0)
+      return
+    }
+    if (!inView) return
 
     const duration = 1100
     const start = performance.now()
@@ -36,6 +40,8 @@ export function CountUp({ value, suffix, className }: Props) {
       if (progress < 1) frame = requestAnimationFrame(tick)
     }
 
+    // Start from 0 only once the block is on screen.
+    setDisplay(0)
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [inView, isNumeric, reduced, target])

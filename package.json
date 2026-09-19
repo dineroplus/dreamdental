@@ -23,6 +23,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "content:import": "node --env-file=.env --import=tsx/esm scripts/import-content.ts",
+    "media:publish": "node --env-file=.env --import=tsx/esm scripts/publish-media.ts",
     "admin:create": "node --env-file=.env --import=tsx/esm scripts/create-admin.ts"
   },
   "dependencies": {

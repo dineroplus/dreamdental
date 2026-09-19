@@ -30,7 +30,8 @@ import type { Home } from '../../../content/schema'
 
 type HomeSection = NonNullable<Home['sections']>[number]
 
-export const revalidate = 300
+export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
   params,
@@ -67,13 +68,34 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const dict = getDictionary(locale)
 
   const [home, settings, services, doctors, cases, testimonials, gallery] = await Promise.all([
-    getHome(locale).catch(() => null),
-    getSettings(locale).catch(() => null),
-    getServices(locale).catch(() => []),
-    getDoctors(locale).catch(() => []),
-    getCases(locale, { featured: true }).catch(() => []),
-    getTestimonials(locale, { featured: true }).catch(() => []),
-    getGallery(locale).catch(() => []),
+    getHome(locale).catch((error) => {
+      console.error('getHome failed', error)
+      return null
+    }),
+    getSettings(locale).catch((error) => {
+      console.error('getSettings failed', error)
+      return null
+    }),
+    getServices(locale).catch((error) => {
+      console.error('getServices failed', error)
+      return []
+    }),
+    getDoctors(locale).catch((error) => {
+      console.error('getDoctors failed', error)
+      return []
+    }),
+    getCases(locale, { featured: true }).catch((error) => {
+      console.error('getCases failed', error)
+      return []
+    }),
+    getTestimonials(locale, { featured: true }).catch((error) => {
+      console.error('getTestimonials failed', error)
+      return []
+    }),
+    getGallery(locale).catch((error) => {
+      console.error('getGallery failed', error)
+      return []
+    }),
   ])
 
   const featuredServices = services.filter((s) => s.featured)

@@ -31,7 +31,7 @@ import type { Locale } from '../i18n/config'
  */
 export const CONTENT_TAG = 'content'
 
-const REVALIDATE_SECONDS = 3600
+const REVALIDATE_SECONDS = 300
 
 /* -------------------------------------------------------------------------- */
 /* Raw reads                                                                   */
@@ -40,20 +40,23 @@ const REVALIDATE_SECONDS = 3600
 type Row = typeof schema.documents.$inferSelect
 type MediaRow = typeof schema.media.$inferSelect
 
+/** Bump cache keys when the stored shape changes so Vercel does not keep a stale empty snapshot. */
+const CACHE_VERSION = 'cms-v2'
+
 const loadDocuments = unstable_cache(
   async (): Promise<Row[]> =>
     db().select().from(schema.documents).orderBy(asc(schema.documents.order), asc(schema.documents.id)),
-  ['documents'],
+  [CACHE_VERSION, 'documents'],
   { tags: [CONTENT_TAG], revalidate: REVALIDATE_SECONDS },
 )
 
 const loadSingletons = unstable_cache(
   async () => db().select().from(schema.singletons),
-  ['singletons'],
+  [CACHE_VERSION, 'singletons'],
   { tags: [CONTENT_TAG], revalidate: REVALIDATE_SECONDS },
 )
 
-const loadMedia = unstable_cache(async (): Promise<MediaRow[]> => db().select().from(schema.media), ['media'], {
+const loadMedia = unstable_cache(async (): Promise<MediaRow[]> => db().select().from(schema.media), [CACHE_VERSION, 'media'], {
   tags: [CONTENT_TAG],
   revalidate: REVALIDATE_SECONDS,
 })
