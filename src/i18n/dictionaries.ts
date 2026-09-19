@@ -49,6 +49,8 @@ const ka = {
     relatedServices: 'დაკავშირებული სერვისები',
     ourDoctors: 'ჩვენი ექიმები',
     allRightsReserved: 'ყველა უფლება დაცულია',
+    reviews: 'მიმოხილვა',
+    patientReviews: 'რას ამბობენ პაციენტები',
   },
   form: {
     name: 'სახელი და გვარი',
@@ -120,6 +122,8 @@ const en: Dictionary = {
     relatedServices: 'Related services',
     ourDoctors: 'Our doctors',
     allRightsReserved: 'All rights reserved',
+    reviews: 'reviews',
+    patientReviews: 'What patients say',
   },
   form: {
     name: 'Full name',
@@ -189,6 +193,8 @@ const ru: Dictionary = {
     relatedServices: 'Связанные услуги',
     ourDoctors: 'Наши врачи',
     allRightsReserved: 'Все права защищены',
+    reviews: 'отзывов',
+    patientReviews: 'Что говорят пациенты',
   },
   form: {
     name: 'Имя и фамилия',

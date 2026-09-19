@@ -4,9 +4,10 @@
  * updated rather than duplicated.
  *
  *   npm run seed
+ *   npm run seed -- --cleanup-media
  */
 import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
 import { locales, defaultLocale, type Locale } from '../i18n/config'
@@ -15,7 +16,8 @@ import { richText } from './lexical'
 import { services } from './data/services'
 import { doctors } from './data/doctors'
 import { advantages, home, navigation, settings } from './data/site'
-import { pages, posts, testimonials } from './data/pages'
+import { pages, posts } from './data/pages'
+import { testimonials } from './data/testimonials'
 import type { Localized } from './data/services'
 
 /** Folder the clinic's original assets live in, alongside the app. */
@@ -172,8 +174,116 @@ async function upsert(
   })
 }
 
+/**
+ * Payload appends `-1`, `-2`… when the same file is uploaded again
+ * (`005.png` → `005-8.png`, `blanchiment-6.jpg` → `blanchiment-15.jpg`).
+ * Group those copies so re-running seed does not create another set.
+ */
+function uploadFamily(filename?: string | null): string {
+  if (!filename) return ''
+  return filename
+    .replace(/\.[^.]+$/, '')
+    .replace(/-\d+x\d+$/, '')
+    .replace(/-\d+$/, '')
+    .toLowerCase()
+}
+
+async function mediaByFamily(payload: Payload) {
+  const res = await payload.find({ collection: 'media', limit: 1000, depth: 0 })
+  const map = new Map<string, number>()
+  for (const doc of res.docs) {
+    const family = uploadFamily(doc.filename)
+    if (family && !map.has(family)) map.set(family, doc.id)
+  }
+  return map
+}
+
+const MEDIA_FIELD_NAMES = new Set([
+  'image',
+  'images',
+  'photo',
+  'coverImage',
+  'heroImage',
+  'beforeImage',
+  'afterImage',
+  'logo',
+  'favicon',
+  'defaultShareImage',
+])
+
+function collectMediaIds(value: unknown, into: Set<number>, key?: string) {
+  if (value == null) return
+  if (typeof value === 'number') {
+    if (key && MEDIA_FIELD_NAMES.has(key)) into.add(value)
+    return
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectMediaIds(item, into, key)
+    return
+  }
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>
+    if (typeof obj.id === 'number' && typeof obj.url === 'string') into.add(obj.id)
+    for (const [nextKey, next] of Object.entries(obj)) collectMediaIds(next, into, nextKey)
+  }
+}
+
+async function referencedMediaIds(payload: Payload) {
+  const ids = new Set<number>()
+  for (const collection of [
+    'gallery-items',
+    'services',
+    'doctors',
+    'cases',
+    'testimonials',
+    'posts',
+    'pages',
+  ] as const) {
+    const res = await payload.find({ collection, limit: 500, depth: 2 })
+    for (const doc of res.docs) collectMediaIds(doc, ids)
+  }
+  for (const slug of ['settings', 'home'] as const) {
+    collectMediaIds(await payload.findGlobal({ slug, depth: 2 }), ids)
+  }
+  return ids
+}
+
+/** Drop gallery rows and unused upload copies created by earlier seed runs. */
+async function dedupeGalleryAndMedia(payload: Payload) {
+  const gallery = await payload.find({
+    collection: 'gallery-items',
+    limit: 500,
+    depth: 1,
+    sort: 'id',
+  })
+  const seen = new Set<string>()
+  let removedGallery = 0
+  for (const item of gallery.docs) {
+    const filename = typeof item.image === 'object' && item.image ? item.image.filename : ''
+    const family = uploadFamily(filename)
+    if (!family || seen.has(family)) {
+      await payload.delete({ collection: 'gallery-items', id: item.id })
+      removedGallery += 1
+    } else {
+      seen.add(family)
+    }
+  }
+
+  const referenced = await referencedMediaIds(payload)
+  const media = await payload.find({ collection: 'media', limit: 1000, depth: 0 })
+  let removedMedia = 0
+  for (const doc of media.docs) {
+    if (referenced.has(doc.id)) continue
+    await payload.delete({ collection: 'media', id: doc.id })
+    removedMedia += 1
+  }
+
+  console.log(`  deduped gallery: -${removedGallery}, unused media: -${removedMedia}`)
+}
+
 async function seedMedia(payload: Payload) {
   const map = new Map<string, number>()
+  const existing = await mediaByFamily(payload)
 
   for (const item of MEDIA) {
     const filePath = resolve(ASSETS, item.file)
@@ -182,14 +292,8 @@ async function seedMedia(payload: Payload) {
       continue
     }
 
-    const existing = await payload.find({
-      collection: 'media',
-      where: { filename: { contains: item.key } },
-      limit: 1,
-      depth: 0,
-    })
-
-    let id = existing.docs[0]?.id
+    const family = uploadFamily(basename(item.file))
+    let id = existing.get(family)
     if (!id) {
       const created = await payload.create({
         collection: 'media',
@@ -198,6 +302,7 @@ async function seedMedia(payload: Payload) {
         filePath,
       })
       id = created.id
+      existing.set(family, id)
     }
 
     await localize(
@@ -413,29 +518,40 @@ async function seedTestimonials(payload: Payload) {
   for (const item of testimonials) {
     const existing = await payload.find({
       collection: 'testimonials',
-      where: { countryCode: { equals: item.countryCode } },
+      locale: defaultLocale,
+      where: { patientName: { equals: item.patientName[defaultLocale] } },
       limit: 1,
       depth: 0,
     })
 
-    const id =
-      existing.docs[0]?.id ??
-      (
-        await payload.create({
-          collection: 'testimonials',
-          locale: defaultLocale,
-          data: {
-            patientName: item.patientName[defaultLocale],
-            quote: item.quote[defaultLocale],
-            countryCode: item.countryCode,
-            rating: item.rating,
-            source: item.source,
-            featured: item.featured,
-            order: item.order,
-            _status: 'published',
-          },
-        })
-      ).id
+    const base = {
+      patientName: item.patientName[defaultLocale],
+      quote: item.quote[defaultLocale],
+      country: item.country[defaultLocale],
+      countryCode: item.countryCode || undefined,
+      rating: item.rating,
+      source: item.source,
+      featured: item.featured,
+      order: item.order,
+      _status: 'published' as const,
+    }
+
+    const id = existing.docs[0]
+      ? (
+          await payload.update({
+            collection: 'testimonials',
+            id: existing.docs[0].id,
+            locale: defaultLocale,
+            data: base as never,
+          })
+        ).id
+      : (
+          await payload.create({
+            collection: 'testimonials',
+            locale: defaultLocale,
+            data: base as never,
+          })
+        ).id
 
     for (const locale of locales) {
       await payload.update({
@@ -581,15 +697,23 @@ async function seedAdmin(payload: Payload) {
 async function main() {
   const payload = await getPayload({ config })
 
+  if (process.argv.includes('--cleanup-media')) {
+    console.log('Removing duplicate gallery photos…')
+    await dedupeGalleryAndMedia(payload)
+    console.log('Done.')
+    process.exit(0)
+  }
+
   console.log('Seeding Dream Dental content…')
   await seedAdmin(payload)
+  await dedupeGalleryAndMedia(payload)
   const media = await seedMedia(payload)
   await seedGallery(payload, media)
   await seedServices(payload, media)
   await seedDoctors(payload)
+  await seedTestimonials(payload)
   await seedPages(payload, media)
   await seedPosts(payload)
-  await seedTestimonials(payload)
   await seedGlobals(payload, media)
   console.log('Done.')
 

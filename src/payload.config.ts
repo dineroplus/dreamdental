@@ -32,7 +32,7 @@ const dirname = path.dirname(filename)
  * SQLite keeps local development zero-setup; production points DATABASE_URI at
  * Neon. Both adapters are configured here so switching is only an env change.
  */
-const databaseURI = process.env.DATABASE_URI || ''
+const databaseURI = process.env.DATABASE_URI || process.env.DATABASE_URL || ''
 const usePostgres = databaseURI.startsWith('postgres')
 
 const db = usePostgres
@@ -71,8 +71,15 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: {
+      graphics: {
+        Logo: './components/admin/BrandLogo.tsx#BrandLogo',
+        Icon: './components/admin/BrandIcon.tsx#BrandIcon',
+      },
+    },
     meta: {
       titleSuffix: '- Dream Dental Group',
+      icons: [{ rel: 'icon', type: 'image/png', url: '/brand/logo.png' }],
     },
   },
   collections: [

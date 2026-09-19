@@ -12,6 +12,7 @@ import {
 } from '../../../../../lib/data'
 import { buildMetadata } from '../../../../../lib/metadata'
 import { CLINIC, SITE_URL } from '../../../../../lib/site'
+import { doctorPhotoUrl } from '../../../../../lib/doctorPhotos'
 import { localePath, mediaAlt, mediaUrl, richTextToPlain } from '../../../../../lib/utils'
 import { PageHeader } from '../../../../../components/PageHeader'
 import { RichText } from '../../../../../components/RichText'
@@ -54,7 +55,7 @@ export async function generateMetadata({
     title: doctor.seo?.title || `${doctor.name} - ${doctor.specialty}`,
     description:
       doctor.seo?.description || richTextToPlain(doctor.bio, 158) || `${doctor.name} - ${doctor.specialty}`,
-    image: mediaUrl(doctor.seo?.image) || mediaUrl(doctor.photo),
+    image: mediaUrl(doctor.seo?.image) || doctorPhotoUrl(doctor),
     noindex: doctor.seo?.noindex ?? false,
   })
 }
@@ -83,7 +84,7 @@ export default async function DoctorDetailPage({
     typeof c.doctor === 'object' && c.doctor !== null ? c.doctor.id === doctor.id : c.doctor === doctor.id,
   )
 
-  const photo = mediaUrl(doctor.photo, 'card')
+  const photo = doctorPhotoUrl(doctor, 'card')
   const phone = settings?.phonePrimary || CLINIC.phonePrimary
   const years = doctor.experienceSince ? new Date().getFullYear() - doctor.experienceSince : null
 
@@ -112,7 +113,7 @@ export default async function DoctorDetailPage({
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 38vw"
-                  className="object-cover"
+                  className="object-contain object-bottom p-4 pt-8"
                 />
               ) : (
                 <div className="grid h-full place-items-center">

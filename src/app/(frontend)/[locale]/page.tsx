@@ -14,7 +14,7 @@ import {
 import { buildMetadata } from '../../../lib/metadata'
 import { CLINIC, SITE_URL } from '../../../lib/site'
 import { HERO_COPY } from '../../../lib/heroDefaults'
-import { mediaAlt, mediaUrl, truncate } from '../../../lib/utils'
+import { localePath, mediaAlt, mediaUrl, truncate } from '../../../lib/utils'
 import { JsonLd } from '../../../components/JsonLd'
 import { Hero } from '../../../components/sections/Hero'
 import { Stats } from '../../../components/sections/Stats'
@@ -67,14 +67,27 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     getHome(locale).catch(() => null),
     getSettings(locale).catch(() => null),
     getServices(locale).catch(() => []),
-    getDoctors(locale, { featured: true }).catch(() => []),
+    getDoctors(locale).catch(() => []),
     getCases(locale, { featured: true }).catch(() => []),
     getTestimonials(locale, { featured: true }).catch(() => []),
     getGallery(locale).catch(() => []),
   ])
 
   const featuredServices = services.filter((s) => s.featured)
-  const sections = home?.sections?.filter((s) => s.enabled !== false) ?? []
+  const cmsSections = home?.sections?.filter((s) => s.enabled !== false) ?? []
+  const sections =
+    cmsSections.length > 0
+      ? cmsSections
+      : [
+          'stats',
+          'services',
+          'whyUs',
+          'cases',
+          'doctors',
+          'testimonials',
+          'gallery',
+          'contact',
+        ].map((blockType) => ({ blockType, enabled: true, id: blockType }))
   const sectionFor = (type: string) => sections.find((s) => s.blockType === type)
 
   const phonePrimary = settings?.phonePrimary || CLINIC.phonePrimary
@@ -149,6 +162,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           doctors={doctors}
           heading={section?.heading}
           subheading={section?.subheading}
+          viewAllHref={localePath(locale, '/doctors')}
         />
       )
     },
@@ -161,6 +175,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           testimonials={testimonials}
           heading={section?.heading}
           subheading={section?.subheading}
+          viewAllHref={localePath(locale, '/cases')}
         />
       )
     },

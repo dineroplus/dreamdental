@@ -329,39 +329,6 @@ export const pages: SeedPage[] = [
   },
 ]
 
-export type SeedTestimonial = {
-  patientName: Localized<string>
-  quote: Localized<string>
-  country: Localized<string>
-  countryCode: string
-  rating: number
-  source: 'facebook' | 'instagram' | 'google' | 'clinic'
-  featured: boolean
-  order: number
-}
-
-/**
- * Only verbatim, attributable reviews are seeded. Anything else would be
- * fabricated social proof, so the rest is left for the clinic to add in /admin
- * from its Facebook, Madloba and SmileJet pages.
- */
-export const testimonials: SeedTestimonial[] = [
-  {
-    patientName: { ka: 'ნათანი', en: 'Nathan', ru: 'Натан' },
-    quote: {
-      ka: 'მივედი Dream Dental-ში დოქტორ ბაჩოსთან. ამომიღეს ოთხი კბილი, დამიდგეს ოთხი იმპლანტი და გამიკეთეს ძვლის გადანერგვა. მკურნალობა ნამდვილად უმაღლესი დონის იყო. ძალიან კმაყოფილი ვარ და აუცილებლად დავბრუნდები მკურნალობის გასაგრძელებლად. დიდი მადლობა!',
-      en: 'I came to Dream Dental to see Dr. Bacho. I had four teeth extracted, four implants placed and a bone graft. The treatment was truly of the highest standard. I’m very satisfied and will definitely return to continue my treatment. Thank you very much!',
-      ru: 'Я пришёл в Dream Dental к доктору Бачо. Мне удалили четыре зуба, установили четыре импланта и сделали костную пластику. Лечение было действительно высочайшего уровня. Я очень доволен и обязательно вернусь, чтобы продолжить лечение. Большое спасибо!',
-    },
-    country: { ka: 'ისრაელი', en: 'Israel', ru: 'Израиль' },
-    countryCode: 'IL',
-    rating: 5,
-    source: 'facebook',
-    featured: true,
-    order: 10,
-  },
-]
-
 export type SeedPost = {
   slug: string
   publishedAt: string

@@ -1,6 +1,7 @@
 import Image from 'next/image'
-import { SectionHeading } from '../ui'
+import { ArrowIcon, ButtonLink, SectionHeading } from '../ui'
 import { Reveal } from '../motion/Reveal'
+import { REVIEW_PLATFORMS } from '../../lib/reviews'
 import { mediaAlt, mediaUrl } from '../../lib/utils'
 import type { Dictionary } from '../../i18n/dictionaries'
 import type { Testimonial } from '../../payload-types'
@@ -36,18 +37,44 @@ export function TestimonialsSection({
   testimonials,
   heading,
   subheading,
+  viewAllHref,
 }: {
   dict: Dictionary
   testimonials: Testimonial[]
   heading?: string | null
   subheading?: string | null
+  viewAllHref?: string
 }) {
   if (testimonials.length === 0) return null
 
   return (
     <section className="bg-surface section">
       <div className="container-page">
-        <SectionHeading title={heading || dict.nav.cases} subtitle={subheading} />
+        <SectionHeading title={heading || dict.labels.patientReviews} subtitle={subheading} />
+
+        <ul className="mt-8 grid grid-cols-3 gap-3">
+          {REVIEW_PLATFORMS.map((platform) => (
+            <li key={platform.name}>
+              <a
+                href={platform.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card block px-2 py-4 text-center transition-shadow hover:shadow-lift sm:px-4"
+              >
+                <p className="text-ink-muted text-[10px] font-semibold tracking-wide uppercase">
+                  {platform.name}
+                </p>
+                <p className="text-gradient font-display mt-1 text-xl font-semibold sm:text-2xl">
+                  {platform.score}
+                  {platform.suffix}
+                </p>
+                <p className="text-ink-muted mt-1 text-[11px] sm:text-xs">
+                  {platform.count} {dict.labels.reviews}
+                </p>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="container-page mt-10">
@@ -61,14 +88,17 @@ export function TestimonialsSection({
                 as="article"
                 className="w-[80vw] sm:w-[60vw] md:w-auto"
               >
-                <figure className="card flex h-full flex-col p-6">
+                <figure className="card flex flex-col p-4 sm:p-5">
                   <Stars rating={item.rating ?? 5} />
 
-                  <blockquote className="text-ink mt-4 flex-1 text-sm leading-relaxed">
+                  <blockquote
+                    className="text-ink mt-3 line-clamp-6 text-sm leading-relaxed"
+                    title={item.quote}
+                  >
                     “{item.quote}”
                   </blockquote>
 
-                  <figcaption className="mt-5 flex items-center gap-3">
+                  <figcaption className="mt-4 flex items-center gap-3">
                     {photo ? (
                       <Image
                         src={photo}
@@ -97,6 +127,15 @@ export function TestimonialsSection({
             )
           })}
         </div>
+
+        {viewAllHref && (
+          <div className="mt-10 text-center">
+            <ButtonLink href={viewAllHref} variant="outline">
+              {dict.cta.viewAll}
+              <ArrowIcon />
+            </ButtonLink>
+          </div>
+        )}
       </div>
     </section>
   )

@@ -58,6 +58,7 @@ export const Testimonials: CollectionConfig = {
         { label: 'Instagram', value: 'instagram' },
         { label: 'Facebook', value: 'facebook' },
         { label: 'Google', value: 'google' },
+        { label: 'Madloba', value: 'madloba' },
       ],
     },
     {

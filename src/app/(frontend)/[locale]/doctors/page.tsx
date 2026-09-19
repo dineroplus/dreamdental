@@ -53,7 +53,7 @@ export default async function DoctorsPage({ params }: { params: Promise<{ locale
         subtitle={INTRO[locale]}
         breadcrumbs={[{ label: dict.nav.home, href: '/' }, { label: dict.nav.doctors }]}
       />
-      <DoctorsSection locale={locale} dict={dict} doctors={doctors} heading={dict.nav.doctors} />
+      <DoctorsSection locale={locale} dict={dict} doctors={doctors} hideHeading />
     </>
   )
 }

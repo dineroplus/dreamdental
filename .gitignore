@@ -29,16 +29,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
+.env.vercel
 
 # vercel
 .vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-.env
 
 *.db
 *.db-journal
@@ -46,6 +42,9 @@ next-env.d.ts
 *.db-shm
 
 /media
+
+# Original high-res staff cutouts; optimized copies live in /public/team
+/src/components/teampictures
 
 # Playwright
 node_modules/

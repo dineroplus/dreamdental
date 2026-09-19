@@ -13,11 +13,29 @@ export function isMedia(value: MediaLike): value is Media {
 
 export function mediaUrl(value: MediaLike, size?: 'thumb' | 'card' | 'wide' | 'hero'): string | null {
   if (!isMedia(value)) return null
-  if (size) {
-    const sized = value.sizes?.[size]
-    if (sized?.url) return sized.url
+  const raw = (size && value.sizes?.[size]?.url) || value.url
+  if (!raw) return null
+  return toLocalImageSrc(raw)
+}
+
+/**
+ * Payload prefixes uploads with `serverURL`, so src becomes
+ * `http://localhost:3000/api/media/file/…`. next/image treats that as a remote
+ * URL and rejects it (`"url" parameter is not allowed`). Same-origin paths
+ * go through the local optimizer. CDN/R2 hosts stay absolute.
+ */
+function toLocalImageSrc(url: string): string {
+  if (!/^https?:\/\//i.test(url)) return url
+  try {
+    const parsed = new URL(url)
+    const site = process.env.NEXT_PUBLIC_SITE_URL
+    const sameOrigin = site ? parsed.host === new URL(site).host : false
+    const loopback = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1'
+    if (sameOrigin || loopback) return `${parsed.pathname}${parsed.search}`
+    return url
+  } catch {
+    return url
   }
-  return value.url ?? null
 }
 
 export function mediaAlt(value: MediaLike, fallback = ''): string {

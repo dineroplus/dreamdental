@@ -633,7 +633,7 @@ export interface Testimonial {
    * YouTube link, if there is a video version of this testimonial.
    */
   videoUrl?: string | null;
-  source?: ('clinic' | 'instagram' | 'facebook' | 'google') | null;
+  source?: ('clinic' | 'instagram' | 'facebook' | 'google' | 'madloba') | null;
   /**
    * Highlights the card, for well-known guests such as athletes or chefs.
    */

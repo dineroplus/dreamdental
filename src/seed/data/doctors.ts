@@ -102,7 +102,7 @@ export const doctors: SeedDoctor[] = [
   {
     slug: 'nini-kikabidze',
     order: 40,
-    featured: true,
+    featured: false,
     languages: ['ka', 'en', 'ru'],
     name: { ka: 'ნინი კიკაბიძე', en: 'Nini Kikabidze', ru: 'Нини Кикабидзе' },
     specialty: {
@@ -142,7 +142,7 @@ export const doctors: SeedDoctor[] = [
   {
     slug: 'sofo-kikishvili',
     order: 60,
-    featured: false,
+    featured: true,
     languages: ['ka', 'ru'],
     name: { ka: 'სოფიკო ყიყიშვილი', en: 'Sofo Kikishvili', ru: 'Софико Кикишвили' },
     specialty: { ka: 'თერაპევტი, ენდოდონტი', en: 'Therapist, Endodontist', ru: 'Терапевт, эндодонт' },
@@ -187,7 +187,7 @@ export const doctors: SeedDoctor[] = [
   {
     slug: 'alexandr-bespalov',
     order: 90,
-    featured: false,
+    featured: true,
     languages: ['ka', 'ru', 'en'],
     name: { ka: 'ალექსანდრე ბესპალოვი', en: 'Alexandr Bespalov', ru: 'Александр Беспалов' },
     specialty: { ka: 'სტომატოლოგი', en: 'Dentist', ru: 'Стоматолог' },
@@ -213,7 +213,7 @@ export const doctors: SeedDoctor[] = [
   {
     slug: 'marika-ivanidze',
     order: 110,
-    featured: false,
+    featured: true,
     languages: ['ka', 'ru'],
     name: { ka: 'მარიკა ივანიძე', en: 'Marika Ivanidze', ru: 'Марика Иванидзе' },
     specialty: { ka: 'სტომატოლოგი', en: 'Dentist', ru: 'Стоматолог' },
@@ -239,7 +239,7 @@ export const doctors: SeedDoctor[] = [
   {
     slug: 'nino-mikaberidze',
     order: 130,
-    featured: false,
+    featured: true,
     languages: ['ka', 'ru'],
     name: { ka: 'ნინო მიქაბერიძე', en: 'Nino Mikaberidze', ru: 'Нино Микаберидзе' },
     specialty: { ka: 'სტომატოლოგი', en: 'Dentist', ru: 'Стоматолог' },
