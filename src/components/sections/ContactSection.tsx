@@ -23,10 +23,38 @@ type Props = {
   mapUrl?: string | null
 }
 
-/** Google’s coordinate embed works without an API key. */
-function mapEmbedSrc(lat: number, lng: number, locale: Locale): string {
-  const query = encodeURIComponent(`${lat},${lng}`)
-  return `https://maps.google.com/maps?q=${query}&z=16&hl=${locale}&iwloc=near&output=embed`
+const MAP_ZOOM = 16
+const TILE_SIZE = 256
+
+/** Static OSM tiles avoid third-party iframe/privacy blocking. */
+function mapTiles(lat: number, lng: number) {
+  const scale = 2 ** MAP_ZOOM
+  const x = ((lng + 180) / 360) * scale
+  const latRadians = (lat * Math.PI) / 180
+  const y =
+    ((1 - Math.log(Math.tan(latRadians) + 1 / Math.cos(latRadians)) / Math.PI) / 2) *
+    scale
+  const tileX = Math.floor(x)
+  const tileY = Math.floor(y)
+  const startX = tileX - 1
+  const startY = tileY - 1
+
+  return {
+    markerX: (x - startX) * TILE_SIZE,
+    markerY: (y - startY) * TILE_SIZE,
+    tiles: Array.from({ length: 9 }, (_, index) => {
+      const column = index % 3
+      const row = Math.floor(index / 3)
+      const currentX = startX + column
+      const currentY = startY + row
+      return {
+        key: `${currentX}-${currentY}`,
+        column,
+        row,
+        url: `https://tile.openstreetmap.org/${MAP_ZOOM}/${currentX}/${currentY}.png`,
+      }
+    }),
+  }
 }
 
 function directionsHref(lat: number, lng: number, mapUrl?: string | null): string {
@@ -52,7 +80,7 @@ export function ContactSection({
   longitude,
   mapUrl,
 }: Props) {
-  const embedSrc = mapEmbedSrc(latitude, longitude, locale)
+  const map = mapTiles(latitude, longitude)
   const openMapsHref = directionsHref(latitude, longitude, mapUrl)
 
   return (
@@ -124,14 +152,51 @@ export function ContactSection({
           </Reveal>
 
           <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
-            <div className="border-hairline bg-surface relative overflow-hidden rounded-[var(--radius-card)] border">
-              <iframe
-                src={embedSrc}
-                title={`${addressLine}, ${city}`}
-                loading="eager"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-                className="bg-surface block h-[220px] w-full border-0 lg:h-[280px]"
+            <div
+              className="border-hairline bg-brand-soft relative h-[220px] overflow-hidden rounded-[var(--radius-card)] border lg:h-[280px]"
+              role="img"
+              aria-label={`${addressLine}, ${city}`}
+            >
+              <div
+                className="absolute h-[768px] w-[768px]"
+                style={{
+                  left: `calc(50% - ${map.markerX}px)`,
+                  top: `calc(50% - ${map.markerY}px)`,
+                }}
+                aria-hidden="true"
+              >
+                {map.tiles.map((tile) => (
+                  <span
+                    key={tile.key}
+                    className="absolute block h-64 w-64 bg-cover bg-center"
+                    style={{
+                      left: tile.column * TILE_SIZE,
+                      top: tile.row * TILE_SIZE,
+                      backgroundImage: `url("${tile.url}")`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              <span
+                className="bg-brand shadow-soft absolute top-1/2 left-1/2 z-10 grid h-9 w-9 -translate-x-1/2 -translate-y-full place-items-center rounded-full border-[3px] border-white text-white after:absolute after:-bottom-1 after:h-3 after:w-3 after:rotate-45 after:bg-brand"
+                aria-hidden="true"
+              >
+                <Icon name="tooth" className="relative z-10 h-4 w-4" />
+              </span>
+
+              <a
+                href="https://www.openstreetmap.org/copyright"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-canvas/90 text-ink-muted absolute bottom-2 left-2 z-20 rounded px-1.5 py-0.5 text-[9px]"
+              >
+                © OpenStreetMap
+              </a>
+
+              <div
+                className="pointer-events-none absolute inset-0 ring-1 ring-black/5 ring-inset"
+                aria-hidden="true"
               />
               <a
                 href={openMapsHref}
