@@ -162,7 +162,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <ServicesGrid
           locale={locale}
           dict={dict}
-          services={featuredServices.length > 0 ? featuredServices : services.slice(0, 6)}
+          services={(featuredServices.length > 0 ? featuredServices : services).slice(0, 6)}
           heading={section?.heading}
           subheading={section?.subheading}
         />
@@ -297,6 +297,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const heroSubtitle = home?.heroSubtitle?.trim() || hero.subtitle
   const cmsBullets = (home?.heroBullets ?? []).filter(Boolean)
   const heroBullets = cmsBullets.length > 0 ? cmsBullets : hero.bullets
+  const heroImage = mediaUrl(home?.heroImage, 'hero')
 
   return (
     <>
@@ -311,6 +312,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         mapUrl={settings?.mapUrl}
         ctaLabel={home?.primaryCtaLabel}
         ctaHref={home?.primaryCtaHref}
+        imageSrc={heroImage}
+        imageAlt={mediaAlt(home?.heroImage, settings?.clinicName || 'Dream Dental')}
       />
 
       <div className="home-flow">

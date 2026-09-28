@@ -17,6 +17,20 @@ type Props = {
   mapUrl?: string | null
   ctaLabel?: string | null
   ctaHref?: string | null
+  imageSrc?: string | null
+  imageAlt?: string | null
+}
+
+/** Two-line slogan without a dash — CMS often stores "A - B". */
+function titleLines(title: string): string[] {
+  const trimmed = title.trim()
+  if (!trimmed) return []
+  if (trimmed.includes('\n')) {
+    return trimmed.split('\n').map((line) => line.trim()).filter(Boolean)
+  }
+  const dashed = trimmed.split(/\s+[–—-]\s+/)
+  if (dashed.length === 2) return dashed.map((line) => line.trim()).filter(Boolean)
+  return [trimmed]
 }
 
 export function Hero({
@@ -30,7 +44,11 @@ export function Hero({
   mapUrl,
   ctaLabel,
   ctaHref,
+  imageSrc,
+  imageAlt,
 }: Props) {
+  const lines = titleLines(title)
+
   return (
     <section className="relative isolate overflow-hidden">
       <div className="mesh opacity-70" aria-hidden="true" />
@@ -38,8 +56,12 @@ export function Hero({
       <div className="container-page relative grid items-center gap-10 pt-10 pb-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-24">
         <div>
           <Reveal>
-            <h1 className="text-[clamp(2rem,6.5vw,3.6rem)] leading-[1.08] uppercase">
-              <span className="text-gradient">{uiCaps(title, locale)}</span>
+            <h1 className="text-[clamp(1.85rem,6.2vw,3.6rem)] leading-[1.08] uppercase">
+              {lines.map((line) => (
+                <span key={line} className="text-gradient block whitespace-nowrap">
+                  {uiCaps(line, locale)}
+                </span>
+              ))}
             </h1>
           </Reveal>
 
@@ -67,10 +89,14 @@ export function Hero({
           )}
 
           <Reveal delay={3}>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            {/*
+              Primary sets the block width; Call + WhatsApp share that same
+              edge so the three CTAs finish together.
+            */}
+            <div className="mt-9 inline-grid max-w-full grid-cols-2 gap-3">
               <ButtonLink
                 href={ctaHref ? localePath(locale, ctaHref) : localePath(locale, '/contact')}
-                className="uppercase"
+                className="col-span-2 w-full uppercase"
               >
                 <Icon name="calendar" className="h-4 w-4" />
                 {ctaLabel || dict.cta.bookNow}
@@ -78,7 +104,7 @@ export function Hero({
 
               <a
                 href={`tel:${phone}`}
-                className="border-brand/25 text-brand hover:bg-brand-soft inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold uppercase transition-colors"
+                className="border-brand/25 text-brand hover:bg-brand-soft inline-flex items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold uppercase transition-colors"
               >
                 <Icon name="phone" className="h-4 w-4" />
                 {dict.cta.callNow}
@@ -88,7 +114,7 @@ export function Hero({
                 href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-brand/25 text-brand hover:bg-brand-soft inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold uppercase transition-colors"
+                className="border-brand/25 text-brand hover:bg-brand-soft inline-flex items-center justify-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold uppercase transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.5 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.7-.1a12 12 0 0 1-6.3-5.5c-.5-.8-.8-1.7-.8-2.5 0-.9.5-1.4.7-1.6.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6a9 9 0 0 0 3.9 3.3c.3.1.5.1.6-.1l.7-.8c.2-.2.3-.2.6-.1l1.8.9c.3.1.4.2.5.3 0 .1 0 .7-.3 1.3Z" />
@@ -107,7 +133,7 @@ export function Hero({
             />
             <div className="bg-gold/12 absolute -inset-2 rotate-1 rounded-[2rem] md:-inset-4" aria-hidden="true" />
 
-            <HeroDreamVisual />
+            <HeroDreamVisual src={imageSrc || undefined} alt={imageAlt || undefined} />
 
             {mapUrl && (
               <a

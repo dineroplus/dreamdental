@@ -1,10 +1,21 @@
 import Image from 'next/image'
 import { cn } from '../../lib/utils'
 
+const FALLBACK_SRC = '/images/hero-smile.jpg'
+const FALLBACK_ALT = 'Dream Dental - patient smile'
+
 /**
- * Real patient smile - minimal caption only.
+ * Homepage portrait. Uses the Home singleton image when one is set.
  */
-export function HeroDreamVisual({ className }: { className?: string }) {
+export function HeroDreamVisual({
+  className,
+  src = FALLBACK_SRC,
+  alt = FALLBACK_ALT,
+}: {
+  className?: string
+  src?: string
+  alt?: string
+}) {
   return (
     <div
       className={cn(
@@ -13,8 +24,8 @@ export function HeroDreamVisual({ className }: { className?: string }) {
       )}
     >
       <Image
-        src="/images/hero-smile.jpg"
-        alt="Dream Dental - patient smile"
+        src={src || FALLBACK_SRC}
+        alt={alt || FALLBACK_ALT}
         fill
         sizes="(max-width: 1024px) 100vw, 45vw"
         className="object-cover object-center"

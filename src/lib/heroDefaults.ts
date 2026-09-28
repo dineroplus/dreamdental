@@ -12,7 +12,7 @@ export type HeroCopy = {
 
 export const HERO_COPY: Record<Locale, HeroCopy> = {
   ka: {
-    title: 'თქვენი ღიმილი ჩვენი რეპუტაციაა',
+    title: 'თქვენი ღიმილი\nჩვენი რეპუტაციაა',
     subtitle:
       'თანამედროვე სტომატოლოგია თბილისის გულში - 2013 წლიდან, Golden Brand და პაციენტები ~50 ქვეყნიდან.',
     bullets: [
@@ -23,7 +23,7 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   en: {
-    title: 'Your smile is our reputation',
+    title: 'Your smile\nis our reputation',
     subtitle:
       'Modern dentistry in the heart of Tbilisi - since 2013, Golden Brand, patients from nearly 50 countries.',
     bullets: [
@@ -34,7 +34,7 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   ru: {
-    title: 'Ваша улыбка - наша репутация',
+    title: 'Ваша улыбка\nнаша репутация',
     subtitle:
       'Современная стоматология в центре Тбилиси - с 2013 года, Golden Brand и пациенты почти из 50 стран.',
     bullets: [
