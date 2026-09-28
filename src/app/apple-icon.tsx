@@ -7,7 +7,7 @@ export const contentType = 'image/png'
 
 export default async function AppleIcon() {
   const body = await renderAppIcon(180, 'apple-icon.png')
-  return new Response(body, {
+  return new Response(Uint8Array.from(body), {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=60',

@@ -7,7 +7,7 @@ export const contentType = 'image/png'
 
 export default async function Icon() {
   const body = await renderAppIcon(32, 'favicon.png')
-  return new Response(body, {
+  return new Response(Uint8Array.from(body), {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=60',
