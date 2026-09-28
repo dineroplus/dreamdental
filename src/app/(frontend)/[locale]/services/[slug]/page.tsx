@@ -210,6 +210,9 @@ export default async function ServiceDetailPage({
         services={related}
         heading={dict.labels.relatedServices}
         showAllLink
+        divided
+        compactTop
+        mobileLimit={2}
       />
 
       <JsonLd

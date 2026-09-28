@@ -23,6 +23,19 @@ type Props = {
   mapUrl?: string | null
 }
 
+/** OpenStreetMap embed — Google’s `output=embed` often renders a blank frame. */
+function osmEmbedSrc(lat: number, lng: number): string {
+  const pad = 0.006
+  const bbox = [lng - pad, lat - pad, lng + pad, lat + pad].map(encodeURIComponent).join('%2C')
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${encodeURIComponent(`${lat},${lng}`)}`
+}
+
+function directionsHref(lat: number, lng: number, mapUrl?: string | null): string {
+  const trimmed = mapUrl?.trim()
+  if (trimmed) return trimmed
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+}
+
 export function ContactSection({
   locale,
   dict,
@@ -40,7 +53,8 @@ export function ContactSection({
   longitude,
   mapUrl,
 }: Props) {
-  const mapSrc = `https://maps.google.com/maps?q=${latitude},${longitude}&z=16&hl=${locale}&output=embed`
+  const embedSrc = osmEmbedSrc(latitude, longitude)
+  const openMapsHref = directionsHref(latitude, longitude, mapUrl)
 
   return (
     <section id="contact" className="section">
@@ -52,10 +66,6 @@ export function ContactSection({
           titleClassName="uppercase"
         />
 
-        {/*
-          One map instance. CSS order puts the form under contact on mobile
-          without display:none (which broke Reveal / left the iframe invisible).
-        */}
         <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-8">
           <Reveal className="order-1 min-w-0">
             <ul className="card divide-hairline divide-y p-0 text-sm">
@@ -67,16 +77,14 @@ export function ContactSection({
                     {addressLine}
                     {city ? `, ${city}` : ''}
                   </p>
-                  {mapUrl && (
-                    <a
-                      href={mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-accent mt-1 inline-block text-xs font-semibold"
-                    >
-                      {dict.cta.directions}
-                    </a>
-                  )}
+                  <a
+                    href={openMapsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent mt-1 inline-block text-xs font-semibold"
+                  >
+                    {dict.cta.directions}
+                  </a>
                 </div>
               </li>
 
@@ -116,18 +124,25 @@ export function ContactSection({
             <BookingForm locale={locale} dict={dict} services={services} />
           </Reveal>
 
-          <Reveal delay={2} className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
-            <div className="bg-brand-soft relative overflow-hidden rounded-[var(--radius-card)]">
+          <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
+            <div className="border-hairline bg-surface relative overflow-hidden rounded-[var(--radius-card)] border">
               <iframe
-                src={mapSrc}
+                src={embedSrc}
                 title={`${addressLine}, ${city}`}
-                loading="lazy"
+                loading="eager"
                 referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-                className="block h-[220px] w-full border-0 lg:h-[280px]"
+                className="bg-surface block h-[220px] w-full border-0 lg:h-[280px]"
               />
+              <a
+                href={openMapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-canvas/95 text-ink hover:text-brand absolute right-3 bottom-3 rounded-full border border-hairline px-3 py-1.5 text-[11px] font-semibold backdrop-blur-sm transition-colors"
+              >
+                {dict.cta.directions}
+              </a>
             </div>
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>

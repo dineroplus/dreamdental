@@ -28,6 +28,13 @@ const HIGHLIGHT_ICONS = [
   { value: 'globe', label: 'გლობუსი' },
   { value: 'wallet', label: 'საფულე' },
   { value: 'pin', label: 'მისამართი' },
+  { value: 'user', label: 'პაციენტი' },
+  { value: 'home', label: 'სახლი' },
+  { value: 'languages', label: 'ენები' },
+  { value: 'stethoscope', label: 'ექიმი' },
+  { value: 'crown', label: 'VIP' },
+  { value: 'star', label: 'ვარსკვლავი' },
+  { value: 'calendar', label: 'კალენდარი' },
 ] as const
 
 const SERVICE_ICONS = [

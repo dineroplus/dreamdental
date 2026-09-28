@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ArrowIcon, ButtonLink, SectionHeading } from '../ui'
 import { Reveal } from '../motion/Reveal'
-import { localePath } from '../../lib/utils'
+import { cn, localePath } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
 import type { Service } from '../../content/schema'
@@ -15,6 +15,12 @@ type Props = {
   showAllLink?: boolean
   /** Set when the page already has an <h1> saying the same thing. */
   hideHeading?: boolean
+  /** Hairline above the section so the previous block clearly ends. */
+  divided?: boolean
+  /** Tighter top padding when following another section closely. */
+  compactTop?: boolean
+  /** Hide cards past this count below the `xl` breakpoint (avoids a lonely 3rd). */
+  mobileLimit?: number
 }
 
 /**
@@ -30,19 +36,44 @@ export function ServicesGrid({
   subheading,
   showAllLink = true,
   hideHeading = false,
+  divided = false,
+  compactTop = false,
+  mobileLimit,
 }: Props) {
   if (services.length === 0) return null
 
   return (
-    <section className={hideHeading ? 'section pt-2' : 'section'}>
+    <section
+      className={cn(
+        hideHeading ? 'section pt-2' : 'section',
+        compactTop && '!pt-8 md:!pt-10',
+      )}
+    >
+      {divided && (
+        <div className="container-page" aria-hidden="true">
+          <div className="border-hairline mb-8 border-t md:mb-10" />
+        </div>
+      )}
+
       <div className="container-page">
         {!hideHeading && (
-          <SectionHeading eyebrow={dict.nav.services} title={heading || dict.nav.services} subtitle={subheading} />
+          <SectionHeading
+            eyebrow={dict.nav.services}
+            title={heading || dict.nav.services}
+            subtitle={subheading}
+          />
         )}
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
           {services.map((service, index) => (
-            <Reveal key={service.id} delay={index % 3} as="article">
+            <Reveal
+              key={service.id}
+              delay={index % 3}
+              as="article"
+              className={
+                mobileLimit != null && index >= mobileLimit ? 'max-xl:hidden' : undefined
+              }
+            >
               <Link
                 href={localePath(locale, `/services/${service.slug}`)}
                 className="card group relative flex h-full flex-col overflow-hidden px-6 pt-6 pb-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"

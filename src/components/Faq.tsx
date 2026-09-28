@@ -1,4 +1,5 @@
 import { JsonLd } from './JsonLd'
+import { cn } from '../lib/utils'
 
 type Item = { question?: string; answer?: string }
 
@@ -6,7 +7,15 @@ type Item = { question?: string; answer?: string }
  * Built on <details> so it works with zero JavaScript, and mirrored as
  * FAQPage structured data for rich results.
  */
-export function Faq({ title, items }: { title: string; items: Item[] }) {
+export function Faq({
+  title,
+  items,
+  className,
+}: {
+  title: string
+  items: Item[]
+  className?: string
+}) {
   // A half-filled entry would produce an empty accordion row and, worse,
   // invalid FAQ structured data.
   const usable = items.filter(
@@ -15,7 +24,7 @@ export function Faq({ title, items }: { title: string; items: Item[] }) {
   if (usable.length === 0) return null
 
   return (
-    <section className="container-page section">
+    <section className={cn('container-page section !pb-8 md:!pb-10', className)}>
       <h2 className="text-ink text-[clamp(1.5rem,4vw,2.25rem)]">{title}</h2>
 
       <div className="mt-7 max-w-3xl space-y-3">
