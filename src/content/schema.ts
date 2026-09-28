@@ -48,7 +48,8 @@ const SERVICE_ICONS = [
   { value: 'crown', label: 'გვირგვინი' },
   { value: 'scan', label: 'სკანი' },
   { value: 'tooth', label: 'კბილი' },
-  { value: 'sparkle', label: 'ჰიგიენა' },
+  { value: 'toothbrush', label: 'ჰიგიენა' },
+  { value: 'sparkle', label: 'ბზინვარება' },
   { value: 'lab', label: 'ლაბორატორია' },
   { value: 'microscope', label: 'მიკროსკოპი' },
 ] as const

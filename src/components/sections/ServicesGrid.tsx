@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowIcon, ButtonLink, SectionHeading } from '../ui'
+import { ArrowIcon, ButtonLink, Icon, SectionHeading } from '../ui'
 import { Reveal } from '../motion/Reveal'
 import { cn, localePath } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
@@ -24,9 +24,8 @@ type Props = {
 }
 
 /**
- * Typography-led service cards. Generic icons read as filler on a dental
- * homepage; a quiet index + strong title carries the brand better, while
- * treatment images stay on the detail pages.
+ * Service cards: treatment icon, quiet index and strong title. Treatment
+ * images stay on the detail pages.
  */
 export function ServicesGrid({
   locale,
@@ -87,7 +86,10 @@ export function ServicesGrid({
                   aria-hidden="true"
                 />
 
-                <div className="relative">
+                <div className="relative flex items-center justify-between">
+                  <span className="bg-accent-soft text-accent grid h-11 w-11 place-items-center rounded-xl transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+                    <Icon name={service.icon} className="h-6 w-6" />
+                  </span>
                   <span className="text-gold/80 font-display text-[0.7rem] font-semibold tracking-[0.22em]">
                     {String(index + 1).padStart(2, '0')}
                   </span>
