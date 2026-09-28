@@ -77,7 +77,12 @@ export function TestimonialsSection({
 
       {testimonials.length > 0 && (
         <div className="container-page mt-10">
-          <div className="rail -mx-5 px-5 md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-3">
+          {/*
+            Don't use `.rail` here. It sets `display: flex` later in the
+            utilities layer and overrides `md:grid`, so cards stretch to the
+            full quote width on desktop.
+          */}
+          <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
             {testimonials.map((item, index) => {
               const photo = mediaUrl(item.photo, 'thumb')
               return (
@@ -85,13 +90,13 @@ export function TestimonialsSection({
                   key={item.id}
                   delay={index % 3}
                   as="article"
-                  className="w-[80vw] sm:w-[60vw] md:w-auto"
+                  className="w-[80vw] shrink-0 snap-start sm:w-[60vw] md:w-auto md:shrink md:snap-align-none"
                 >
-                  <figure className="card flex flex-col p-4 sm:p-5">
+                  <figure className="card flex h-full min-h-[220px] flex-col p-5 sm:p-6">
                     <Stars rating={item.rating ?? 5} />
 
                     <blockquote
-                      className="text-ink mt-3 line-clamp-6 text-sm leading-relaxed"
+                      className="text-ink mt-3 line-clamp-6 flex-1 text-sm leading-relaxed"
                       title={item.quote}
                     >
                       “{item.quote}”

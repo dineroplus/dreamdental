@@ -2,10 +2,9 @@ import type { Locale } from '../i18n/config'
 
 /**
  * Homepage hero fallbacks from CONTENT-DATA.md when the Home singleton is empty.
- * Brand stays the hero-level signal; slogan + tagline fill the empty frame.
+ * The clinic name lives in the header logo; the hero leads with the slogan.
  */
 export type HeroCopy = {
-  brand: string
   title: string
   subtitle: string
   bullets: string[]
@@ -13,7 +12,6 @@ export type HeroCopy = {
 
 export const HERO_COPY: Record<Locale, HeroCopy> = {
   ka: {
-    brand: 'Dream Dental & Aesthetic Group',
     title: 'თქვენი ღიმილი ჩვენი რეპუტაციაა',
     subtitle:
       'თანამედროვე სტომატოლოგია თბილისის გულში - 2013 წლიდან, Golden Brand და პაციენტები ~50 ქვეყნიდან.',
@@ -25,7 +23,6 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   en: {
-    brand: 'Dream Dental & Aesthetic Group',
     title: 'Your smile is our reputation',
     subtitle:
       'Modern dentistry in the heart of Tbilisi - since 2013, Golden Brand, patients from nearly 50 countries.',
@@ -37,7 +34,6 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   ru: {
-    brand: 'Dream Dental & Aesthetic Group',
     title: 'Ваша улыбка - наша репутация',
     subtitle:
       'Современная стоматология в центре Тбилиси - с 2013 года, Golden Brand и пациенты почти из 50 стран.',

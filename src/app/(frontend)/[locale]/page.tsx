@@ -199,6 +199,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           heading={section?.heading}
           subheading={section?.subheading}
           viewAllHref={localePath(locale, '/doctors')}
+          layout="rail"
         />
       )
     },
@@ -302,7 +303,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Hero
         locale={locale}
         dict={dict}
-        brand={hero.brand}
         title={heroTitle}
         subtitle={heroSubtitle}
         bullets={heroBullets}
@@ -313,10 +313,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         ctaHref={home?.primaryCtaHref}
       />
 
-      {sections.map((section) => {
-        const render = section.blockType ? renderers[section.blockType] : undefined
-        return render ? <div key={section.blockType}>{render()}</div> : null
-      })}
+      <div className="home-flow">
+        {sections.map((section) => {
+          const render = section.blockType ? renderers[section.blockType] : undefined
+          return render ? <div key={section.blockType}>{render()}</div> : null
+        })}
+      </div>
 
       <JsonLd data={websiteLd} />
     </>

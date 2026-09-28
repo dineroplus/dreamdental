@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 import { db, schema } from '../../../db/client'
 
@@ -64,8 +65,10 @@ async function notifyBooking(payload: {
   sourcePath: string | null
 }) {
   const apiKey = process.env.RESEND_API_KEY
-  const to = process.env.BOOKING_NOTIFY_TO
-  if (!apiKey || !to) return
+  if (!apiKey) return
+
+  const to = await notifyRecipients()
+  if (to.length === 0) return
 
   const from = process.env.BOOKING_NOTIFY_FROM || 'Dream Dental <onboarding@resend.dev>'
   const lines = [
@@ -79,7 +82,7 @@ async function notifyBooking(payload: {
   ].filter(Boolean)
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -87,13 +90,43 @@ async function notifyBooking(payload: {
       },
       body: JSON.stringify({
         from,
-        to: [to],
+        to,
         subject: `ახალი ჯავშანი — ${payload.name}`,
         text: lines.join('\n'),
       }),
     })
+    if (!response.ok) {
+      console.error('booking notify failed', response.status)
+    }
   } catch {
-    // Notification failures are logged nowhere on purpose — the booking row is
-    // already saved and Studio will show it regardless.
+    // The booking row is already saved. A mail outage must not fail the form.
+    console.error('booking notify failed')
   }
+}
+
+/** Addresses from Admin → კლინიკის მონაცემები. Env is only a fallback. */
+async function notifyRecipients(): Promise<string[]> {
+  let fromAdmin = ''
+  try {
+    const rows = await db()
+      .select({ data: schema.singletons.data })
+      .from(schema.singletons)
+      .where(eq(schema.singletons.key, 'settings'))
+      .limit(1)
+    const contact = rows[0]?.data?.contact
+    if (contact && typeof contact === 'object' && 'bookingNotifyEmail' in contact) {
+      const value = contact.bookingNotifyEmail
+      if (typeof value === 'string') fromAdmin = value
+    }
+  } catch {
+    fromAdmin = ''
+  }
+
+  const raw = fromAdmin.trim() || process.env.BOOKING_NOTIFY_TO || ''
+  const seen = new Set<string>()
+  for (const part of raw.split(/[,;]+/)) {
+    const email = part.trim().toLowerCase()
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) seen.add(email)
+  }
+  return [...seen]
 }

@@ -533,6 +533,11 @@ const settingsFields = {
       phoneSecondary: { kind: 'text', label: 'დამატებითი ტელეფონი' },
       whatsapp: { kind: 'text', label: 'WhatsApp', hint: 'მხოლოდ ციფრები, ქვეყნის კოდით.' },
       email: { kind: 'text', label: 'ელფოსტა' },
+      bookingNotifyEmail: {
+        kind: 'text',
+        label: 'ჯავშნის შეტყობინება',
+        hint: 'ახალი ჯავშანი ამ მისამართზე მოვა. რამდენიმე მისამართი მძიმით.',
+      },
       addressLine: { kind: 'text', label: 'მისამართი', localized: true },
       city: { kind: 'text', label: 'ქალაქი', localized: true },
       latitude: { kind: 'number', label: 'განედი', advanced: true },

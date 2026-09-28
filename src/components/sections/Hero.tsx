@@ -1,4 +1,4 @@
-import { ArrowIcon, ButtonLink, Icon } from '../ui'
+import { ButtonLink, Icon } from '../ui'
 import { Reveal } from '../motion/Reveal'
 import { HeroDreamVisual } from './HeroDreamVisual'
 import { uiCaps } from '../../lib/georgian'
@@ -9,7 +9,6 @@ import type { Dictionary } from '../../i18n/dictionaries'
 type Props = {
   locale: Locale
   dict: Dictionary
-  brand: string
   title: string
   subtitle?: string | null
   bullets: string[]
@@ -23,7 +22,6 @@ type Props = {
 export function Hero({
   locale,
   dict,
-  brand,
   title,
   subtitle,
   bullets,
@@ -40,19 +38,13 @@ export function Hero({
       <div className="container-page relative grid items-center gap-10 pt-10 pb-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-24">
         <div>
           <Reveal>
-            <p className="font-display text-brand text-base font-semibold tracking-tight md:text-lg">
-              {brand}
-            </p>
-          </Reveal>
-
-          <Reveal delay={1}>
-            <h1 className="mt-3 text-[clamp(2rem,6.5vw,3.6rem)] leading-[1.08] uppercase">
+            <h1 className="text-[clamp(2rem,6.5vw,3.6rem)] leading-[1.08] uppercase">
               <span className="text-gradient">{uiCaps(title, locale)}</span>
             </h1>
           </Reveal>
 
           {subtitle && (
-            <Reveal delay={2}>
+            <Reveal delay={1}>
               <p className="text-ink-muted mt-5 max-w-xl text-base leading-relaxed md:text-lg">
                 {subtitle}
               </p>
@@ -60,7 +52,7 @@ export function Hero({
           )}
 
           {bullets.length > 0 && (
-            <Reveal delay={3}>
+            <Reveal delay={2}>
               <ul className="mt-7 grid gap-2.5 sm:grid-cols-2">
                 {bullets.map((text) => (
                   <li key={text} className="text-ink flex items-start gap-2.5 text-sm">
@@ -74,21 +66,21 @@ export function Hero({
             </Reveal>
           )}
 
-          <Reveal delay={4}>
+          <Reveal delay={3}>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <ButtonLink
                 href={ctaHref ? localePath(locale, ctaHref) : localePath(locale, '/contact')}
                 className="uppercase"
               >
+                <Icon name="calendar" className="h-4 w-4" />
                 {ctaLabel || dict.cta.bookNow}
-                <ArrowIcon />
               </ButtonLink>
 
               <a
                 href={`tel:${phone}`}
                 className="border-brand/25 text-brand hover:bg-brand-soft inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold uppercase transition-colors"
               >
-                <Icon name="clock" className="h-4 w-4" />
+                <Icon name="phone" className="h-4 w-4" />
                 {dict.cta.callNow}
               </a>
 

@@ -16,6 +16,7 @@ export function DoctorsSection({
   subheading,
   viewAllHref,
   hideHeading = false,
+  layout = 'grid',
 }: {
   locale: Locale
   dict: Dictionary
@@ -24,6 +25,8 @@ export function DoctorsSection({
   subheading?: string | null
   viewAllHref?: string
   hideHeading?: boolean
+  /** Homepage uses one scrolling row from the `lg` breakpoint. */
+  layout?: 'grid' | 'rail'
 }) {
   // Prefer a portrait; fall back to the public/team cut-outs; last resort
   // still show the doctor so the section never vanishes after a media migration.
@@ -43,8 +46,15 @@ export function DoctorsSection({
         {/*
           Avoid `.rail` here: its `flex: 0 0 auto` children size to text content,
           so cards end up different widths. Fixed mobile widths + equal grid tracks.
+          The homepage rail keeps that fixed width and scrolls in one row from `lg`.
         */}
-        <div className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 xl:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+        <div
+          className={
+            layout === 'rail'
+              ? '-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:flex lg:snap-x lg:snap-mandatory lg:gap-5 lg:overflow-x-auto lg:px-0 lg:pb-1 [&::-webkit-scrollbar]:hidden'
+              : '-mx-5 flex gap-4 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 xl:grid-cols-4 [&::-webkit-scrollbar]:hidden'
+          }
+        >
           {list.map((doctor, index) => {
             const photo = doctorPhotoUrl(doctor, 'card')
             return (
@@ -52,7 +62,11 @@ export function DoctorsSection({
                 key={doctor.id}
                 delay={index % 4}
                 as="article"
-                className="w-[72vw] max-w-[280px] shrink-0 sm:w-full sm:max-w-none sm:min-w-0"
+                className={
+                  layout === 'rail'
+                    ? 'w-[72vw] max-w-[280px] shrink-0 snap-start sm:w-full sm:max-w-none sm:min-w-0 lg:w-[280px] lg:max-w-none lg:min-w-[280px] lg:shrink-0'
+                    : 'w-[72vw] max-w-[280px] shrink-0 sm:w-full sm:max-w-none sm:min-w-0'
+                }
               >
                 <Link
                   href={localePath(locale, `/doctors/${doctor.slug}`)}

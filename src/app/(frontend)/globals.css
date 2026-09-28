@@ -169,6 +169,20 @@
     }
   }
 
+  /*
+   * Homepage sections sit directly on each other, so the default rhythm
+   * (bottom of one + top of the next) reads as a large empty gap.
+   */
+  .home-flow .section {
+    padding-block: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .home-flow .section {
+      padding-block: 2.75rem;
+    }
+  }
+
   /* Fluid display sizes. `--heading-scale` is driven by the Theme global. */
   .display-1 {
     font-size: calc(clamp(2.4rem, 8.5vw, 5.25rem) * var(--heading-scale, 1));

@@ -40,10 +40,10 @@ export function LogoLockup({
   tone?: 'ink' | 'light'
 }) {
   return (
-    <span className={cn('block leading-none', className)}>
+    <span className={cn('inline-flex w-max flex-col leading-none', className)}>
       <span
         className={cn(
-          'font-display block text-[0.95rem] leading-none font-semibold tracking-tight',
+          'font-display text-[1.2rem] leading-none font-semibold tracking-tight lg:text-[1.35rem]',
           tone === 'light' ? 'text-white' : 'text-ink',
         )}
       >
@@ -51,7 +51,7 @@ export function LogoLockup({
       </span>
       <span
         className={cn(
-          'mt-1 block text-[0.52rem] leading-none font-semibold tracking-[0.3em] uppercase',
+          'mt-1.5 block w-full text-[0.54rem] leading-none font-semibold tracking-[0.28em] uppercase text-justify [text-align-last:justify] lg:text-[0.58rem]',
           tone === 'light' ? 'text-white/60' : 'text-gold',
         )}
       >
