@@ -40,7 +40,7 @@ export function ServicesGrid({
           <SectionHeading eyebrow={dict.nav.services} title={heading || dict.nav.services} subtitle={subheading} />
         )}
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
           {services.map((service, index) => (
             <Reveal key={service.id} delay={index % 3} as="article">
               <Link

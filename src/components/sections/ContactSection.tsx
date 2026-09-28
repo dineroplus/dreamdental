@@ -40,7 +40,7 @@ export function ContactSection({
   longitude,
   mapUrl,
 }: Props) {
-  const mapSrc = `https://www.google.com/maps?q=${latitude},${longitude}&z=16&output=embed`
+  const mapSrc = `https://maps.google.com/maps?q=${latitude},${longitude}&z=16&hl=${locale}&output=embed`
 
   return (
     <section id="contact" className="section">
@@ -52,78 +52,81 @@ export function ContactSection({
           titleClassName="uppercase"
         />
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:gap-10">
-          <Reveal>
-            <div className="space-y-4">
-              <ul className="card divide-hairline divide-y p-0 text-sm">
-                <li className="flex items-start gap-3 p-5">
-                  <Icon name="pin" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <div>
-                    <p className="text-ink-muted text-xs">{dict.labels.address}</p>
-                    <p className="text-ink mt-0.5 font-medium">
-                      {addressLine}
-                      {city ? `, ${city}` : ''}
-                    </p>
-                    {mapUrl && (
-                      <a
-                        href={mapUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-accent mt-1 inline-block text-xs font-semibold"
-                      >
-                        {dict.cta.directions}
-                      </a>
-                    )}
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3 p-5">
-                  <Icon name="clock" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <div>
-                    <p className="text-ink-muted text-xs">{dict.labels.workingHours}</p>
-                    <p className="text-ink mt-0.5 font-medium">{hours}</p>
-                    {hoursNote && <p className="text-ink-muted mt-0.5 text-xs">{hoursNote}</p>}
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3 p-5">
-                  <Icon name="shield" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                  <div>
-                    <p className="text-ink-muted text-xs">{dict.labels.phone}</p>
-                    <a href={`tel:${phonePrimary}`} className="text-ink hover:text-accent mt-0.5 block font-medium">
-                      {formatPhone(phonePrimary)}
+        {/*
+          One map instance. CSS order puts the form under contact on mobile
+          without display:none (which broke Reveal / left the iframe invisible).
+        */}
+        <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-8">
+          <Reveal className="order-1 min-w-0">
+            <ul className="card divide-hairline divide-y p-0 text-sm">
+              <li className="flex items-start gap-3 p-5">
+                <Icon name="pin" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
+                <div>
+                  <p className="text-ink-muted text-xs">{dict.labels.address}</p>
+                  <p className="text-ink mt-0.5 font-medium">
+                    {addressLine}
+                    {city ? `, ${city}` : ''}
+                  </p>
+                  {mapUrl && (
+                    <a
+                      href={mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent mt-1 inline-block text-xs font-semibold"
+                    >
+                      {dict.cta.directions}
                     </a>
-                    {phoneSecondary && (
-                      <a
-                        href={`tel:${phoneSecondary}`}
-                        className="text-ink hover:text-accent mt-0.5 block font-medium"
-                      >
-                        {formatPhone(phoneSecondary)}
-                      </a>
-                    )}
-                    <a href={`mailto:${email}`} className="text-ink-muted hover:text-accent mt-1 block text-xs">
-                      {email}
-                    </a>
-                  </div>
-                </li>
-              </ul>
+                  )}
+                </div>
+              </li>
 
-              <div className="overflow-hidden rounded-[var(--radius-card)]">
-                <iframe
-                  src={mapSrc}
-                  title={`${addressLine}, ${city}`}
-                  width="100%"
-                  height="260"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="block border-0"
-                />
-              </div>
-            </div>
+              <li className="flex items-start gap-3 p-5">
+                <Icon name="clock" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
+                <div>
+                  <p className="text-ink-muted text-xs">{dict.labels.workingHours}</p>
+                  <p className="text-ink mt-0.5 font-medium">{hours}</p>
+                  {hoursNote && <p className="text-ink-muted mt-0.5 text-xs">{hoursNote}</p>}
+                </div>
+              </li>
+
+              <li className="flex items-start gap-3 p-5">
+                <Icon name="shield" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
+                <div>
+                  <p className="text-ink-muted text-xs">{dict.labels.phone}</p>
+                  <a href={`tel:${phonePrimary}`} className="text-ink hover:text-accent mt-0.5 block font-medium">
+                    {formatPhone(phonePrimary)}
+                  </a>
+                  {phoneSecondary && (
+                    <a
+                      href={`tel:${phoneSecondary}`}
+                      className="text-ink hover:text-accent mt-0.5 block font-medium"
+                    >
+                      {formatPhone(phoneSecondary)}
+                    </a>
+                  )}
+                  <a href={`mailto:${email}`} className="text-ink-muted hover:text-accent mt-1 block text-xs">
+                    {email}
+                  </a>
+                </div>
+              </li>
+            </ul>
           </Reveal>
 
-          <Reveal delay={1}>
+          <Reveal delay={1} className="order-2 min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <BookingForm locale={locale} dict={dict} services={services} />
+          </Reveal>
+
+          <Reveal delay={2} className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
+            <div className="bg-brand-soft relative overflow-hidden rounded-[var(--radius-card)]">
+              <iframe
+                src={mapSrc}
+                title={`${addressLine}, ${city}`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+                className="block h-[220px] w-full border-0 lg:h-[280px]"
+              />
+            </div>
           </Reveal>
         </div>
       </div>
