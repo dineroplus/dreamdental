@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { getMedia } from '../../admin/media'
 import { locales, type Locale } from '../../i18n/config'
 import { emptyShape, emptyValue, type Field, type FieldMap } from '../../content/fields'
 import { ImagePicker } from './ImagePicker'
@@ -16,6 +17,10 @@ const INPUT =
   'w-full rounded-xl border border-hairline bg-surface px-3.5 py-3 text-base text-ink outline-none focus:border-brand'
 
 const LocaleCtx = createContext<Locale>('ka')
+/** Values of the fields next to the one being rendered, for cross-field previews. */
+const SiblingsCtx = createContext<Record<string, unknown>>({})
+
+const HEX = /^#[0-9a-f]{6}$/i
 
 type Props = {
   fields: FieldMap
@@ -27,9 +32,7 @@ type Props = {
 export function FieldRenderer({ fields, value, onChange, embedded = false }: Props) {
   const [locale, setLocale] = useState<Locale>('ka')
 
-  const body = (
-    <FieldSet fields={fields} value={value} onChange={onChange} />
-  )
+  const body = <FieldSet fields={fields} value={value} onChange={onChange} />
 
   if (embedded) return body
 
@@ -76,38 +79,10 @@ function FieldSet({
   const extra = entries.filter(([, field]) => field.advanced)
 
   return (
-    <div className={side.length > 0 ? 'grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]' : ''}>
-      <div className="space-y-5">
-        {main.map(([name, field]) => (
-          <FieldControl
-            key={name}
-            name={name}
-            field={field}
-            value={value[name]}
-            onChange={(next) => setField(name, next)}
-          />
-        ))}
-        {extra.length > 0 ? (
-          <details className="border-hairline rounded-2xl border bg-surface px-4 py-4">
-            <summary className="text-ink-muted cursor-pointer text-base font-medium">დამატებით</summary>
-            <div className="mt-4 space-y-5">
-              {extra.map(([name, field]) => (
-                <FieldControl
-                  key={name}
-                  name={name}
-                  field={field}
-                  value={value[name]}
-                  onChange={(next) => setField(name, next)}
-                />
-              ))}
-            </div>
-          </details>
-        ) : null}
-      </div>
-
-      {side.length > 0 ? (
-        <aside className="space-y-5">
-          {side.map(([name, field]) => (
+    <SiblingsCtx.Provider value={value}>
+      <div className={side.length > 0 ? 'grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]' : ''}>
+        <div className="space-y-5">
+          {main.map(([name, field]) => (
             <FieldControl
               key={name}
               name={name}
@@ -116,9 +91,41 @@ function FieldSet({
               onChange={(next) => setField(name, next)}
             />
           ))}
-        </aside>
-      ) : null}
-    </div>
+          {extra.length > 0 ? (
+            <details className="border-hairline rounded-2xl border bg-surface px-4 py-4">
+              <summary className="text-ink-muted cursor-pointer text-base font-medium">
+                დამატებით
+              </summary>
+              <div className="mt-4 space-y-5">
+                {extra.map(([name, field]) => (
+                  <FieldControl
+                    key={name}
+                    name={name}
+                    field={field}
+                    value={value[name]}
+                    onChange={(next) => setField(name, next)}
+                  />
+                ))}
+              </div>
+            </details>
+          ) : null}
+        </div>
+
+        {side.length > 0 ? (
+          <aside className="space-y-5">
+            {side.map(([name, field]) => (
+              <FieldControl
+                key={name}
+                name={name}
+                field={field}
+                value={value[name]}
+                onChange={(next) => setField(name, next)}
+              />
+            ))}
+          </aside>
+        ) : null}
+      </div>
+    </SiblingsCtx.Provider>
   )
 }
 
@@ -138,7 +145,9 @@ function FieldControl({
       <section className="border-hairline overflow-hidden rounded-2xl border bg-surface">
         <header className="border-hairline bg-brand-soft/40 border-b px-4 py-3">
           <h3 className="text-ink text-base font-semibold">{field.label}</h3>
-          {field.hint ? <p className="text-ink-muted mt-0.5 text-sm leading-relaxed">{field.hint}</p> : null}
+          {field.hint ? (
+            <p className="text-ink-muted mt-0.5 text-sm leading-relaxed">{field.hint}</p>
+          ) : null}
         </header>
         <div className="p-4">
           <FieldSet
@@ -157,7 +166,9 @@ function FieldControl({
         {field.label}
         {field.required ? <span className="text-brand"> *</span> : null}
       </span>
-      {field.hint ? <span className="text-ink-muted block text-sm leading-relaxed">{field.hint}</span> : null}
+      {field.hint ? (
+        <span className="text-ink-muted block text-sm leading-relaxed">{field.hint}</span>
+      ) : null}
       <FieldInput field={field} value={value} onChange={onChange} name={name} />
     </div>
   )
@@ -195,7 +206,7 @@ function FieldInput({
       return (
         <textarea
           className={INPUT}
-          rows={field.kind === 'markdown' ? 8 : field.rows ?? 4}
+          rows={field.kind === 'markdown' ? 8 : (field.rows ?? 4)}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value)}
         />
@@ -268,14 +279,7 @@ function FieldInput({
         </div>
       )
     case 'color':
-      return (
-        <input
-          type="color"
-          className="h-10 w-16 cursor-pointer rounded-lg border border-hairline bg-transparent p-1"
-          value={typeof value === 'string' && value ? value : '#000000'}
-          onChange={(event) => onChange(event.target.value)}
-        />
-      )
+      return <ColorInput field={field} value={value} onChange={onChange} />
     case 'date':
       return (
         <input
@@ -295,11 +299,7 @@ function FieldInput({
       return <RelationPicker to={field.to} value={value} onChange={onChange} multiple />
     case 'list':
       return (
-        <ListEditor
-          field={field}
-          value={Array.isArray(value) ? value : []}
-          onChange={onChange}
-        />
+        <ListEditor field={field} value={Array.isArray(value) ? value : []} onChange={onChange} />
       )
     case 'objectList':
       return (
@@ -336,6 +336,107 @@ function FieldInput({
         />
       )
   }
+}
+
+function ColorInput({
+  field,
+  value,
+  onChange,
+}: {
+  field: Extract<Field, { kind: 'color' }>
+  value: unknown
+  onChange: (next: unknown) => void
+}) {
+  const siblings = useContext(SiblingsCtx)
+  const current = typeof value === 'string' && HEX.test(value) ? value.toLowerCase() : ''
+  const imageId = field.previewImage ? siblings[field.previewImage] : undefined
+  const [preview, setPreview] = useState<{ id: number; url: string } | null>(null)
+  const previewUrl = preview && preview.id === imageId ? preview.url : null
+
+  useEffect(() => {
+    if (typeof imageId !== 'number') return
+    let cancelled = false
+    getMedia(imageId)
+      .then((media) => {
+        if (!cancelled && media) setPreview({ id: imageId, url: media.url })
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [imageId])
+
+  return (
+    <div className="flex flex-wrap items-start gap-5">
+      {field.previewImage ? (
+        <div
+          className="bg-brand-soft relative aspect-3/4 w-32 shrink-0 overflow-hidden rounded-2xl border border-hairline"
+          style={current ? { backgroundColor: current } : undefined}
+        >
+          {previewUrl ? (
+            // Admin preview; next/image is unnecessary for a local picker.
+            <img
+              src={previewUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full object-contain object-bottom p-2 pt-4"
+            />
+          ) : (
+            <span className="text-ink-muted absolute inset-0 grid place-items-center px-3 text-center text-xs">
+              ჯერ ფოტო ატვირთე
+            </span>
+          )}
+        </div>
+      ) : null}
+
+      <div className="min-w-0 flex-1 space-y-3">
+        {field.swatches?.length ? (
+          <div className="flex flex-wrap gap-2">
+            {field.swatches.map((swatch) => {
+              const selected = current === swatch.value.toLowerCase()
+              return (
+                <button
+                  key={swatch.value}
+                  type="button"
+                  title={swatch.label}
+                  aria-label={swatch.label}
+                  aria-pressed={selected}
+                  onClick={() => onChange(swatch.value)}
+                  className={
+                    selected
+                      ? 'ring-brand h-10 w-10 rounded-full border border-hairline ring-2 ring-offset-2'
+                      : 'h-10 w-10 rounded-full border border-hairline hover:scale-110 transition-transform'
+                  }
+                  style={{ backgroundColor: swatch.value }}
+                />
+              )
+            })}
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="text-ink-muted flex items-center gap-2 text-sm">
+            <input
+              type="color"
+              className="h-10 w-16 cursor-pointer rounded-lg border border-hairline bg-transparent p-1"
+              value={current || '#ffffff'}
+              onChange={(event) => onChange(event.target.value)}
+            />
+            {field.swatches?.length ? 'სხვა ფერი' : null}
+          </label>
+          {current ? <code className="text-ink-muted text-sm">{current}</code> : null}
+          {current && !field.required ? (
+            <button
+              type="button"
+              onClick={() => onChange(undefined)}
+              className="text-accent text-sm font-semibold"
+            >
+              ნაგულისხმევზე დაბრუნება
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function ListEditor({
@@ -477,7 +578,10 @@ function BlocksEditor({
         const type = String(block.type ?? '')
         const definition = field.blocks[type]
         return (
-          <div key={String(block.id ?? index)} className="border-hairline space-y-3 rounded-2xl border p-4">
+          <div
+            key={String(block.id ?? index)}
+            className="border-hairline space-y-3 rounded-2xl border p-4"
+          >
             <div className="flex items-center justify-between gap-3">
               <select
                 className={INPUT}
@@ -533,7 +637,10 @@ function BlocksEditor({
             type="button"
             className="border-hairline min-h-11 rounded-xl border px-4 py-2.5 text-sm font-semibold"
             onClick={() =>
-              onChange([...value, { type: key, id: crypto.randomUUID(), ...emptyShape(def.fields) }])
+              onChange([
+                ...value,
+                { type: key, id: crypto.randomUUID(), ...emptyShape(def.fields) },
+              ])
             }
           >
             + {def.label}

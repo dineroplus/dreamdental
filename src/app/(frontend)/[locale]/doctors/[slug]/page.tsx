@@ -3,15 +3,10 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { isLocale, locales, localeLabels, type Locale } from '../../../../../i18n/config'
 import { getDictionary } from '../../../../../i18n/dictionaries'
-import {
-  getAllSlugs,
-  getCases,
-  getDoctorBySlug,
-  getSettings,
-} from '../../../../../lib/data'
+import { getAllSlugs, getCases, getDoctorBySlug, getSettings } from '../../../../../lib/data'
 import { buildMetadata } from '../../../../../lib/metadata'
 import { CLINIC, SITE_URL } from '../../../../../lib/site'
-import { doctorPhotoUrl } from '../../../../../lib/doctorPhotos'
+import { doctorPhotoBackground, doctorPhotoUrl } from '../../../../../lib/doctorPhotos'
 import { localePath, mediaAlt, mediaUrl } from '../../../../../lib/utils'
 import { markdownLiteToPlain } from '../../../../../lib/markdownLite'
 import { PageHeader } from '../../../../../components/PageHeader'
@@ -55,7 +50,9 @@ export async function generateMetadata({
     path: `/doctors/${slug}`,
     title: doctor.seo?.title || `${name}${specialty ? ` - ${specialty}` : ''}`,
     description:
-      doctor.seo?.description || markdownLiteToPlain(doctor.bio, 158) || `${name}${specialty ? ` - ${specialty}` : ''}`,
+      doctor.seo?.description ||
+      markdownLiteToPlain(doctor.bio, 158) ||
+      `${name}${specialty ? ` - ${specialty}` : ''}`,
     image: mediaUrl(doctor.seo?.image) || doctorPhotoUrl(doctor),
     noindex: doctor.seo?.noindex ?? false,
   })
@@ -80,7 +77,9 @@ export default async function DoctorDetailPage({
   ])
 
   const doctorCases = allCases.filter((c) =>
-    typeof c.doctor === 'object' && c.doctor !== null ? c.doctor.id === doctor.id : c.doctor === doctor.id,
+    typeof c.doctor === 'object' && c.doctor !== null
+      ? c.doctor.id === doctor.id
+      : c.doctor === doctor.id,
   )
 
   const photo = doctorPhotoUrl(doctor, 'card')
@@ -105,7 +104,10 @@ export default async function DoctorDetailPage({
 
       <section className="container-page pb-2 md:pb-6">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)] lg:gap-12">
-          <div className="bg-brand-soft relative mx-auto aspect-3/4 w-full max-w-[280px] overflow-hidden rounded-[var(--radius-card)] lg:mx-0 lg:max-w-none">
+          <div
+            className="bg-brand-soft relative mx-auto aspect-3/4 w-full max-w-[280px] overflow-hidden rounded-[var(--radius-card)] lg:mx-0 lg:max-w-none"
+            style={doctorPhotoBackground(doctor)}
+          >
             {photo ? (
               <Image
                 src={photo}
@@ -126,21 +128,27 @@ export default async function DoctorDetailPage({
             <dl className="flex flex-wrap gap-x-8 gap-y-4 text-sm">
               {doctor.specialty && (
                 <div>
-                  <dt className="text-ink-muted text-xs tracking-wide uppercase">{dict.labels.specialty}</dt>
+                  <dt className="text-ink-muted text-xs tracking-wide uppercase">
+                    {dict.labels.specialty}
+                  </dt>
                   <dd className="text-ink mt-1 font-medium">{doctor.specialty}</dd>
                 </div>
               )}
 
               {years !== null && (
                 <div>
-                  <dt className="text-ink-muted text-xs tracking-wide uppercase">{dict.misc.yearsOfExperience}</dt>
+                  <dt className="text-ink-muted text-xs tracking-wide uppercase">
+                    {dict.misc.yearsOfExperience}
+                  </dt>
                   <dd className="text-ink mt-1 font-medium">{years}+</dd>
                 </div>
               )}
 
               {doctor.languages && doctor.languages.length > 0 && (
                 <div className="min-w-0">
-                  <dt className="text-ink-muted text-xs tracking-wide uppercase">{dict.labels.languages}</dt>
+                  <dt className="text-ink-muted text-xs tracking-wide uppercase">
+                    {dict.labels.languages}
+                  </dt>
                   <dd className="mt-2 flex flex-wrap gap-1.5">
                     {doctor.languages.map((code) => (
                       <Badge key={code} tone="brand">

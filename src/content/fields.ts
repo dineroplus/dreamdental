@@ -30,7 +30,13 @@ export type Field =
   | (Base & { kind: 'markdown' })
   | (Base & { kind: 'slug' })
   | (Base & { kind: 'url' })
-  | (Base & { kind: 'color' })
+  | (Base & {
+      kind: 'color'
+      /** Preset colours offered as one-click swatches; `value` is a hex code. */
+      swatches?: readonly Option[]
+      /** Name of a sibling image field to preview on top of the chosen colour. */
+      previewImage?: string
+    })
   | (Base & { kind: 'date' })
   | (Base & { kind: 'number'; min?: number; max?: number })
   | (Base & { kind: 'boolean' })

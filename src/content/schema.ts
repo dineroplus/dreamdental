@@ -54,6 +54,18 @@ const SERVICE_ICONS = [
   { value: 'microscope', label: 'მიკროსკოპი' },
 ] as const
 
+const DOCTOR_PHOTO_BACKGROUNDS = [
+  { value: '#f3e7e8', label: 'ღია ვარდისფერი' },
+  { value: '#fdf8ef', label: 'კრემისფერი' },
+  { value: '#ffffff', label: 'თეთრი' },
+  { value: '#eef0f2', label: 'ღია ნაცრისფერი' },
+  { value: '#e3eef8', label: 'ცისფერი' },
+  { value: '#e3f2ec', label: 'პიტნისფერი' },
+  { value: '#f7eed3', label: 'ოქროსფერი' },
+  { value: '#8b1220', label: 'ბორდო' },
+  { value: '#2a1a1c', label: 'მუქი' },
+] as const
+
 const DOCTOR_LANGUAGES = [
   { value: 'ka', label: 'ქართული' },
   { value: 'en', label: 'ინგლისური' },
@@ -187,6 +199,13 @@ const doctorFields = {
     hint: 'მაგ.: მთავარი ექიმი. ჩვეულებრივი პერსონალისთვის ცარიელი დატოვე.',
   },
   photo: { kind: 'image', label: 'ფოტო' },
+  photoBackground: {
+    kind: 'color',
+    label: 'ფოტოს ფონი',
+    hint: 'ფერი, რომელიც ექიმის ფოტოს უკან ჩანს. მუშაობს გამჭვირვალე ფონიან (PNG/WEBP) ფოტოზე.',
+    swatches: DOCTOR_PHOTO_BACKGROUNDS,
+    previewImage: 'photo',
+  },
   bio: { kind: 'markdown', label: 'ბიოგრაფია', localized: true },
   experienceSince: {
     kind: 'number',
@@ -219,10 +238,20 @@ const caseFields = {
     hint: 'გადაიღე ორივე ფოტო ერთი კუთხიდან, რომ სლაიდერი დაემთხვეს.',
   },
   afterImage: { kind: 'image', label: 'ფოტო "შემდეგ"', required: true },
-  description: { kind: 'textarea', label: 'აღწერა', localized: true, hint: 'რა იყო პრობლემა და როგორ გადაწყდა.' },
+  description: {
+    kind: 'textarea',
+    label: 'აღწერა',
+    localized: true,
+    hint: 'რა იყო პრობლემა და როგორ გადაწყდა.',
+  },
   treatment: { kind: 'relation', label: 'მკურნალობა', to: 'services', sidebar: true },
   doctor: { kind: 'relation', label: 'ექიმი', to: 'doctors', sidebar: true },
-  duration: { kind: 'text', label: 'ხანგრძლივობა', localized: true, hint: 'მაგ.: 6 თვე, 3 ვიზიტი.' },
+  duration: {
+    kind: 'text',
+    label: 'ხანგრძლივობა',
+    localized: true,
+    hint: 'მაგ.: 6 თვე, 3 ვიზიტი.',
+  },
   patientConsent: {
     kind: 'boolean',
     label: 'პაციენტის თანხმობა',
@@ -366,7 +395,12 @@ const postFields = {
   faq: faqField,
   publishedAt: { kind: 'date', label: 'გამოქვეყნების თარიღი', sidebar: true, required: true },
   author: { kind: 'relation', label: 'ავტორი', to: 'doctors', sidebar: true },
-  relatedServices: { kind: 'relationList', label: 'დაკავშირებული სერვისები', to: 'services', sidebar: true },
+  relatedServices: {
+    kind: 'relationList',
+    label: 'დაკავშირებული სერვისები',
+    to: 'services',
+    sidebar: true,
+  },
   seo: seoField,
 } as const satisfies FieldMap
 
@@ -620,7 +654,12 @@ const settingsFields = {
 
 const navigationLink = {
   label: { kind: 'text', label: 'წარწერა', localized: true, required: true },
-  href: { kind: 'text', label: 'ბმული', required: true, hint: 'ენის პრეფიქსის გარეშე, მაგ.: /services' },
+  href: {
+    kind: 'text',
+    label: 'ბმული',
+    required: true,
+    hint: 'ენის პრეფიქსის გარეშე, მაგ.: /services',
+  },
 } as const satisfies FieldMap
 
 const navigationFields = {

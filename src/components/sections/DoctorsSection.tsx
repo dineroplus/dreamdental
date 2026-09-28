@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ArrowIcon, ButtonLink, SectionHeading } from '../ui'
 import { Reveal } from '../motion/Reveal'
 import { DoctorsRail } from './DoctorsRail'
-import { doctorPhotoUrl } from '../../lib/doctorPhotos'
+import { doctorPhotoBackground, doctorPhotoUrl } from '../../lib/doctorPhotos'
 import { localePath, mediaAlt } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
@@ -79,6 +79,7 @@ export function DoctorsSection({
                 ? 'bg-brand-soft relative aspect-3/4 w-full shrink-0 overflow-hidden'
                 : 'bg-brand-soft relative aspect-3/4 w-full shrink-0 overflow-hidden'
             }
+            style={doctorPhotoBackground(doctor)}
           >
             {photo ? (
               <Image
@@ -118,10 +119,20 @@ export function DoctorsSection({
           </div>
 
           <div className={compact ? 'flex flex-1 flex-col p-2.5' : 'flex flex-1 flex-col p-4'}>
-            <h3 className={compact ? 'text-ink text-[0.8rem] leading-snug' : 'text-ink text-base leading-snug'}>
+            <h3
+              className={
+                compact ? 'text-ink text-[0.8rem] leading-snug' : 'text-ink text-base leading-snug'
+              }
+            >
               {doctor.name}
             </h3>
-            <p className={compact ? 'text-accent mt-0.5 line-clamp-2 text-[0.68rem] leading-snug' : 'text-accent mt-1 text-sm'}>
+            <p
+              className={
+                compact
+                  ? 'text-accent mt-0.5 line-clamp-2 text-[0.68rem] leading-snug'
+                  : 'text-accent mt-1 text-sm'
+              }
+            >
               {doctor.specialty}
             </p>
             {!compact && doctor.experienceSince && (
@@ -136,7 +147,9 @@ export function DoctorsSection({
   })
 
   return (
-    <section className={hideHeading ? 'section pt-2' : compact ? 'section !py-10 md:!py-12' : 'section'}>
+    <section
+      className={hideHeading ? 'section pt-2' : compact ? 'section !py-10 md:!py-12' : 'section'}
+    >
       {!hideHeading && (
         <div className="container-page">
           <SectionHeading

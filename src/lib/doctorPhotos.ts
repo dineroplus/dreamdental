@@ -21,3 +21,11 @@ export function doctorPhotoUrl(
 ): string | null {
   return mediaUrl(doctor.photo, size) || DOCTOR_PHOTOS[doctor.slug] || null
 }
+
+/** Inline style for the admin-chosen backdrop; `undefined` keeps the default `bg-brand-soft`. */
+export function doctorPhotoBackground(
+  doctor: Pick<Doctor, 'photoBackground'>,
+): { backgroundColor: string } | undefined {
+  const color = doctor.photoBackground
+  return color && /^#[0-9a-f]{6}$/i.test(color) ? { backgroundColor: color } : undefined
+}
