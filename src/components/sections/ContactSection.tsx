@@ -23,11 +23,10 @@ type Props = {
   mapUrl?: string | null
 }
 
-/** OpenStreetMap embed — Google’s `output=embed` often renders a blank frame. */
-function osmEmbedSrc(lat: number, lng: number): string {
-  const pad = 0.006
-  const bbox = [lng - pad, lat - pad, lng + pad, lat + pad].map(encodeURIComponent).join('%2C')
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${encodeURIComponent(`${lat},${lng}`)}`
+/** Google’s coordinate embed works without an API key. */
+function mapEmbedSrc(lat: number, lng: number, locale: Locale): string {
+  const query = encodeURIComponent(`${lat},${lng}`)
+  return `https://maps.google.com/maps?q=${query}&z=16&hl=${locale}&iwloc=near&output=embed`
 }
 
 function directionsHref(lat: number, lng: number, mapUrl?: string | null): string {
@@ -53,7 +52,7 @@ export function ContactSection({
   longitude,
   mapUrl,
 }: Props) {
-  const embedSrc = osmEmbedSrc(latitude, longitude)
+  const embedSrc = mapEmbedSrc(latitude, longitude, locale)
   const openMapsHref = directionsHref(latitude, longitude, mapUrl)
 
   return (
@@ -131,6 +130,7 @@ export function ContactSection({
                 title={`${addressLine}, ${city}`}
                 loading="eager"
                 referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
                 className="bg-surface block h-[220px] w-full border-0 lg:h-[280px]"
               />
               <a
