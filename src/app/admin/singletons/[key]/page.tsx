@@ -3,9 +3,17 @@ import { notFound } from 'next/navigation'
 import { requireUser } from '../../../../admin/auth'
 import { StudioShell } from '../../../../components/studio/StudioShell'
 import { SingletonEditor } from '../../../../components/studio/SingletonEditor'
+import { StudioPageHeader } from '../../../../components/studio/StudioPageHeader'
 import { singletons, type SingletonName } from '../../../../content/schema'
 import { emptyShape } from '../../../../content/fields'
 import { db, schema } from '../../../../db/client'
+
+const SUBTITLES: Record<SingletonName, string> = {
+  home: 'მთავარი გვერდის სათაური, ფოტო და სექციების რიგი.',
+  settings: 'ტელეფონი, მისამართი, სამუშაო საათები და სოციალური ქსელები. ჩანს საიტზე ყველგან.',
+  navigation: 'ზედა და ქვედა მენიუს ბმულები.',
+  theme: 'საიტის ფერები.',
+}
 
 function isSingleton(value: string): value is SingletonName {
   return value in singletons
@@ -26,13 +34,12 @@ export default async function SingletonEditPage({
 
   return (
     <StudioShell user={user}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{definition.label}</h1>
-          <p className="text-ink-muted mt-1 text-sm">ეს ტექსტები საიტზე ყველგან ჩანს.</p>
-        </div>
-        <SingletonEditor singletonKey={key} fields={definition.fields} initialData={data} />
-      </div>
+      <StudioPageHeader
+        back={{ href: '/admin', label: 'მთავარი' }}
+        title={definition.label}
+        subtitle={SUBTITLES[key]}
+      />
+      <SingletonEditor singletonKey={key} fields={definition.fields} initialData={data} />
     </StudioShell>
   )
 }

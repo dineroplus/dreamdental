@@ -1,99 +1,102 @@
-import { desc } from 'drizzle-orm'
+import Link from 'next/link'
+import { count, desc, eq } from 'drizzle-orm'
 import { requireUser } from '../../../admin/auth'
-import { updateBookingStatus } from '../../../admin/actions'
+import { serviceNameMap } from '../../../admin/serviceNames'
 import { StudioShell } from '../../../components/studio/StudioShell'
+import { StudioPageHeader } from '../../../components/studio/StudioPageHeader'
+import { BookingCard, type BookingView } from '../../../components/studio/BookingCard'
+import { BOOKING_STATUSES, isBookingStatus, type BookingStatus } from '../../../components/studio/bookingStatus'
+import { card } from '../../../components/studio/ui'
 import { db, schema } from '../../../db/client'
 
-const STATUSES = [
-  { value: 'new', label: 'ახალი' },
-  { value: 'contacted', label: 'დაკავშირებული' },
-  { value: 'booked', label: 'დაჯავშნილი' },
-  { value: 'closed', label: 'დახურული' },
-] as const
+type Tab = BookingStatus | 'all'
 
-export default async function BookingsPage() {
+export default async function BookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
   const user = await requireUser()
-  const bookings = await db()
-    .select()
-    .from(schema.bookings)
-    .orderBy(desc(schema.bookings.createdAt))
-    .limit(200)
+  const { status: rawStatus } = await searchParams
+  const tab: Tab = rawStatus === 'all' ? 'all' : isBookingStatus(rawStatus) ? rawStatus : 'new'
+
+  const baseQuery = db().select().from(schema.bookings)
+  const [bookings, grouped, serviceNames] = await Promise.all([
+    (tab === 'all' ? baseQuery : baseQuery.where(eq(schema.bookings.status, tab)))
+      .orderBy(desc(schema.bookings.createdAt))
+      .limit(200),
+    db()
+      .select({ status: schema.bookings.status, value: count() })
+      .from(schema.bookings)
+      .groupBy(schema.bookings.status),
+    serviceNameMap(),
+  ])
+
+  const counts: Record<Tab, number> = { all: 0, new: 0, contacted: 0, booked: 0, closed: 0 }
+  for (const row of grouped) {
+    const value = Number(row.value) || 0
+    counts.all += value
+    if (isBookingStatus(row.status)) counts[row.status] = value
+  }
+
+  const tabs: { value: Tab; label: string }[] = [...BOOKING_STATUSES, { value: 'all', label: 'ყველა' }]
+
+  const views: BookingView[] = bookings.map((booking) => ({
+    id: booking.id,
+    name: booking.name,
+    phone: booking.phone,
+    email: booking.email,
+    service: booking.serviceSlug ? (serviceNames[booking.serviceSlug] ?? booking.serviceSlug) : null,
+    message: booking.message,
+    notes: booking.notes,
+    status: isBookingStatus(booking.status) ? booking.status : 'new',
+    createdAt: booking.createdAt.toISOString(),
+  }))
 
   return (
     <StudioShell user={user}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">ჯავშნები</h1>
-          <p className="text-ink-muted mt-1 text-sm">ფორმიდან შემოსული მოთხოვნები.</p>
+      <StudioPageHeader
+        title="ჯავშნები"
+        subtitle="საიტის ფორმიდან შემოსული მოთხოვნები. სტატუსი ინახება დაჭერისთანავე."
+      />
+
+      <nav className="mb-5 flex flex-wrap gap-2" aria-label="სტატუსის ფილტრი">
+        {tabs.map((item) => {
+          const active = item.value === tab
+          return (
+            <Link
+              key={item.value}
+              href={item.value === 'new' ? '/admin/bookings' : `/admin/bookings?status=${item.value}`}
+              className={
+                active
+                  ? 'bg-ink inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-white'
+                  : 'border-hairline text-ink hover:border-brand inline-flex min-h-11 items-center gap-2 rounded-xl border bg-surface px-4 text-sm font-medium'
+              }
+            >
+              {item.label}
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  active ? 'bg-white/20' : item.value === 'new' && counts.new > 0 ? 'bg-accent text-white' : 'bg-canvas'
+                }`}
+              >
+                {counts[item.value]}
+              </span>
+            </Link>
+          )
+        })}
+      </nav>
+
+      {views.length === 0 ? (
+        <div className={`${card} text-ink-muted px-6 py-14 text-center text-base`}>
+          {tab === 'new' ? 'ახალი ჯავშნები არ არის. ყველაფერი დამუშავებულია.' : 'ამ სტატუსით ჯავშნები არ არის.'}
         </div>
-
-        <div className="space-y-3">
-          {bookings.length === 0 ? (
-            <p className="text-ink-muted text-sm">ჯავშნები ჯერ არ არის.</p>
-          ) : (
-            bookings.map((booking) => (
-              <article key={booking.id} className="card space-y-3 p-5 text-sm">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-base font-semibold">{booking.name}</p>
-                    <p className="text-ink-muted">
-                      {booking.phone}
-                      {booking.email ? ` · ${booking.email}` : ''}
-                    </p>
-                    {booking.serviceSlug ? (
-                      <p className="text-ink-muted mt-1">სერვისი: {booking.serviceSlug}</p>
-                    ) : null}
-                  </div>
-                  <time className="text-ink-muted text-xs">
-                    {booking.createdAt.toLocaleString('ka-GE')}
-                  </time>
-                </div>
-
-                {booking.message ? <p className="text-ink-muted">{booking.message}</p> : null}
-
-                <form
-                  action={async (formData) => {
-                    'use server'
-                    const status = String(formData.get('status')) as (typeof STATUSES)[number]['value']
-                    const notes = String(formData.get('notes') ?? '')
-                    await updateBookingStatus(booking.id, status, notes)
-                  }}
-                  className="flex flex-wrap items-end gap-3"
-                >
-                  <label className="space-y-1">
-                    <span className="text-xs">სტატუსი</span>
-                    <select
-                      name="status"
-                      defaultValue={booking.status}
-                      className="border-hairline block rounded-xl border bg-surface px-3 py-2"
-                    >
-                      {STATUSES.map((status) => (
-                        <option key={status.value} value={status.value}>
-                          {status.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="min-w-[200px] flex-1 space-y-1">
-                    <span className="text-xs">შენიშვნა</span>
-                    <input
-                      name="notes"
-                      defaultValue={booking.notes ?? ''}
-                      className="border-hairline w-full rounded-xl border bg-surface px-3 py-2"
-                    />
-                  </label>
-                  <button
-                    type="submit"
-                    className="bg-brand rounded-full px-4 py-2 text-xs font-semibold text-white"
-                  >
-                    განახლება
-                  </button>
-                </form>
-              </article>
-            ))
-          )}
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-2">
+          {views.map((booking) => (
+            <BookingCard key={booking.id} booking={booking} />
+          ))}
         </div>
-      </div>
+      )}
     </StudioShell>
   )
 }

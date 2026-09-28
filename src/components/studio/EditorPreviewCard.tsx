@@ -19,20 +19,18 @@ export function EditorPreviewCard({
   imageId,
   eyebrow = 'ასე გამოჩნდება საიტზე',
 }: Props) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState<{ id: number; url: string | null } | null>(null)
+  const imageUrl = imageId && loaded?.id === imageId ? loaded.url : null
 
   useEffect(() => {
+    if (!imageId) return
     let cancelled = false
-    if (!imageId) {
-      setImageUrl(null)
-      return
-    }
     getMedia(imageId)
       .then((row) => {
-        if (!cancelled) setImageUrl(row?.url ?? null)
+        if (!cancelled) setLoaded({ id: imageId, url: row?.url ?? null })
       })
       .catch(() => {
-        if (!cancelled) setImageUrl(null)
+        if (!cancelled) setLoaded({ id: imageId, url: null })
       })
     return () => {
       cancelled = true

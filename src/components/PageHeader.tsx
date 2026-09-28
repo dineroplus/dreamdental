@@ -19,8 +19,11 @@ export function PageHeader({
 }) {
   return (
     <header className="relative isolate overflow-hidden">
-      <div className="mesh opacity-60" aria-hidden="true" />
-      <div className="container-page relative pt-10 pb-10 md:pt-16 md:pb-14">
+      <div
+        className="mesh opacity-55 [mask-image:linear-gradient(to_bottom,black_40%,transparent_92%)]"
+        aria-hidden="true"
+      />
+      <div className="container-page relative pt-10 pb-8 md:pt-14 md:pb-10">
         {breadcrumbs.length > 0 && (
           <nav aria-label="Breadcrumb" className="text-ink-muted mb-5 flex flex-wrap items-center gap-1.5 text-xs">
             {breadcrumbs.map((crumb, index) => (

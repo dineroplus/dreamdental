@@ -16,9 +16,11 @@ export async function StudioShell({
     .where(eq(schema.bookings.status, 'new'))
 
   return (
-    <div className="bg-canvas text-ink min-h-screen lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
+    <div className="bg-canvas text-ink min-h-screen lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
       <StudioNav userName={user.name || user.email} newBookings={Number(newBookings) || 0} />
-      <main className="min-w-0 p-5 md:p-8">{children}</main>
+      <main className="min-w-0 px-4 pt-6 pb-10 md:px-8 md:pt-8">
+        <div className="mx-auto max-w-6xl">{children}</div>
+      </main>
     </div>
   )
 }

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { unstable_rethrow } from 'next/navigation'
+import { useState } from 'react'
 import { FieldRenderer } from './FieldRenderer'
+import { useEditorSession } from './useEditorSession'
 import { EditorActionBar } from './EditorActionBar'
 import { EditorPreviewCard } from './EditorPreviewCard'
 import {
@@ -32,46 +32,19 @@ export function SingletonEditor({
   initialData: Record<string, unknown>
 }) {
   const [data, setData] = useState(initialData)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
+  const { dirty, pending, message, error, run } = useEditorSession(data, () =>
+    saveSingleton(singletonKey, data),
+  )
 
   const title = previewTitle(data) || SINGLETON_LABEL[singletonKey]
   const imageId = previewImageId(data)
   const previewUrl = absolutePreviewUrl(singletonPreviewPath(singletonKey))
 
-  const persist = async () => {
-    await saveSingleton(singletonKey, data)
-  }
-
-  const onSave = () => {
-    setError(null)
-    setMessage(null)
-    startTransition(async () => {
-      try {
-        await persist()
-        setMessage('შენახულია')
-      } catch (err) {
-        unstable_rethrow(err)
-        setError(err instanceof Error ? err.message : 'შენახვა ვერ მოხერხდა')
-      }
-    })
-  }
+  const onSave = () => run()
 
   const onPreview = () => {
     if (!previewUrl) return
-    setError(null)
-    setMessage(null)
-    startTransition(async () => {
-      try {
-        await persist()
-        setMessage('შენახულია')
-        window.open(previewUrl, '_blank', 'noopener,noreferrer')
-      } catch (err) {
-        unstable_rethrow(err)
-        setError(err instanceof Error ? err.message : 'შენახვა ვერ მოხერხდა')
-      }
-    })
+    run(() => window.open(previewUrl, '_blank', 'noopener,noreferrer'))
   }
 
   return (
@@ -87,6 +60,7 @@ export function SingletonEditor({
 
       <EditorActionBar
         pending={pending}
+        dirty={dirty}
         message={message}
         error={error}
         onSave={onSave}

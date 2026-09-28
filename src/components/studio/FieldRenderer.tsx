@@ -133,6 +133,24 @@ function FieldControl({
   value: unknown
   onChange: (next: unknown) => void
 }) {
+  if (field.kind === 'group') {
+    return (
+      <section className="border-hairline overflow-hidden rounded-2xl border bg-surface">
+        <header className="border-hairline bg-brand-soft/40 border-b px-4 py-3">
+          <h3 className="text-ink text-base font-semibold">{field.label}</h3>
+          {field.hint ? <p className="text-ink-muted mt-0.5 text-sm leading-relaxed">{field.hint}</p> : null}
+        </header>
+        <div className="p-4">
+          <FieldSet
+            fields={field.fields}
+            value={(value as Record<string, unknown>) ?? {}}
+            onChange={onChange}
+          />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <div className="block space-y-2">
       <span className="text-ink text-base font-semibold">
@@ -385,40 +403,55 @@ function ObjectListEditor({
   value: Record<string, unknown>[]
   onChange: (next: unknown) => void
 }) {
+  const [initialCount] = useState(value.length)
+  const openAll = initialCount <= 2
+
   return (
     <div className="space-y-3">
       {value.map((item, index) => (
-        <div key={index} className="border-hairline space-y-3 rounded-2xl border p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-ink text-sm font-medium">
+        <details
+          key={index}
+          open={openAll || index >= initialCount || undefined}
+          className="border-hairline group/item overflow-hidden rounded-2xl border bg-surface"
+        >
+          <summary className="hover:bg-canvas flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-2">
+            <span className="bg-brand-soft text-brand grid h-7 w-7 shrink-0 place-items-center rounded-lg text-sm font-semibold">
+              {index + 1}
+            </span>
+            <span className="text-ink min-w-0 flex-1 truncate text-base font-medium">
               {itemTitle(item, field.titleKey) || `ჩანაწერი ${index + 1}`}
             </span>
+            <span className="text-ink-faint text-sm transition group-open/item:rotate-180">▾</span>
+          </summary>
+          <div className="border-hairline space-y-4 border-t p-4">
+            {Object.entries(field.fields).map(([key, child]) => (
+              <FieldControl
+                key={key}
+                name={key}
+                field={child}
+                value={item[key]}
+                onChange={(next) => {
+                  const copy = [...value]
+                  copy[index] = { ...item, [key]: next }
+                  onChange(copy)
+                }}
+              />
+            ))}
             <button
               type="button"
-              className="text-ink-muted text-sm font-medium"
-              onClick={() => onChange(value.filter((_, i) => i !== index))}
+              className="text-ink-muted hover:text-accent min-h-11 rounded-xl px-2 text-sm font-medium"
+              onClick={() => {
+                if (confirm('წავშალოთ ეს ჩანაწერი?')) onChange(value.filter((_, i) => i !== index))
+              }}
             >
-              წაშლა
+              ამ ჩანაწერის წაშლა
             </button>
           </div>
-          {Object.entries(field.fields).map(([key, child]) => (
-            <FieldControl
-              key={key}
-              name={key}
-              field={child}
-              value={item[key]}
-              onChange={(next) => {
-                const copy = [...value]
-                copy[index] = { ...item, [key]: next }
-                onChange(copy)
-              }}
-            />
-          ))}
-        </div>
+        </details>
       ))}
       <button
         type="button"
-        className="text-accent text-sm font-semibold"
+        className="border-hairline text-brand hover:border-brand min-h-11 w-full rounded-xl border border-dashed px-4 text-base font-semibold"
         onClick={() => onChange([...value, emptyShape(field.fields)])}
       >
         {field.addLabel || 'დამატება'}

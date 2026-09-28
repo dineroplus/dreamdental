@@ -7,7 +7,6 @@ import {
   getAllSlugs,
   getCases,
   getDoctorBySlug,
-  getDoctors,
   getSettings,
 } from '../../../../../lib/data'
 import { buildMetadata } from '../../../../../lib/metadata'
@@ -20,7 +19,6 @@ import { RichText } from '../../../../../components/RichText'
 import { JsonLd } from '../../../../../components/JsonLd'
 import { ArrowIcon, ButtonLink, Icon, Badge } from '../../../../../components/ui'
 import { CasesSection } from '../../../../../components/sections/CasesSection'
-import { DoctorsSection } from '../../../../../components/sections/DoctorsSection'
 
 export const revalidate = 300
 
@@ -76,13 +74,11 @@ export default async function DoctorDetailPage({
   const doctor = await getDoctorBySlug(locale, slug).catch(() => null)
   if (!doctor) notFound()
 
-  const [allDoctors, allCases, settings] = await Promise.all([
-    getDoctors(locale).catch(() => []),
+  const [allCases, settings] = await Promise.all([
     getCases(locale).catch(() => []),
     getSettings(locale).catch(() => null),
   ])
 
-  const colleagues = allDoctors.filter((d) => d.slug !== doctor.slug).slice(0, 4)
   const doctorCases = allCases.filter((c) =>
     typeof c.doctor === 'object' && c.doctor !== null ? c.doctor.id === doctor.id : c.doctor === doctor.id,
   )
@@ -107,42 +103,44 @@ export default async function DoctorDetailPage({
         ]}
       />
 
-      <section className="container-page">
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.5fr] lg:gap-14">
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="bg-brand-soft relative aspect-3/4 overflow-hidden rounded-[var(--radius-card)]">
-              {photo ? (
-                <Image
-                  src={photo}
-                  alt={mediaAlt(doctor.photo, name)}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 38vw"
-                  className="object-contain object-bottom p-4 pt-8"
-                />
-              ) : (
-                <div className="grid h-full place-items-center">
-                  <Icon name="tooth" className="text-brand/25 h-20 w-20" />
+      <section className="container-page pb-2 md:pb-6">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)] lg:gap-12">
+          <div className="bg-brand-soft relative mx-auto aspect-3/4 w-full max-w-[280px] overflow-hidden rounded-[var(--radius-card)] lg:mx-0 lg:max-w-none">
+            {photo ? (
+              <Image
+                src={photo}
+                alt={mediaAlt(doctor.photo, name)}
+                fill
+                priority
+                sizes="(max-width: 1024px) 280px, 300px"
+                className="object-contain object-bottom p-3 pt-6"
+              />
+            ) : (
+              <div className="grid h-full place-items-center">
+                <Icon name="tooth" className="text-brand/25 h-20 w-20" />
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <dl className="flex flex-wrap gap-x-8 gap-y-4 text-sm">
+              {doctor.specialty && (
+                <div>
+                  <dt className="text-ink-muted text-xs tracking-wide uppercase">{dict.labels.specialty}</dt>
+                  <dd className="text-ink mt-1 font-medium">{doctor.specialty}</dd>
                 </div>
               )}
-            </div>
-
-            <dl className="card divide-hairline mt-4 divide-y p-0 text-sm">
-              <div className="p-5">
-                <dt className="text-ink-muted text-xs">{dict.labels.specialty}</dt>
-                <dd className="text-ink mt-0.5 font-medium">{doctor.specialty}</dd>
-              </div>
 
               {years !== null && (
-                <div className="p-5">
-                  <dt className="text-ink-muted text-xs">{dict.misc.yearsOfExperience}</dt>
-                  <dd className="text-ink mt-0.5 font-medium">{years}+</dd>
+                <div>
+                  <dt className="text-ink-muted text-xs tracking-wide uppercase">{dict.misc.yearsOfExperience}</dt>
+                  <dd className="text-ink mt-1 font-medium">{years}+</dd>
                 </div>
               )}
 
               {doctor.languages && doctor.languages.length > 0 && (
-                <div className="p-5">
-                  <dt className="text-ink-muted text-xs">{dict.labels.languages}</dt>
+                <div className="min-w-0">
+                  <dt className="text-ink-muted text-xs tracking-wide uppercase">{dict.labels.languages}</dt>
                   <dd className="mt-2 flex flex-wrap gap-1.5">
                     {doctor.languages.map((code) => (
                       <Badge key={code} tone="brand">
@@ -154,7 +152,22 @@ export default async function DoctorDetailPage({
               )}
             </dl>
 
-            <div className="mt-4 grid gap-2.5">
+            <div className="mt-8">
+              <RichText value={doctor.bio} />
+            </div>
+
+            {doctor.credentials && doctor.credentials.length > 0 && (
+              <ul className="mt-8 space-y-3">
+                {doctor.credentials.map((item, index) => (
+                  <li key={`${index}-${item}`} className="flex gap-3">
+                    <Icon name="check" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
+                    <span className="text-ink-muted text-sm leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href={localePath(locale, '/contact')}>
                 {dict.cta.bookNow}
                 <ArrowIcon />
@@ -164,27 +177,17 @@ export default async function DoctorDetailPage({
               </ButtonLink>
             </div>
           </div>
-
-          <div className="min-w-0">
-            <RichText value={doctor.bio} />
-
-            {doctor.credentials && doctor.credentials.length > 0 && (
-              <ul className="mt-10 space-y-3">
-                {doctor.credentials.map((item, index) => (
-                  <li key={`${index}-${item}`} className="flex gap-3">
-                    <Icon name="check" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
-                    <span className="text-ink-muted text-sm leading-relaxed">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </div>
       </section>
 
       <CasesSection dict={dict} cases={doctorCases} heading={dict.nav.cases} />
 
-      <DoctorsSection locale={locale} dict={dict} doctors={colleagues} heading={dict.labels.ourDoctors} />
+      <section className="container-page pb-12 pt-4 text-center md:pb-16">
+        <ButtonLink href={localePath(locale, '/doctors')} variant="outline">
+          {dict.cta.viewAllDoctors}
+          <ArrowIcon />
+        </ButtonLink>
+      </section>
 
       <JsonLd
         data={{

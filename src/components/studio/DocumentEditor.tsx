@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { unstable_rethrow } from 'next/navigation'
 import { FieldRenderer } from './FieldRenderer'
+import { useEditorSession } from './useEditorSession'
 import { EditorActionBar } from './EditorActionBar'
 import { EditorPreviewCard } from './EditorPreviewCard'
 import {
@@ -38,9 +39,9 @@ export function DocumentEditor({
 }: Props) {
   const [data, setData] = useState(initialData)
   const [meta, setMeta] = useState(initialMeta)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
+  const { dirty, pending, message, error, run, startTransition } = useEditorSession({ data, meta }, () =>
+    saveDocument(type, id, data, meta),
+  )
 
   const titleKey = collections[type].titleKey
   const title = previewTitle(data, titleKey)
@@ -54,38 +55,18 @@ export function DocumentEditor({
         : 'საიტზე ჩანს'
       : 'დამალულია საიტიდან'
 
-  const persist = async () => {
-    await saveDocument(type, id, data, meta)
-  }
+  const isPublished = meta.status === 'published'
+  const previewHint = !isPublished
+    ? 'ნახვისთვის ჯერ ჩართე „საიტზე ჩანს“'
+    : !id
+      ? 'ნახვა შესაძლებელია პირველი შენახვის შემდეგ'
+      : null
 
-  const onSave = () => {
-    setError(null)
-    setMessage(null)
-    startTransition(async () => {
-      try {
-        await persist()
-        setMessage('შენახულია')
-      } catch (err) {
-        unstable_rethrow(err)
-        setError(err instanceof Error ? err.message : 'შენახვა ვერ მოხერხდა')
-      }
-    })
-  }
+  const onSave = () => run()
 
   const onPreview = () => {
-    if (!previewUrl) return
-    setError(null)
-    setMessage(null)
-    startTransition(async () => {
-      try {
-        await persist()
-        setMessage('შენახულია')
-        window.open(previewUrl, '_blank', 'noopener,noreferrer')
-      } catch (err) {
-        unstable_rethrow(err)
-        setError(err instanceof Error ? err.message : 'შენახვა ვერ მოხერხდა')
-      }
-    })
+    if (!previewUrl || previewHint) return
+    run(() => window.open(previewUrl, '_blank', 'noopener,noreferrer'))
   }
 
   const onDelete = () => {
@@ -146,10 +127,12 @@ export function DocumentEditor({
 
       <EditorActionBar
         pending={pending}
+        dirty={dirty}
         message={message}
         error={error}
         onSave={onSave}
         onPreview={previewUrl ? onPreview : null}
+        previewHint={previewHint}
         onDelete={id ? onDelete : null}
       />
     </div>

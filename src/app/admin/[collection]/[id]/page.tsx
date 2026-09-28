@@ -4,6 +4,8 @@ import { requireUser } from '../../../../admin/auth'
 import { newDocumentDefaults } from '../../../../admin/actions'
 import { StudioShell } from '../../../../components/studio/StudioShell'
 import { DocumentEditor } from '../../../../components/studio/DocumentEditor'
+import { StudioPageHeader } from '../../../../components/studio/StudioPageHeader'
+import { titleFromStored } from '../../../../admin/slug'
 import { collections, type CollectionName } from '../../../../content/schema'
 import { db, schema } from '../../../../db/client'
 
@@ -64,26 +66,27 @@ export default async function DocumentEditPage({
     }
   }
 
+  const storedTitle = titleFromStored(data[definition.titleKey])
+  const title = isNew ? `ახალი ${definition.singular}` : storedTitle || `უსათაურო ${definition.singular}`
+
   return (
     <StudioShell user={user}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {isNew ? `ახალი ${definition.singular}` : `რედაქტირება · ${definition.singular}`}
-          </h1>
-        </div>
+      <StudioPageHeader
+        back={{ href: `/admin/${collection}`, label: definition.label }}
+        title={title}
+        subtitle={isNew ? 'შეავსე ველები და დააჭირე „შენახვა“.' : `რედაქტირება · ${definition.singular}`}
+      />
 
-        <DocumentEditor
-          type={collection}
-          id={documentId}
-          fields={definition.fields}
-          initialData={data}
-          initialMeta={meta}
-          showOrder={definition.ordered}
-          showFeatured={definition.featurable}
-          singular={definition.singular}
-        />
-      </div>
+      <DocumentEditor
+        type={collection}
+        id={documentId}
+        fields={definition.fields}
+        initialData={data}
+        initialMeta={meta}
+        showOrder={definition.ordered}
+        showFeatured={definition.featurable}
+        singular={definition.singular}
+      />
     </StudioShell>
   )
 }
