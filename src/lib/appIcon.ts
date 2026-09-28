@@ -32,14 +32,13 @@ async function mediaBytes(id: number): Promise<Buffer | null> {
 }
 
 /** Square PNG for the browser tab and Apple touch icon. Uses Clinic settings, then the bundled mark. */
-export async function renderAppIcon(px: number, fallbackName: string): Promise<Uint8Array> {
+export async function renderAppIcon(px: number, fallbackName: string): Promise<Buffer> {
   const settings = await getSettings('ka').catch(() => null)
   const favicon = settings?.favicon
   const fromCms = isMedia(favicon) ? await mediaBytes(favicon.id).catch(() => null) : null
   const source = fromCms ?? (await readFile(path.join(process.cwd(), 'public/brand', fallbackName)))
-  const png = await sharp(source)
+  return sharp(source)
     .resize(px, px, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer()
-  return new Uint8Array(png)
 }
