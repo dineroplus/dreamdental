@@ -10,7 +10,7 @@ type Props = {
   className?: string
 }
 
-/** Thin chevron used on the doctors carousel — stroke only, no fill blob. */
+/** Thin chevron — stroke only. */
 function RailChevron({ dir }: { dir: 'prev' | 'next' }) {
   return (
     <svg
@@ -33,8 +33,8 @@ function RailChevron({ dir }: { dir: 'prev' | 'next' }) {
 }
 
 /**
- * One-row doctor carousel with soft snap and slim side arrows.
- * Arrows fade out at the ends so the rail never feels stuck mid-scroll.
+ * One-row doctor carousel. Arrows stay hidden until the rail is hovered
+ * (or focused), and vanish again at either end.
  */
 export function DoctorsRail({ children, prevLabel, nextLabel, className }: Props) {
   const ref = useRef<HTMLDivElement>(null)
@@ -71,11 +71,14 @@ export function DoctorsRail({ children, prevLabel, nextLabel, className }: Props
     el.scrollBy({ left: direction * step, behavior: 'smooth' })
   }
 
+  const arrowBase =
+    'absolute top-[38%] z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-hairline bg-canvas/95 text-ink/60 backdrop-blur-sm transition-opacity duration-250 lg:grid hover:text-brand hover:border-brand/30'
+
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('group/rail relative', className)}>
       <div
         ref={ref}
-        className="-mx-5 flex snap-x snap-proximity gap-4 overflow-x-auto scroll-smooth px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:gap-5 sm:px-0 lg:pb-1 [&::-webkit-scrollbar]:hidden"
+        className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:gap-5 sm:px-0 [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </div>
@@ -86,9 +89,11 @@ export function DoctorsRail({ children, prevLabel, nextLabel, className }: Props
         disabled={!canPrev}
         onClick={() => scrollByCard(-1)}
         className={cn(
-          'border-hairline bg-canvas/90 text-ink/55 absolute top-[38%] left-0 z-10 hidden h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border backdrop-blur-md transition-all duration-300 lg:grid',
-          'hover:border-brand/35 hover:text-brand hover:shadow-soft',
-          'disabled:pointer-events-none disabled:opacity-0',
+          arrowBase,
+          'left-0 -translate-x-1/2',
+          canPrev
+            ? 'pointer-events-none opacity-0 group-hover/rail:pointer-events-auto group-hover/rail:opacity-100 group-focus-within/rail:pointer-events-auto group-focus-within/rail:opacity-100'
+            : 'pointer-events-none opacity-0',
         )}
       >
         <RailChevron dir="prev" />
@@ -100,9 +105,11 @@ export function DoctorsRail({ children, prevLabel, nextLabel, className }: Props
         disabled={!canNext}
         onClick={() => scrollByCard(1)}
         className={cn(
-          'border-hairline bg-canvas/90 text-ink/55 absolute top-[38%] right-0 z-10 hidden h-11 w-11 translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border backdrop-blur-md transition-all duration-300 lg:grid',
-          'hover:border-brand/35 hover:text-brand hover:shadow-soft',
-          'disabled:pointer-events-none disabled:opacity-0',
+          arrowBase,
+          'right-0 translate-x-1/2',
+          canNext
+            ? 'pointer-events-none opacity-0 group-hover/rail:pointer-events-auto group-hover/rail:opacity-100 group-focus-within/rail:pointer-events-auto group-focus-within/rail:opacity-100'
+            : 'pointer-events-none opacity-0',
         )}
       >
         <RailChevron dir="next" />

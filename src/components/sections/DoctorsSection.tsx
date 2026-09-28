@@ -56,7 +56,11 @@ export function DoctorsSection({
       >
         <Link
           href={localePath(locale, `/doctors/${doctor.slug}`)}
-          className="group card flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
+          className={
+            layout === 'rail'
+              ? 'bg-surface border-hairline flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border'
+              : 'group card flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift'
+          }
         >
           <div className="bg-brand-soft relative aspect-3/4 w-full shrink-0 overflow-hidden">
             {photo ? (
@@ -65,7 +69,11 @@ export function DoctorsSection({
                 alt={mediaAlt(doctor.photo, doctor.name)}
                 fill
                 sizes="(max-width: 640px) 72vw, (max-width: 1024px) 46vw, 260px"
-                className="object-contain object-bottom p-3 pt-6 transition-transform duration-500 group-hover:scale-105"
+                className={
+                  layout === 'rail'
+                    ? 'object-contain object-bottom p-3 pt-6'
+                    : 'object-contain object-bottom p-3 pt-6 transition-transform duration-500 group-hover:scale-105'
+                }
               />
             ) : (
               <div className="text-brand/40 grid h-full place-items-center text-5xl font-semibold">
