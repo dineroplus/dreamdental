@@ -94,9 +94,9 @@ export function DoctorsSection({
                 className={
                   layout === 'rail' || compact
                     ? compact
-                      ? 'object-contain object-bottom p-1.5 pt-3'
-                      : 'object-contain object-bottom p-3 pt-6'
-                    : 'object-contain object-bottom p-3 pt-6 transition-transform duration-500 group-hover:scale-105'
+                      ? 'object-contain object-bottom px-1.5 pt-3'
+                      : 'object-contain object-bottom px-3 pt-6'
+                    : 'origin-bottom object-contain object-bottom px-3 pt-6 transition-transform duration-500 group-hover:scale-105'
                 }
               />
             ) : (

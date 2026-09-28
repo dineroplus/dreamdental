@@ -378,7 +378,7 @@ function ColorInput({
             <img
               src={previewUrl}
               alt=""
-              className="absolute inset-0 h-full w-full object-contain object-bottom p-2 pt-4"
+              className="absolute inset-0 h-full w-full object-contain object-bottom px-2 pt-4"
             />
           ) : (
             <span className="text-ink-muted absolute inset-0 grid place-items-center px-3 text-center text-xs">

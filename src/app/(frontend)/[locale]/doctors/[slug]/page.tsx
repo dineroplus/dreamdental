@@ -115,7 +115,7 @@ export default async function DoctorDetailPage({
                 fill
                 priority
                 sizes="(max-width: 1024px) 280px, 300px"
-                className="object-contain object-bottom p-3 pt-6"
+                className="object-contain object-bottom px-3 pt-6"
               />
             ) : (
               <div className="grid h-full place-items-center">
