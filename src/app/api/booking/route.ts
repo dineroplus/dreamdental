@@ -104,9 +104,10 @@ async function notifyBooking(payload: {
   }
 }
 
-/** Addresses from Admin → კლინიკის მონაცემები. Env is only a fallback. */
+/** Addresses from Admin → კლინიკის მონაცემები. Env is only a last fallback. */
 async function notifyRecipients(): Promise<string[]> {
-  let fromAdmin = ''
+  let notify = ''
+  let clinicEmail = ''
   try {
     const rows = await db()
       .select({ data: schema.singletons.data })
@@ -114,15 +115,20 @@ async function notifyRecipients(): Promise<string[]> {
       .where(eq(schema.singletons.key, 'settings'))
       .limit(1)
     const contact = rows[0]?.data?.contact
-    if (contact && typeof contact === 'object' && 'bookingNotifyEmail' in contact) {
-      const value = contact.bookingNotifyEmail
-      if (typeof value === 'string') fromAdmin = value
+    if (contact && typeof contact === 'object') {
+      if ('bookingNotifyEmail' in contact && typeof contact.bookingNotifyEmail === 'string') {
+        notify = contact.bookingNotifyEmail
+      }
+      if ('email' in contact && typeof contact.email === 'string') {
+        clinicEmail = contact.email
+      }
     }
   } catch {
-    fromAdmin = ''
+    notify = ''
+    clinicEmail = ''
   }
 
-  const raw = fromAdmin.trim() || process.env.BOOKING_NOTIFY_TO || ''
+  const raw = notify.trim() || clinicEmail.trim() || process.env.BOOKING_NOTIFY_TO || ''
   const seen = new Set<string>()
   for (const part of raw.split(/[,;]+/)) {
     const email = part.trim().toLowerCase()
