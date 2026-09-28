@@ -23,10 +23,12 @@ type Props = {
   mapUrl?: string | null
 }
 
-const MAP_ZOOM = 16
+const MAP_ZOOM = 17
 const TILE_SIZE = 256
+const CLINIC_COORDINATES = { latitude: 41.6969488, longitude: 44.8060416 }
+const LEGACY_COORDINATES = { latitude: 41.6977, longitude: 44.8015 }
 
-/** Static OSM tiles avoid third-party iframe/privacy blocking. */
+/** Light-labelled tiles avoid iframe blocking while keeping a Google-like look. */
 function mapTiles(lat: number, lng: number) {
   const scale = 2 ** MAP_ZOOM
   const x = ((lng + 180) / 360) * scale
@@ -51,7 +53,7 @@ function mapTiles(lat: number, lng: number) {
         key: `${currentX}-${currentY}`,
         column,
         row,
-        url: `https://tile.openstreetmap.org/${MAP_ZOOM}/${currentX}/${currentY}.png`,
+        url: `https://a.basemaps.cartocdn.com/light_all/${MAP_ZOOM}/${currentX}/${currentY}@2x.png`,
       }
     }),
   }
@@ -61,6 +63,15 @@ function directionsHref(lat: number, lng: number, mapUrl?: string | null): strin
   const trimmed = mapUrl?.trim()
   if (trimmed) return trimmed
   return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+}
+
+/** Replace the old fallback point, which was ~380 m west of the clinic. */
+function correctedCoordinates(latitude: number, longitude: number) {
+  const isLegacyPoint =
+    Math.abs(latitude - LEGACY_COORDINATES.latitude) < 0.00001 &&
+    Math.abs(longitude - LEGACY_COORDINATES.longitude) < 0.00001
+
+  return isLegacyPoint ? CLINIC_COORDINATES : { latitude, longitude }
 }
 
 export function ContactSection({
@@ -80,8 +91,9 @@ export function ContactSection({
   longitude,
   mapUrl,
 }: Props) {
-  const map = mapTiles(latitude, longitude)
-  const openMapsHref = directionsHref(latitude, longitude, mapUrl)
+  const coordinates = correctedCoordinates(latitude, longitude)
+  const map = mapTiles(coordinates.latitude, coordinates.longitude)
+  const openMapsHref = directionsHref(coordinates.latitude, coordinates.longitude, mapUrl)
 
   return (
     <section id="contact" className="section">
@@ -178,12 +190,19 @@ export function ContactSection({
                 ))}
               </div>
 
-              <span
-                className="bg-brand shadow-soft absolute top-1/2 left-1/2 z-10 grid h-9 w-9 -translate-x-1/2 -translate-y-full place-items-center rounded-full border-[3px] border-white text-white after:absolute after:-bottom-1 after:h-3 after:w-3 after:rotate-45 after:bg-brand"
+              <svg
+                viewBox="0 0 32 44"
+                className="absolute top-1/2 left-1/2 z-10 h-11 w-8 -translate-x-1/2 -translate-y-full drop-shadow-[0_3px_4px_rgba(0,0,0,0.28)]"
                 aria-hidden="true"
               >
-                <Icon name="tooth" className="relative z-10 h-4 w-4" />
-              </span>
+                <path
+                  d="M16 1C7.7 1 1 7.7 1 16c0 10.8 12.7 25 14.1 26.5a1.2 1.2 0 0 0 1.8 0C18.3 41 31 26.8 31 16 31 7.7 24.3 1 16 1Z"
+                  fill="#c9384a"
+                  stroke="white"
+                  strokeWidth="2"
+                />
+                <circle cx="16" cy="16" r="5.5" fill="white" />
+              </svg>
 
               <a
                 href="https://www.openstreetmap.org/copyright"
@@ -191,7 +210,7 @@ export function ContactSection({
                 rel="noopener noreferrer"
                 className="bg-canvas/90 text-ink-muted absolute bottom-2 left-2 z-20 rounded px-1.5 py-0.5 text-[9px]"
               >
-                © OpenStreetMap
+                © OpenStreetMap © CARTO
               </a>
 
               <div
