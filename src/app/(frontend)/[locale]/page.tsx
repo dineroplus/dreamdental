@@ -314,6 +314,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         ctaHref={home?.primaryCtaHref}
         imageSrc={heroImage}
         imageAlt={mediaAlt(home?.heroImage, settings?.clinicName || 'Dream Dental')}
+        eyebrow={home?.heroEyebrow}
       />
 
       <div className="home-flow">

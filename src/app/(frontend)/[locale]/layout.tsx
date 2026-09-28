@@ -7,7 +7,7 @@ import { locales, htmlLang, isLocale, type Locale } from '../../../i18n/config'
 import { getDictionary } from '../../../i18n/dictionaries'
 import { getNavigation, getSettings } from '../../../lib/data'
 import { CLINIC, SITE_NAME, SITE_URL } from '../../../lib/site'
-import { mediaUrl } from '../../../lib/utils'
+import { isWideLogo, mediaUrl } from '../../../lib/utils'
 import { ThemeStyle } from '../../../components/ThemeStyle'
 import { Header, type NavItem } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
@@ -55,7 +55,6 @@ export async function generateMetadata({
     verification: settings?.googleSiteVerification
       ? { google: settings.googleSiteVerification }
       : undefined,
-    icons: mediaUrl(settings?.favicon) ? { icon: mediaUrl(settings?.favicon)! } : undefined,
   }
 }
 
@@ -110,6 +109,8 @@ export default async function LocaleLayout({
     cmsNav.length > 0 ? cmsNav : FALLBACK_NAV.map(({ key, href }) => ({ label: dict.nav[key], href }))
 
   const clinicName = settings?.clinicName || SITE_NAME
+  const logoUrl = mediaUrl(settings?.logo)
+  const hideWordmark = isWideLogo(settings?.logo)
   const phonePrimary = settings?.phonePrimary || CLINIC.phonePrimary
   const phoneSecondary = settings?.phoneSecondary || CLINIC.phoneSecondary
   const opensAt = settings?.opensAt || CLINIC.opensAt
@@ -214,7 +215,8 @@ export default async function LocaleLayout({
           locale={locale}
           dict={dict}
           items={navItems}
-          logoUrl={mediaUrl(settings?.logo)}
+          logoUrl={logoUrl}
+          hideWordmark={hideWordmark}
           clinicName={clinicName}
           phone={phonePrimary}
         />
@@ -237,6 +239,10 @@ export default async function LocaleLayout({
           facebook={settings?.facebook || CLINIC.facebook}
           instagram={settings?.instagram || CLINIC.instagram}
           youtube={settings?.youtube || undefined}
+          tiktok={settings?.tiktok || undefined}
+          logoUrl={logoUrl}
+          hideWordmark={hideWordmark}
+          tagline={settings?.tagline}
         />
 
         <MobileActionBar

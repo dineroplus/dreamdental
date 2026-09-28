@@ -90,13 +90,13 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
         {previews.map((item) => (
-          <figure key={item.id} className="relative h-28 w-28 overflow-hidden rounded-2xl bg-brand-soft">
+          <figure key={item.id} className="relative h-36 w-36 overflow-hidden rounded-2xl bg-brand-soft">
             {/* Admin preview; next/image is unnecessary for a local picker. */}
             <img src={item.url} alt="" className="h-full w-full object-cover" />
             <button
               type="button"
               onClick={() => removeId(item.id)}
-              className="absolute top-1 right-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium"
+              className="absolute top-2 right-2 rounded-full bg-white/95 px-3 py-1 text-sm font-medium shadow-sm"
             >
               წაშლა
             </button>
@@ -112,9 +112,14 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
             event.preventDefault()
             onFiles(event.dataTransfer.files)
           }}
-          className="border-hairline text-ink-muted hover:border-brand hover:text-brand flex h-28 min-w-28 flex-col items-center justify-center rounded-2xl border border-dashed px-4 text-xs disabled:opacity-60"
+          className="border-hairline text-ink-muted hover:border-brand hover:text-brand flex h-36 min-w-44 flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed px-5 text-sm font-medium disabled:opacity-60"
         >
-          {pending ? 'იტვირთება…' : 'სურათის ატვირთვა'}
+          {pending ? 'იტვირთება…' : (
+            <>
+              <span className="text-base font-semibold">დააჭირე ან ჩააგდე ფოტო</span>
+              <span className="text-xs">JPG, PNG ან WEBP</span>
+            </>
+          )}
         </button>
       </div>
 
@@ -129,18 +134,18 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
         }}
       />
 
-      <button type="button" onClick={openLibrary} className="text-accent text-xs font-semibold">
+      <button type="button" onClick={openLibrary} className="text-accent text-sm font-semibold">
         არჩევა არსებულიდან
       </button>
 
       {library.length > 0 ? (
-        <div className="grid max-h-48 grid-cols-6 gap-2 overflow-y-auto">
+        <div className="grid max-h-56 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6">
           {library.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => addId(item)}
-              className="h-14 overflow-hidden rounded-xl bg-brand-soft"
+              className="h-16 overflow-hidden rounded-xl bg-brand-soft"
             >
               <img src={item.url} alt="" className="h-full w-full object-cover" />
             </button>
@@ -148,7 +153,7 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
         </div>
       ) : null}
 
-      {error ? <p className="text-accent text-xs">{error}</p> : null}
+      {error ? <p className="text-accent text-sm">{error}</p> : null}
     </div>
   )
 }

@@ -13,7 +13,7 @@ const LOCALE_LABEL: Record<Locale, string> = {
 }
 
 const INPUT =
-  'w-full rounded-xl border border-hairline bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand'
+  'w-full rounded-xl border border-hairline bg-surface px-3.5 py-3 text-base text-ink outline-none focus:border-brand'
 
 const LocaleCtx = createContext<Locale>('ka')
 
@@ -36,7 +36,7 @@ export function FieldRenderer({ fields, value, onChange, embedded = false }: Pro
   return (
     <LocaleCtx.Provider value={locale}>
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           {locales.map((code) => (
             <button
               key={code}
@@ -44,14 +44,14 @@ export function FieldRenderer({ fields, value, onChange, embedded = false }: Pro
               onClick={() => setLocale(code)}
               className={
                 locale === code
-                  ? 'bg-brand rounded-full px-3.5 py-1.5 text-xs font-semibold text-white'
-                  : 'bg-brand-soft text-brand rounded-full px-3.5 py-1.5 text-xs font-semibold'
+                  ? 'bg-brand min-h-11 rounded-xl px-5 py-2.5 text-base font-semibold text-white'
+                  : 'bg-brand-soft text-brand min-h-11 rounded-xl px-5 py-2.5 text-base font-semibold'
               }
             >
               {LOCALE_LABEL[code]}
             </button>
           ))}
-          <p className="text-ink-muted text-xs">ჯერ ქართული შეავსე. სხვა ენები სურვილისამებრ.</p>
+          <p className="text-ink-muted text-sm">ჯერ ქართული შეავსე. სხვა ენები სურვილისამებრ.</p>
         </div>
         {body}
       </div>
@@ -88,8 +88,8 @@ function FieldSet({
           />
         ))}
         {extra.length > 0 ? (
-          <details className="border-hairline rounded-2xl border bg-surface px-4 py-3">
-            <summary className="text-ink-muted cursor-pointer text-sm font-medium">დამატებით</summary>
+          <details className="border-hairline rounded-2xl border bg-surface px-4 py-4">
+            <summary className="text-ink-muted cursor-pointer text-base font-medium">დამატებით</summary>
             <div className="mt-4 space-y-5">
               {extra.map(([name, field]) => (
                 <FieldControl
@@ -134,12 +134,12 @@ function FieldControl({
   onChange: (next: unknown) => void
 }) {
   return (
-    <div className="block space-y-1.5">
-      <span className="text-ink text-sm font-medium">
+    <div className="block space-y-2">
+      <span className="text-ink text-base font-semibold">
         {field.label}
         {field.required ? <span className="text-brand"> *</span> : null}
       </span>
-      {field.hint ? <span className="text-ink-muted block text-xs">{field.hint}</span> : null}
+      {field.hint ? <span className="text-ink-muted block text-sm leading-relaxed">{field.hint}</span> : null}
       <FieldInput field={field} value={value} onChange={onChange} name={name} />
     </div>
   )
@@ -195,12 +195,12 @@ function FieldInput({
       )
     case 'boolean':
       return (
-        <label className="flex items-center gap-3 text-sm">
+        <label className="flex min-h-12 items-center gap-3 text-base">
           <input
             type="checkbox"
             checked={Boolean(value)}
             onChange={(event) => onChange(event.target.checked)}
-            className="h-4 w-4 accent-[var(--c-primary)]"
+            className="h-5 w-5 accent-[var(--c-primary)]"
           />
           <span className="text-ink-muted">{value ? 'ჩართული' : 'გამორთული'}</span>
         </label>
@@ -231,8 +231,8 @@ function FieldInput({
                 type="button"
                 className={
                   selected
-                    ? 'bg-brand rounded-full px-3 py-1.5 text-xs text-white'
-                    : 'border-hairline rounded-full border px-3 py-1.5 text-xs'
+                    ? 'bg-brand min-h-11 rounded-xl px-4 py-2.5 text-sm text-white'
+                    : 'border-hairline min-h-11 rounded-xl border px-4 py-2.5 text-sm'
                 }
                 onClick={() => {
                   const current = Array.isArray(value) ? [...value] : []
@@ -347,7 +347,7 @@ function ListEditor({
           </div>
           <button
             type="button"
-            className="text-ink-muted text-xs"
+            className="text-ink-muted text-sm font-medium"
             onClick={() => onChange(value.filter((_, i) => i !== index))}
           >
             წაშლა
@@ -356,7 +356,7 @@ function ListEditor({
       ))}
       <button
         type="button"
-        className="text-accent text-xs font-semibold"
+        className="text-accent text-sm font-semibold"
         onClick={() => onChange([...value, emptyValue(field.of)])}
       >
         {field.addLabel || 'დამატება'}
@@ -395,7 +395,7 @@ function ObjectListEditor({
             </span>
             <button
               type="button"
-              className="text-ink-muted text-xs"
+              className="text-ink-muted text-sm font-medium"
               onClick={() => onChange(value.filter((_, i) => i !== index))}
             >
               წაშლა
@@ -418,7 +418,7 @@ function ObjectListEditor({
       ))}
       <button
         type="button"
-        className="text-accent text-xs font-semibold"
+        className="text-accent text-sm font-semibold"
         onClick={() => onChange([...value, emptyShape(field.fields)])}
       >
         {field.addLabel || 'დამატება'}
@@ -469,7 +469,7 @@ function BlocksEditor({
               </select>
               <button
                 type="button"
-                className="text-ink-muted text-xs"
+                className="text-ink-muted text-sm font-medium"
                 onClick={() => onChange(value.filter((_, i) => i !== index))}
               >
                 წაშლა
@@ -498,7 +498,7 @@ function BlocksEditor({
           <button
             key={key}
             type="button"
-            className="border-hairline rounded-full border px-3 py-1.5 text-xs font-semibold"
+            className="border-hairline min-h-11 rounded-xl border px-4 py-2.5 text-sm font-semibold"
             onClick={() =>
               onChange([...value, { type: key, id: crypto.randomUUID(), ...emptyShape(def.fields) }])
             }

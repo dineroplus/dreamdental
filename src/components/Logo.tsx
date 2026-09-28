@@ -8,6 +8,9 @@ type Props = {
   /** Fades and scales the mark in on mount. Used in the header only. */
   animated?: boolean
   priority?: boolean
+  /** Clinic settings logo. Falls back to the bundled lotus mark. */
+  src?: string | null
+  alt?: string
 }
 
 /**
@@ -15,11 +18,19 @@ type Props = {
  * with `w-auto` so the 1.31:1 artwork is never squashed. A logo uploaded in
  * Clinic settings replaces it automatically.
  */
-export function LogoMark({ className, animated = false, priority = false }: Props) {
+export function LogoMark({
+  className,
+  animated = false,
+  priority = false,
+  src,
+  alt = 'Dream Dental & Aesthetic Group',
+}: Props) {
   return (
     <Image
-      src={logoSrc}
-      alt="Dream Dental & Aesthetic Group"
+      src={src || logoSrc}
+      alt={alt}
+      width={160}
+      height={122}
       priority={priority}
       sizes="160px"
       className={cn(

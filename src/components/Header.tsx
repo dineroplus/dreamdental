@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
@@ -18,11 +17,13 @@ type Props = {
   dict: Dictionary
   items: NavItem[]
   logoUrl: string | null
+  /** Wide uploads already include the wordmark, so the text lockup is hidden. */
+  hideWordmark?: boolean
   clinicName: string
   phone: string
 }
 
-export function Header({ locale, dict, items, logoUrl, clinicName, phone }: Props) {
+export function Header({ locale, dict, items, logoUrl, hideWordmark = false, clinicName, phone }: Props) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -64,14 +65,8 @@ export function Header({ locale, dict, items, logoUrl, clinicName, phone }: Prop
             className="flex shrink-0 items-center gap-2.5"
             aria-label={clinicName}
           >
-            {logoUrl ? (
-              <Image src={logoUrl} alt={clinicName} width={150} height={44} className="h-9 w-auto lg:h-11" priority />
-            ) : (
-              <>
-                <LogoMark className="h-9 w-auto lg:h-11" animated priority />
-                <LogoLockup />
-              </>
-            )}
+            <LogoMark src={logoUrl} alt={clinicName} className="h-9 w-auto lg:h-11" animated priority />
+            {hideWordmark ? null : <LogoLockup />}
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label={dict.nav.menu}>

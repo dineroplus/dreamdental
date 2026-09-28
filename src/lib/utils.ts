@@ -11,6 +11,12 @@ export function isMedia(value: MediaLike): value is MediaRef {
   return typeof value === 'object' && value !== null && 'url' in value
 }
 
+/** A wide upload is a full lockup; a square or portrait file is only the mark. */
+export function isWideLogo(value: MediaLike): boolean {
+  if (!isMedia(value) || !value.width || !value.height) return false
+  return value.width / value.height >= 1.8
+}
+
 export function mediaUrl(value: MediaLike, size?: 'thumb' | 'card' | 'wide' | 'hero'): string | null {
   if (!isMedia(value)) return null
   const raw = (size && value.sizes?.[size]?.url) || value.url

@@ -19,6 +19,7 @@ type Props = {
   ctaHref?: string | null
   imageSrc?: string | null
   imageAlt?: string | null
+  eyebrow?: string | null
 }
 
 /** Two-line slogan without a dash — CMS often stores "A - B". */
@@ -46,6 +47,7 @@ export function Hero({
   ctaHref,
   imageSrc,
   imageAlt,
+  eyebrow,
 }: Props) {
   const lines = titleLines(title)
 
@@ -55,6 +57,12 @@ export function Hero({
 
       <div className="container-page relative grid items-center gap-10 pt-10 pb-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-24">
         <div>
+          {eyebrow ? (
+            <Reveal>
+              <p className="text-gold mb-3 text-xs font-semibold tracking-[0.18em] uppercase">{eyebrow}</p>
+            </Reveal>
+          ) : null}
+
           <Reveal>
             <h1 className="text-[clamp(1.85rem,6.2vw,3.6rem)] leading-[1.08] uppercase">
               {lines.map((line) => (

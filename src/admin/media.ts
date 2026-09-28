@@ -1,6 +1,7 @@
 'use server'
 
 import { desc, eq, sql } from 'drizzle-orm'
+import sharp from 'sharp'
 import { db, schema } from '../db/client'
 import { requireUser } from './auth'
 import { revalidateTag } from 'next/cache'
@@ -64,6 +65,7 @@ export async function uploadMedia(formData: FormData): Promise<MediaOption> {
   const filename = uniqueName(file.name)
   const bytes = Buffer.from(await file.arrayBuffer())
   const blob = bytes.toString('base64')
+  const meta = await sharp(bytes).metadata().catch(() => null)
 
   const [row] = await db()
     .insert(schema.media)
@@ -71,6 +73,8 @@ export async function uploadMedia(formData: FormData): Promise<MediaOption> {
       filename,
       url: '/api/media/file/pending',
       mimeType,
+      width: meta?.width ?? null,
+      height: meta?.height ?? null,
       filesize: bytes.length,
       blob,
       sizes: {},
@@ -120,5 +124,13 @@ export async function getMedia(id: number): Promise<MediaOption | null> {
     .where(eq(schema.media.id, id))
     .limit(1)
   const row = rows[0]
-  return row ?? null
+  if (!row) return null
+  return {
+    id: row.id,
+    url:
+      row.url.startsWith('/api/media') || row.url.startsWith('/media') || row.url.startsWith('http')
+        ? row.url
+        : publicUrl(row.id),
+    filename: row.filename,
+  }
 }
