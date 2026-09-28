@@ -64,7 +64,7 @@ export function ServicesGrid({
           />
         )}
 
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
           {services.map((service, index) => (
             <Reveal
               key={service.id}
@@ -76,7 +76,7 @@ export function ServicesGrid({
             >
               <Link
                 href={localePath(locale, `/services/${service.slug}`)}
-                className="card group relative flex h-full flex-col overflow-hidden px-6 pt-6 pb-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
+                className="card group relative flex h-full flex-col overflow-hidden px-5 pt-5 pb-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lift sm:px-5 sm:pt-5 md:px-6 md:pt-6"
               >
                 <span
                   className="from-accent/15 via-gold/10 absolute inset-x-0 top-0 h-px bg-linear-to-r to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100"
@@ -93,24 +93,29 @@ export function ServicesGrid({
                   </span>
                 </div>
 
-                <h3 className="text-ink relative mt-5 text-[1.2rem] leading-snug font-semibold tracking-tight md:text-[1.28rem]">
+                <h3 className="text-ink relative mt-4 text-[1.15rem] leading-snug font-semibold tracking-tight sm:mt-5 sm:text-[1.2rem] md:text-[1.28rem]">
                   {service.shortTitle || service.title}
                 </h3>
 
-                <p className="text-ink-muted relative mt-3 line-clamp-3 flex-1 text-sm leading-relaxed">
+                <p className="text-ink-muted relative mt-2.5 line-clamp-3 flex-1 text-sm leading-relaxed sm:mt-3">
                   {service.excerpt}
                 </p>
 
-                <span className="border-hairline relative mt-6 flex items-center justify-between border-t pt-4">
+                {/*
+                  Phone (1 col): price + CTA side by side.
+                  Tablet (2 col): stack so Georgian labels don’t collide.
+                  Desktop (3 col): side by side again.
+                */}
+                <span className="border-hairline relative mt-5 flex flex-row items-center justify-between gap-2 border-t pt-4 sm:mt-5 sm:flex-col sm:items-start sm:gap-2 xl:flex-row xl:items-center xl:justify-between">
                   {service.priceFrom ? (
-                    <span className="text-brand text-sm font-semibold">
+                    <span className="text-brand shrink-0 text-sm font-semibold">
                       {dict.labels.from} {service.priceFrom}
                       {dict.labels.gel}
                     </span>
                   ) : (
                     <span />
                   )}
-                  <span className="text-accent inline-flex items-center gap-1.5 text-sm font-semibold">
+                  <span className="text-accent inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold">
                     {dict.cta.learnMore}
                     <ArrowIcon className="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
