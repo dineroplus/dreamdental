@@ -109,8 +109,9 @@ export default async function LocaleLayout({
     cmsNav.length > 0 ? cmsNav : FALLBACK_NAV.map(({ key, href }) => ({ label: dict.nav[key], href }))
 
   const clinicName = settings?.clinicName || SITE_NAME
-  const logoUrl = mediaUrl(settings?.logo)
-  const hideWordmark = isWideLogo(settings?.logo)
+  // Wide uploads usually already include the wordmark; use the lotus mark so
+  // "Dream Dental / Aesthetic Group" stays visible beside it.
+  const logoUrl = isWideLogo(settings?.logo) ? null : mediaUrl(settings?.logo)
   const phonePrimary = settings?.phonePrimary || CLINIC.phonePrimary
   const phoneSecondary = settings?.phoneSecondary || CLINIC.phoneSecondary
   const opensAt = settings?.opensAt || CLINIC.opensAt
@@ -216,7 +217,6 @@ export default async function LocaleLayout({
           dict={dict}
           items={navItems}
           logoUrl={logoUrl}
-          hideWordmark={hideWordmark}
           clinicName={clinicName}
           phone={phonePrimary}
         />
@@ -241,7 +241,6 @@ export default async function LocaleLayout({
           youtube={settings?.youtube || undefined}
           tiktok={settings?.tiktok || undefined}
           logoUrl={logoUrl}
-          hideWordmark={hideWordmark}
           tagline={settings?.tagline}
         />
 

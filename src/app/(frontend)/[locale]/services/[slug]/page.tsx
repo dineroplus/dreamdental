@@ -12,7 +12,7 @@ import {
 } from '../../../../../lib/data'
 import { buildMetadata } from '../../../../../lib/metadata'
 import { CLINIC, SITE_URL } from '../../../../../lib/site'
-import { localePath, mediaAlt, mediaDimensions, mediaUrl, truncate } from '../../../../../lib/utils'
+import { localePath, mediaAlt, mediaUrl, truncate } from '../../../../../lib/utils'
 import { PageHeader } from '../../../../../components/PageHeader'
 import { RichText } from '../../../../../components/RichText'
 import { Faq } from '../../../../../components/Faq'
@@ -85,7 +85,6 @@ export default async function ServiceDetailPage({
   const title = service.title || slug
   const shortTitle = service.shortTitle || title
   const hero = mediaUrl(service.image, 'wide')
-  const heroDims = mediaDimensions(service.image)
   const phone = settings?.phonePrimary || CLINIC.phonePrimary
 
   return (
@@ -106,15 +105,16 @@ export default async function ServiceDetailPage({
         <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-14">
           <div className="min-w-0">
             {hero && (
-              <Image
-                src={hero}
-                alt={mediaAlt(service.image, service.title)}
-                width={heroDims.width}
-                height={heroDims.height}
-                priority
-                sizes="(max-width: 1024px) 100vw, 62vw"
-                className="shadow-soft mb-10 w-full rounded-[var(--radius-card)] object-cover"
-              />
+              <figure className="card relative mb-10 aspect-[16/10] overflow-hidden">
+                <Image
+                  src={hero}
+                  alt={mediaAlt(service.image, service.title)}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 62vw"
+                  className="object-cover object-center"
+                />
+              </figure>
             )}
 
             <RichText value={service.body} />

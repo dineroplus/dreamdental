@@ -1,8 +1,7 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowIcon, ButtonLink, Icon, SectionHeading } from '../ui'
 import { Reveal } from '../motion/Reveal'
-import { localePath, mediaAlt, mediaUrl } from '../../lib/utils'
+import { localePath } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
 import type { Service } from '../../content/schema'
@@ -37,9 +36,7 @@ export function ServicesGrid({
         )}
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, index) => {
-            const image = mediaUrl(service.image, 'card')
-            return (
+          {services.map((service, index) => (
             <Reveal key={service.id} delay={index % 3} as="article">
               <Link
                 href={localePath(locale, `/services/${service.slug}`)}
@@ -51,21 +48,9 @@ export function ServicesGrid({
                   aria-hidden="true"
                 />
 
-                {image ? (
-                  <span className="relative -mx-6 -mt-6 mb-1 block aspect-[16/10] overflow-hidden">
-                    <Image
-                      src={image}
-                      alt={mediaAlt(service.image, service.title)}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                  </span>
-                ) : (
-                  <span className="bg-brand-soft text-brand relative grid h-12 w-12 place-items-center rounded-2xl">
-                    <Icon name={service.icon} className="h-6 w-6" />
-                  </span>
-                )}
+                <span className="bg-brand-soft text-brand relative grid h-12 w-12 place-items-center rounded-2xl">
+                  <Icon name={service.icon} className="h-6 w-6" />
+                </span>
 
                 <h3 className="text-ink relative mt-5 text-lg leading-snug">
                   {service.shortTitle || service.title}
@@ -91,8 +76,7 @@ export function ServicesGrid({
                 </span>
               </Link>
             </Reveal>
-            )
-          })}
+          ))}
         </div>
 
         {showAllLink && (
