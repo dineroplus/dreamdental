@@ -24,39 +24,18 @@ type Props = {
 }
 
 const MAP_ZOOM = 17
-const TILE_SIZE = 256
 const CLINIC_COORDINATES = { latitude: 41.6969488, longitude: 44.8060416 }
 const LEGACY_COORDINATES = { latitude: 41.6977, longitude: 44.8015 }
 
-/** Light-labelled tiles avoid iframe blocking while keeping a Google-like look. */
-function mapTiles(lat: number, lng: number) {
-  const scale = 2 ** MAP_ZOOM
-  const x = ((lng + 180) / 360) * scale
-  const latRadians = (lat * Math.PI) / 180
-  const y =
-    ((1 - Math.log(Math.tan(latRadians) + 1 / Math.cos(latRadians)) / Math.PI) / 2) *
-    scale
-  const tileX = Math.floor(x)
-  const tileY = Math.floor(y)
-  const startX = tileX - 1
-  const startY = tileY - 1
-
-  return {
-    markerX: (x - startX) * TILE_SIZE,
-    markerY: (y - startY) * TILE_SIZE,
-    tiles: Array.from({ length: 9 }, (_, index) => {
-      const column = index % 3
-      const row = Math.floor(index / 3)
-      const currentX = startX + column
-      const currentY = startY + row
-      return {
-        key: `${currentX}-${currentY}`,
-        column,
-        row,
-        url: `https://a.basemaps.cartocdn.com/light_all/${MAP_ZOOM}/${currentX}/${currentY}@2x.png`,
-      }
-    }),
-  }
+/** Embedded Google map. The old CARTO tiles now render an API-key watermark instead of streets. */
+function mapEmbedSrc(lat: number, lng: number, locale: Locale): string {
+  const params = new URLSearchParams({
+    q: `${lat},${lng}`,
+    hl: locale,
+    z: String(MAP_ZOOM),
+    output: 'embed',
+  })
+  return `https://maps.google.com/maps?${params.toString()}`
 }
 
 function directionsHref(lat: number, lng: number, mapUrl?: string | null): string {
@@ -92,7 +71,7 @@ export function ContactSection({
   mapUrl,
 }: Props) {
   const coordinates = correctedCoordinates(latitude, longitude)
-  const map = mapTiles(coordinates.latitude, coordinates.longitude)
+  const embedSrc = mapEmbedSrc(coordinates.latitude, coordinates.longitude, locale)
   const openMapsHref = directionsHref(coordinates.latitude, coordinates.longitude, mapUrl)
 
   return (
@@ -164,64 +143,20 @@ export function ContactSection({
           </Reveal>
 
           <div className="order-3 min-w-0 lg:col-start-1 lg:row-start-2">
-            <div
-              className="border-hairline bg-brand-soft relative h-[220px] overflow-hidden rounded-[var(--radius-card)] border lg:h-[280px]"
-              role="img"
-              aria-label={`${addressLine}, ${city}`}
-            >
-              <div
-                className="absolute h-[768px] w-[768px]"
-                style={{
-                  left: `calc(50% - ${map.markerX}px)`,
-                  top: `calc(50% - ${map.markerY}px)`,
-                }}
-                aria-hidden="true"
-              >
-                {map.tiles.map((tile) => (
-                  <span
-                    key={tile.key}
-                    className="absolute block h-64 w-64 bg-cover bg-center"
-                    style={{
-                      left: tile.column * TILE_SIZE,
-                      top: tile.row * TILE_SIZE,
-                      backgroundImage: `url("${tile.url}")`,
-                    }}
-                  />
-                ))}
-              </div>
-
-              <svg
-                viewBox="0 0 32 44"
-                className="absolute top-1/2 left-1/2 z-10 h-11 w-8 -translate-x-1/2 -translate-y-full drop-shadow-[0_3px_4px_rgba(0,0,0,0.28)]"
-                aria-hidden="true"
-              >
-                <path
-                  d="M16 1C7.7 1 1 7.7 1 16c0 10.8 12.7 25 14.1 26.5a1.2 1.2 0 0 0 1.8 0C18.3 41 31 26.8 31 16 31 7.7 24.3 1 16 1Z"
-                  fill="#c9384a"
-                  stroke="white"
-                  strokeWidth="2"
-                />
-                <circle cx="16" cy="16" r="5.5" fill="white" />
-              </svg>
-
-              <a
-                href="https://www.openstreetmap.org/copyright"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-canvas/90 text-ink-muted absolute bottom-2 left-2 z-20 rounded px-1.5 py-0.5 text-[9px]"
-              >
-                © OpenStreetMap © CARTO
-              </a>
-
-              <div
-                className="pointer-events-none absolute inset-0 ring-1 ring-black/5 ring-inset"
-                aria-hidden="true"
+            <div className="border-hairline relative h-[220px] overflow-hidden rounded-[var(--radius-card)] border lg:h-[280px]">
+              <iframe
+                title={`${addressLine}, ${city}`}
+                src={embedSrc}
+                className="absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
               />
               <a
                 href={openMapsHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-canvas/95 text-ink hover:text-brand absolute right-3 bottom-3 rounded-full border border-hairline px-3 py-1.5 text-[11px] font-semibold backdrop-blur-sm transition-colors"
+                className="bg-canvas/95 text-ink hover:text-brand absolute top-3 right-3 z-10 rounded-full border border-hairline px-3 py-1.5 text-[11px] font-semibold backdrop-blur-sm transition-colors"
               >
                 {dict.cta.directions}
               </a>
