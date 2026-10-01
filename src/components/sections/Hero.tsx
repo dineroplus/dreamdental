@@ -22,12 +22,12 @@ type Props = {
   eyebrow?: string | null
 }
 
-/** Two lines. Georgian and Russian keep their dash; English reads YOUR SMILE / IS OUR REPUTATION. */
+/** Two lines. Georgian and Russian keep their dash; English is YOUR SMILE IS / OUR REPUTATION. */
 function titleLines(title: string): string[] {
   const trimmed = title.trim()
   if (!trimmed) return []
   if (/^your smile(\s+[-–—]\s+|\s+)(is\s+)?our reputation$/i.test(trimmed)) {
-    return ['Your smile', 'is our reputation']
+    return ['Your smile is', 'our reputation']
   }
   if (trimmed.includes('\n')) {
     return trimmed.split('\n').map((line) => line.trim()).filter(Boolean)
