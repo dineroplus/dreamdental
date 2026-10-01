@@ -29,7 +29,7 @@ export function LocaleSwitcher({ locale, label }: { locale: Locale; label: strin
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         aria-label={label}
         aria-expanded={open}
-        className="border-hairline text-ink hover:border-accent flex h-10 items-center gap-1 rounded-full border bg-surface px-3 text-xs font-semibold transition-colors"
+        className="border-hairline text-ink hover:border-accent flex h-9 items-center gap-1 rounded-full border bg-surface px-2.5 text-xs font-semibold whitespace-nowrap transition-colors xl:h-10 xl:px-3"
       >
         {localeShortLabels[locale]}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">

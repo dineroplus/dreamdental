@@ -46,18 +46,31 @@ export function LogoMark({
 export function LogoLockup({
   className,
   tone = 'ink',
+  size = 'md',
 }: {
   className?: string
   tone?: 'ink' | 'light'
+  /** Header lockup stays smaller so the menu and the call button keep their own space. */
+  size?: 'md' | 'header'
 }) {
   return (
     <span className={cn('font-display inline-flex w-max flex-col items-center leading-none font-semibold', className)}>
-      <span className="text-gold text-[0.82rem] leading-none tracking-tight whitespace-nowrap lg:text-[0.92rem] xl:text-[1.05rem]">
+      <span
+        className={cn(
+          'text-gold leading-none tracking-tight whitespace-nowrap',
+          size === 'header'
+            ? 'text-[0.68rem] sm:text-[0.78rem] lg:text-[0.76rem] xl:text-[0.9rem] 2xl:text-[1.02rem]'
+            : 'text-[0.82rem] lg:text-[0.92rem] xl:text-[1.05rem]',
+        )}
+      >
         Dream Dental &amp; Aesthetic
       </span>
       <span
         className={cn(
-          'mt-1 text-[0.68rem] leading-none tracking-[0.28em] lg:text-[0.74rem] xl:text-[0.84rem]',
+          'mt-1 leading-none',
+          size === 'header'
+            ? 'text-[0.56rem] tracking-[0.22em] sm:text-[0.62rem] lg:text-[0.6rem] lg:tracking-[0.24em] xl:text-[0.72rem] 2xl:text-[0.8rem]'
+            : 'text-[0.68rem] tracking-[0.28em] lg:text-[0.74rem] xl:text-[0.84rem]',
           tone === 'light' ? 'text-white/85' : 'text-brand',
         )}
       >
