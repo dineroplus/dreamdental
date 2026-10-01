@@ -21,7 +21,7 @@ export function WhyUs({
       <div className="container-page section relative">
         <SectionHeading title={heading} subtitle={subheading} />
 
-        <div className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-x-16 gap-y-10 sm:grid-cols-2">
           {usable.map((item, index) => (
             <Reveal key={item.title} delay={index % 3}>
               <div className="flex gap-4">

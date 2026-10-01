@@ -616,6 +616,12 @@ const settingsFields = {
     fields: {
       value: { kind: 'text', label: 'მნიშვნელობა', required: true, hint: 'მაგ.: 13' },
       suffix: { kind: 'text', label: 'სუფიქსი', hint: 'მაგ.: + ან %' },
+      display: {
+        kind: 'text',
+        label: 'ტექსტური მნიშვნელობა',
+        localized: true,
+        hint: 'ანაცვლებს რიცხვს და არ ანიმირდება; სიტყვები პატარა შრიფტით ჩანს. მაგ.: 2013 წლიდან',
+      },
       label: { kind: 'text', label: 'წარწერა', localized: true, required: true },
     },
   },

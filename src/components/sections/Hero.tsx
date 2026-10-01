@@ -1,10 +1,18 @@
+import localFont from 'next/font/local'
 import { ButtonLink, Icon } from '../ui'
 import { Reveal } from '../motion/Reveal'
 import { HeroDreamVisual } from './HeroDreamVisual'
 import { uiCaps } from '../../lib/georgian'
-import { localePath } from '../../lib/utils'
+import { cn, localePath } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
+
+/** Rounded Georgian display face for the homepage slogan. Unicode Mtavruli. */
+const babuka = localFont({
+  src: '../../fonts/BabukaMtavruli.ttf',
+  display: 'swap',
+  adjustFontFallback: false,
+})
 
 type Props = {
   locale: Locale
@@ -63,27 +71,47 @@ export function Hero({
             </Reveal>
           ) : null}
 
-          <Reveal>
-            <h1 className="text-[clamp(1.85rem,6.2vw,3.6rem)] leading-[1.08] uppercase">
-              {lines.map((line) => (
-                <span key={line} className="text-gradient block whitespace-nowrap">
-                  {uiCaps(line, locale)}
-                </span>
-              ))}
-            </h1>
-          </Reveal>
-
-          {subtitle && (
-            <Reveal delay={1}>
-              <p className="text-ink-muted mt-5 max-w-xl text-base leading-relaxed md:text-lg">
-                {subtitle}
-              </p>
+          <div className="max-w-full">
+            {locale === 'ka' ? (
+              <svg width="0" height="0" className="absolute" aria-hidden="true">
+                <filter id="slogan-thin" x="-4%" y="-25%" width="108%" height="150%">
+                  <feMorphology operator="erode" radius="0.2" />
+                </filter>
+              </svg>
+            ) : null}
+            <Reveal>
+              <h1
+                className={cn(
+                  'text-[clamp(2rem,5.2vw,3.5rem)] uppercase',
+                  locale === 'ka' && babuka.className,
+                )}
+              >
+                {lines.map((line) => (
+                  <span
+                    key={line}
+                    className={cn(
+                      'text-gradient block whitespace-nowrap leading-[1.22] pb-[0.12em] tracking-normal',
+                      locale === 'ka' && '[filter:url(#slogan-thin)]',
+                    )}
+                  >
+                    {uiCaps(line, locale)}
+                  </span>
+                ))}
+              </h1>
             </Reveal>
-          )}
+
+            {subtitle && (
+              <Reveal delay={1}>
+                <p className="text-ink-muted mt-4 max-w-xl text-sm leading-relaxed md:text-base">
+                  {subtitle}
+                </p>
+              </Reveal>
+            )}
+          </div>
 
           {bullets.length > 0 && (
             <Reveal delay={2}>
-              <ul className="mt-7 grid gap-2.5 sm:grid-cols-2">
+              <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
                 {bullets.map((text) => (
                   <li key={text} className="text-ink flex items-start gap-2.5 text-sm">
                     <span className="bg-brand-soft text-brand mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full">

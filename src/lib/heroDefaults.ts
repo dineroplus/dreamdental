@@ -14,34 +14,34 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
   ka: {
     title: 'თქვენი ღიმილი\nჩვენი რეპუტაციაა',
     subtitle:
-      'თანამედროვე სტომატოლოგია თბილისის გულში - 2013 წლიდან, Golden Brand და პაციენტები ~50 ქვეყნიდან.',
+      '2013 წლიდან Dream Dental Group ზრუნავს თქვენს ღიმილზე. ერთ სივრცეში გთავაზობთ ყველა სახის სტომატოლოგიურ მომსახურებას: იმპლანტაცია, ორთოპედია, პროთეზირება, ორთოდონტია, პაროდონტოლოგია, ლაზერული გათეთრება, ბავშვთა სტომატოლოგია, 3D დიაგნოსტიკა და სხვა. თანამედროვე ტექნოლოგიები, უმაღლესი ხარისხი, ინდივიდუალური მიდგომა, კომფორტული გარემო და პროფესიონალი გუნდი. გემსახურებით ყოველდღე 10:00-დან 22:00-მდე. თბილისი, ნ. ბარათაშვილის #10',
     bullets: [
-      'თანამედროვე ტექნოლოგიები და ინდივიდუალური მიდგომა',
-      'ცენტრალური მდებარეობა · მრავალენოვანი გუნდი',
-      'ყოველდღე 10:00–22:00',
-      'ნაღდი, ბარათი და განვადება',
+      'თქვენზე მორგებული მკურნალობის გეგმა სუფთა და კომფორტულ გარემოში',
+      'წინასწარ შეთანხმებული ღირებულება და გადახდის სხვადასხვა ფორმა',
+      'პროფესიონალების გუნდური მიდგომა და პერსონალური ყურადღება ყოველ ვიზიტზე',
+      'მომსახურების ხარისხის უმაღლესი დონე და თანამედროვე ტექნოლოგიები',
     ],
   },
   en: {
     title: 'Your smile\nis our reputation',
     subtitle:
-      'Modern dentistry in the heart of Tbilisi - since 2013, Golden Brand, patients from nearly 50 countries.',
+      'Since 2013, Dream Dental Group has been caring for your smile. In one place we offer every kind of dental treatment: implants, prosthodontics, prosthetics, orthodontics, periodontics, laser whitening, children’s dentistry, 3D diagnostics and more. Modern technology, the highest standard of care, an individual approach, a comfortable setting and a professional team. We see you every day from 10:00 to 22:00. Tbilisi, 10 N. Baratashvili St.',
     bullets: [
-      'Advanced technology & personalized care',
-      'Central location · multilingual team',
-      'Open every day, 10:00–22:00',
-      'Cash, cards, and installment options',
+      'A treatment plan tailored to you, in a clean and comfortable setting',
+      'Costs agreed in advance and a choice of payment options',
+      'A team of professionals and personal attention at every visit',
+      'The highest standard of care and modern technology',
     ],
   },
   ru: {
     title: 'Ваша улыбка\nнаша репутация',
     subtitle:
-      'Современная стоматология в центре Тбилиси - с 2013 года, Golden Brand и пациенты почти из 50 стран.',
+      'С 2013 года Dream Dental Group заботится о вашей улыбке. В одном пространстве мы предлагаем все виды стоматологической помощи: имплантацию, ортопедию, протезирование, ортодонтию, пародонтологию, лазерное отбеливание, детскую стоматологию, 3D-диагностику и другое. Современные технологии, высочайшее качество, индивидуальный подход, комфортная обстановка и профессиональная команда. Принимаем ежедневно с 10:00 до 22:00. Тбилиси, ул. Н. Бараташвили 10.',
     bullets: [
-      'Современные технологии и индивидуальный подход',
-      'Центр города · многоязычная команда',
-      'Ежедневно 10:00–22:00',
-      'Наличные, карты и рассрочка',
+      'Индивидуальный план лечения в чистой и комфортной обстановке',
+      'Заранее согласованная стоимость и разные способы оплаты',
+      'Командный подход профессионалов и личное внимание на каждом визите',
+      'Высочайший уровень обслуживания и современные технологии',
     ],
   },
 }

@@ -30,8 +30,8 @@ export function Faq({
       <div className="mt-7 max-w-3xl space-y-3">
         {usable.map((item) => (
           <details key={item.question} className="card group px-5 py-4 open:shadow-lift [&_summary]:list-none">
-            <summary className="text-ink flex cursor-pointer items-center justify-between gap-4 text-[0.975rem] font-medium">
-              {item.question}
+            <summary className="text-ink flex cursor-pointer items-center justify-between gap-4">
+              <h3 className="font-sans text-[0.975rem] leading-snug font-medium tracking-normal">{item.question}</h3>
               <span className="text-accent shrink-0 transition-transform duration-300 group-open:rotate-45">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

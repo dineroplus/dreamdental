@@ -51,22 +51,17 @@ export function LogoLockup({
   tone?: 'ink' | 'light'
 }) {
   return (
-    <span className={cn('inline-flex w-max flex-col leading-none', className)}>
-      <span
-        className={cn(
-          'font-display text-[1.2rem] leading-none font-semibold tracking-tight lg:text-[1.35rem]',
-          tone === 'light' ? 'text-white' : 'text-ink',
-        )}
-      >
-        Dream Dental
+    <span className={cn('font-display inline-flex w-max flex-col items-center leading-none font-semibold', className)}>
+      <span className="text-gold text-[0.82rem] leading-none tracking-tight whitespace-nowrap lg:text-[0.92rem] xl:text-[1.05rem]">
+        Dream Dental &amp; Aesthetic
       </span>
       <span
         className={cn(
-          'mt-1.5 block w-full text-[0.54rem] leading-none font-semibold tracking-[0.28em] uppercase text-justify [text-align-last:justify] lg:text-[0.58rem]',
-          tone === 'light' ? 'text-white/60' : 'text-gold',
+          'mt-1 text-[0.68rem] leading-none tracking-[0.28em] lg:text-[0.74rem] xl:text-[0.84rem]',
+          tone === 'light' ? 'text-white/85' : 'text-brand',
         )}
       >
-        Aesthetic Group
+        Group
       </span>
     </span>
   )

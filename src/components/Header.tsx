@@ -69,13 +69,13 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             {hideWordmark ? null : <LogoLockup />}
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex" aria-label={dict.nav.menu}>
+          <nav className="hidden min-w-0 items-center gap-0.5 lg:flex xl:gap-1" aria-label={dict.nav.menu}>
             {items.map((item) => (
               <Link
                 key={item.href}
                 href={localePath(locale, item.href)}
                 className={cn(
-                  'rounded-full px-3.5 py-2 text-sm font-medium uppercase transition-colors',
+                  'rounded-full px-2 py-2 text-[0.8rem] font-medium whitespace-nowrap uppercase transition-colors xl:px-3.5 xl:text-sm',
                   isActive(item.href)
                     ? 'bg-brand-soft text-brand'
                     : 'text-ink-muted hover:text-brand hover:bg-brand-soft/60',
@@ -86,7 +86,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} />
 
             <a

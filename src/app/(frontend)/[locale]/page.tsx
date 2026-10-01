@@ -154,7 +154,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   }
 
   const renderers: Record<string, () => React.ReactNode> = {
-    stats: () => <Stats items={(settings?.stats ?? []).map((s) => ({ value: s.value, suffix: s.suffix, label: s.label }))} />,
+    stats: () => <Stats items={settings?.stats ?? []} />,
 
     services: () => {
       const section = sectionFor('services')
