@@ -72,27 +72,18 @@ export function Hero({
           ) : null}
 
           <div className="max-w-full">
-            {locale === 'ka' ? (
-              <svg width="0" height="0" className="absolute" aria-hidden="true">
-                <filter id="slogan-thin" x="-4%" y="-25%" width="108%" height="150%">
-                  <feMorphology operator="erode" radius="0.2" />
-                </filter>
-              </svg>
-            ) : null}
             <Reveal>
               <h1
                 className={cn(
                   'text-[clamp(2rem,5.2vw,3.5rem)] uppercase',
-                  locale === 'ka' && babuka.className,
+                  locale === 'ka' &&
+                    cn(babuka.className, 'font-normal antialiased [font-synthesis:none]'),
                 )}
               >
                 {lines.map((line) => (
                   <span
                     key={line}
-                    className={cn(
-                      'text-gradient block whitespace-nowrap leading-[1.22] pb-[0.12em] tracking-normal',
-                      locale === 'ka' && '[filter:url(#slogan-thin)]',
-                    )}
+                    className="text-gradient block leading-[1.22] pb-[0.12em] tracking-normal whitespace-nowrap"
                   >
                     {uiCaps(line, locale)}
                   </span>
