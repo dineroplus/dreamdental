@@ -70,7 +70,7 @@ export function Hero({
             <Reveal>
               <h1
                 className={cn(
-                  'text-[clamp(2rem,4.6vw,3.5rem)] uppercase max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
+                  'text-[clamp(2rem,4.6vw,3.5rem)] uppercase [text-wrap:wrap] max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
                   locale === 'ka' && '[font-family:var(--font-georgian)]',
                   locale === 'en' && 'lg:text-[clamp(2rem,4.35vw,3.35rem)]',
                 )}
@@ -78,9 +78,9 @@ export function Hero({
                 {lines.map((line) => (
                   <span
                     key={line}
-                    className="text-gradient block leading-[1.22] pb-[0.12em] tracking-normal whitespace-nowrap"
+                    className="text-gradient block leading-[1.22] pb-[0.12em] tracking-normal whitespace-nowrap [text-wrap:nowrap]"
                   >
-                    {uiCaps(line, locale)}
+                    {uiCaps(line, locale).replaceAll(' ', '\u00A0')}
                   </span>
                 ))}
               </h1>
