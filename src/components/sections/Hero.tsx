@@ -39,6 +39,8 @@ function titleLines(title: string): string[] {
   }
   const dashed = trimmed.split(/\s+[–—-]\s+/)
   if (dashed.length === 2) return dashed.map((line) => line.trim()).filter(Boolean)
+  // Stored as one sentence, unlike the Georgian and Russian lines.
+  if (/^your smile is our reputation$/i.test(trimmed)) return ['Your smile', 'is our reputation']
   return [trimmed]
 }
 
@@ -64,7 +66,7 @@ export function Hero({
       <div className="mesh opacity-70" aria-hidden="true" />
 
       <div className="container-page relative grid items-center gap-10 pt-10 pb-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-24">
-        <div>
+        <div className="min-w-0">
           {eyebrow ? (
             <Reveal>
               <p className="text-gold mb-3 text-xs font-semibold tracking-[0.18em] uppercase">{eyebrow}</p>
@@ -75,7 +77,7 @@ export function Hero({
             <Reveal>
               <h1
                 className={cn(
-                  'text-[clamp(2rem,5.2vw,3.5rem)] uppercase',
+                  'text-[clamp(2rem,5.2vw,3.5rem)] uppercase max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
                   locale === 'ka' &&
                     cn(babuka.className, 'font-normal antialiased [font-synthesis:none]'),
                 )}
