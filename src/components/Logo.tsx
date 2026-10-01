@@ -59,7 +59,7 @@ export function LogoLockup({
         className={cn(
           'text-gold leading-none tracking-tight whitespace-nowrap',
           size === 'header'
-            ? 'text-[0.68rem] sm:text-[0.74rem] lg:text-[0.72rem] xl:text-[0.8rem]'
+            ? 'text-[0.74rem] sm:text-[0.8rem] lg:text-[0.72rem] xl:text-[0.92rem]'
             : 'text-[0.82rem] lg:text-[0.92rem] xl:text-[1.05rem]',
         )}
       >
@@ -69,7 +69,7 @@ export function LogoLockup({
         className={cn(
           'mt-1 leading-none',
           size === 'header'
-            ? 'text-[0.54rem] tracking-[0.2em] sm:text-[0.58rem] lg:text-[0.56rem] lg:tracking-[0.22em] xl:text-[0.64rem]'
+            ? 'text-[0.58rem] tracking-[0.2em] sm:text-[0.64rem] lg:text-[0.56rem] lg:tracking-[0.22em] xl:text-[0.72rem]'
             : 'text-[0.68rem] tracking-[0.28em] lg:text-[0.74rem] xl:text-[0.84rem]',
           tone === 'light' ? 'text-white/85' : 'text-brand',
         )}

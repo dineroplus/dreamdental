@@ -65,7 +65,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             className="flex shrink-0 items-center gap-2"
             aria-label={clinicName}
           >
-            <LogoMark src={logoUrl} alt={clinicName} className="h-8 w-auto lg:h-9" animated priority />
+            <LogoMark src={logoUrl} alt={clinicName} className="h-9 w-auto xl:h-10" animated priority />
             {hideWordmark ? null : <LogoLockup size="header" />}
           </Link>
 
