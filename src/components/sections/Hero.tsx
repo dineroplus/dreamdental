@@ -1,4 +1,3 @@
-import localFont from 'next/font/local'
 import { ButtonLink, Icon } from '../ui'
 import { Reveal } from '../motion/Reveal'
 import { HeroDreamVisual } from './HeroDreamVisual'
@@ -6,13 +5,6 @@ import { uiCaps } from '../../lib/georgian'
 import { cn, localePath } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
-
-/** Rounded Georgian display face for the homepage slogan. Unicode Mtavruli. */
-const babuka = localFont({
-  src: '../../fonts/BabukaMtavruli.ttf',
-  display: 'swap',
-  adjustFontFallback: false,
-})
 
 type Props = {
   locale: Locale
@@ -78,8 +70,7 @@ export function Hero({
               <h1
                 className={cn(
                   'text-[clamp(2rem,5.2vw,3.5rem)] uppercase max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
-                  locale === 'ka' &&
-                    cn(babuka.className, 'font-normal antialiased [font-synthesis:none]'),
+                  locale === 'ka' && '[font-family:var(--font-georgian)]',
                 )}
               >
                 {lines.map((line) => (
