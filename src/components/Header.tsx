@@ -59,23 +59,23 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             : 'border-b border-transparent bg-transparent',
         )}
       >
-        <div className="container-page flex h-16 items-center justify-between gap-2 lg:h-20 lg:gap-3 xl:gap-4">
+        <div className="container-page grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:h-20 lg:gap-x-6">
           <Link
             href={localePath(locale, '/')}
             className="flex shrink-0 items-center gap-2"
             aria-label={clinicName}
           >
-            <LogoMark src={logoUrl} alt={clinicName} className="h-9 w-auto xl:h-11" animated priority />
+            <LogoMark src={logoUrl} alt={clinicName} className="h-8 w-auto lg:h-9" animated priority />
             {hideWordmark ? null : <LogoLockup size="header" />}
           </Link>
 
-          <nav className="hidden min-w-0 items-center justify-end gap-0.5 lg:flex xl:gap-1" aria-label={dict.nav.menu}>
+          <nav className="hidden min-w-0 items-center justify-center gap-0.5 overflow-x-clip lg:flex" aria-label={dict.nav.menu}>
             {items.map((item) => (
               <Link
                 key={item.href}
                 href={localePath(locale, item.href)}
                 className={cn(
-                  'rounded-full px-1.5 py-2 text-[0.72rem] font-medium whitespace-nowrap uppercase transition-colors xl:px-2.5 xl:text-[0.8rem] 2xl:px-3.5 2xl:text-sm',
+                  'rounded-full px-1.5 py-2 text-[0.68rem] font-medium whitespace-nowrap uppercase transition-colors lg:text-[0.72rem] xl:px-2.5 xl:text-[0.78rem]',
                   isActive(item.href)
                     ? 'bg-brand-soft text-brand'
                     : 'text-ink-muted hover:text-brand hover:bg-brand-soft/60',
@@ -86,12 +86,12 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1.5 xl:gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-1.5 xl:gap-2">
             <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} />
 
             <a
               href={`tel:${phone}`}
-              className="bg-brand hover:bg-accent hidden rounded-full px-3.5 py-2 text-[0.75rem] font-semibold whitespace-nowrap text-white uppercase transition-colors lg:inline-flex xl:px-5 xl:py-2.5 xl:text-sm"
+              className="bg-brand hover:bg-accent hidden rounded-full px-3 py-2 text-[0.72rem] font-semibold whitespace-nowrap text-white uppercase transition-colors lg:inline-flex xl:px-4 xl:text-[0.8rem]"
             >
               {dict.cta.callNow}
             </a>
