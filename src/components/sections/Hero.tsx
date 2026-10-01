@@ -22,16 +22,18 @@ type Props = {
   eyebrow?: string | null
 }
 
-/** Two lines, keeping the dash from "თქვენი ღიმილი - ჩვენი რეპუტაცია". */
+/** Two lines. Georgian and Russian keep their dash; English reads YOUR SMILE / IS OUR REPUTATION. */
 function titleLines(title: string): string[] {
   const trimmed = title.trim()
   if (!trimmed) return []
+  if (/^your smile(\s+[-–—]\s+|\s+)(is\s+)?our reputation$/i.test(trimmed)) {
+    return ['Your smile', 'is our reputation']
+  }
   if (trimmed.includes('\n')) {
     return trimmed.split('\n').map((line) => line.trim()).filter(Boolean)
   }
   const dashed = trimmed.split(/\s+[–—-]\s+/)
   if (dashed.length === 2) return [`${dashed[0].trim()} -`, dashed[1].trim()]
-  if (/^your smile is our reputation$/i.test(trimmed)) return ['Your smile -', 'is our reputation']
   return [trimmed]
 }
 
@@ -70,6 +72,7 @@ export function Hero({
                 className={cn(
                   'text-[clamp(2rem,4.6vw,3.5rem)] uppercase max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
                   locale === 'ka' && '[font-family:var(--font-georgian)]',
+                  locale === 'en' && 'lg:text-[clamp(2rem,4.35vw,3.35rem)]',
                 )}
               >
                 {lines.map((line) => (

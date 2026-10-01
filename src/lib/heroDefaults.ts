@@ -23,7 +23,7 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   en: {
-    title: 'Your smile - our reputation',
+    title: 'Your smile is our reputation',
     subtitle:
       'Since 2013, Dream Dental Group has been caring for your smile. In one place we offer every kind of dental treatment: implants, prosthodontics, prosthetics, orthodontics, periodontics, laser whitening, children’s dentistry, 3D diagnostics and more. Modern technology, the highest standard of care, an individual approach, a comfortable setting and a professional team. We see you every day from 10:00 to 22:00. Tbilisi, 10 N. Baratashvili St.',
     bullets: [
