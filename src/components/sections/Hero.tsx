@@ -22,7 +22,7 @@ type Props = {
   eyebrow?: string | null
 }
 
-/** Two-line slogan without a dash — CMS often stores "A - B". */
+/** Two lines, keeping the dash from "თქვენი ღიმილი - ჩვენი რეპუტაცია". */
 function titleLines(title: string): string[] {
   const trimmed = title.trim()
   if (!trimmed) return []
@@ -30,9 +30,8 @@ function titleLines(title: string): string[] {
     return trimmed.split('\n').map((line) => line.trim()).filter(Boolean)
   }
   const dashed = trimmed.split(/\s+[–—-]\s+/)
-  if (dashed.length === 2) return dashed.map((line) => line.trim()).filter(Boolean)
-  // Stored as one sentence, unlike the Georgian and Russian lines.
-  if (/^your smile is our reputation$/i.test(trimmed)) return ['Your smile', 'is our reputation']
+  if (dashed.length === 2) return [`${dashed[0].trim()} -`, dashed[1].trim()]
+  if (/^your smile is our reputation$/i.test(trimmed)) return ['Your smile -', 'is our reputation']
   return [trimmed]
 }
 
@@ -69,7 +68,7 @@ export function Hero({
             <Reveal>
               <h1
                 className={cn(
-                  'text-[clamp(2rem,5.2vw,3.5rem)] uppercase max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
+                  'text-[clamp(2rem,4.6vw,3.5rem)] uppercase max-[380px]:text-[clamp(1.55rem,8vw,1.85rem)]',
                   locale === 'ka' && '[font-family:var(--font-georgian)]',
                 )}
               >

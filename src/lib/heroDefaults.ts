@@ -12,7 +12,7 @@ export type HeroCopy = {
 
 export const HERO_COPY: Record<Locale, HeroCopy> = {
   ka: {
-    title: 'თქვენი ღიმილი\nჩვენი რეპუტაციაა',
+    title: 'თქვენი ღიმილი - ჩვენი რეპუტაცია',
     subtitle:
       '2013 წლიდან Dream Dental Group ზრუნავს თქვენს ღიმილზე. ერთ სივრცეში გთავაზობთ ყველა სახის სტომატოლოგიურ მომსახურებას: იმპლანტაცია, ორთოპედია, პროთეზირება, ორთოდონტია, პაროდონტოლოგია, ლაზერული გათეთრება, ბავშვთა სტომატოლოგია, 3D დიაგნოსტიკა და სხვა. თანამედროვე ტექნოლოგიები, უმაღლესი ხარისხი, ინდივიდუალური მიდგომა, კომფორტული გარემო და პროფესიონალი გუნდი. გემსახურებით ყოველდღე 10:00-დან 22:00-მდე. თბილისი, ნ. ბარათაშვილის #10',
     bullets: [
@@ -23,7 +23,7 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   en: {
-    title: 'Your smile - is our reputation',
+    title: 'Your smile - our reputation',
     subtitle:
       'Since 2013, Dream Dental Group has been caring for your smile. In one place we offer every kind of dental treatment: implants, prosthodontics, prosthetics, orthodontics, periodontics, laser whitening, children’s dentistry, 3D diagnostics and more. Modern technology, the highest standard of care, an individual approach, a comfortable setting and a professional team. We see you every day from 10:00 to 22:00. Tbilisi, 10 N. Baratashvili St.',
     bullets: [
@@ -34,7 +34,7 @@ export const HERO_COPY: Record<Locale, HeroCopy> = {
     ],
   },
   ru: {
-    title: 'Ваша улыбка\nнаша репутация',
+    title: 'Ваша улыбка - наша репутация',
     subtitle:
       'С 2013 года Dream Dental Group заботится о вашей улыбке. В одном пространстве мы предлагаем все виды стоматологической помощи: имплантацию, ортопедию, протезирование, ортодонтию, пародонтологию, лазерное отбеливание, детскую стоматологию, 3D-диагностику и другое. Современные технологии, высочайшее качество, индивидуальный подход, комфортная обстановка и профессиональная команда. Принимаем ежедневно с 10:00 до 22:00. Тбилиси, ул. Н. Бараташвили 10.',
     bullets: [
