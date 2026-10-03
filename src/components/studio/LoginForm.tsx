@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { loginAction } from '../../admin/actions'
+import { LogoLockup, LogoMark } from '../Logo'
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(
@@ -12,8 +13,11 @@ export function LoginForm() {
   return (
     <form action={action} className="card w-full max-w-md space-y-5 p-8">
       <div>
-        <p className="text-brand text-xs font-semibold tracking-[0.18em] uppercase">Dream</p>
-        <h1 className="text-ink mt-2 text-2xl font-semibold">კლინიკის პანელი</h1>
+        <div className="flex items-center gap-3">
+          <LogoMark className="h-12 w-auto" priority />
+          <LogoLockup />
+        </div>
+        <h1 className="text-ink mt-4 text-2xl font-semibold">კლინიკის პანელი</h1>
         <p className="text-ink-muted mt-1 text-sm">შეიყვანე იმეილი და პაროლი.</p>
       </div>
 

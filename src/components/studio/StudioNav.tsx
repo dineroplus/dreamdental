@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { logoutAction } from '../../admin/actions'
 import { StudioIcon, type StudioIconName } from './StudioIcon'
-import { LogoMark } from '../Logo'
+import { LogoLockup, LogoMark } from '../Logo'
 
 type NavItem = { href: string; label: string; icon: StudioIconName; badge?: boolean }
 
@@ -161,11 +161,11 @@ export function StudioNav({ userName, newBookings }: { userName: string; newBook
 
 function Brand() {
   return (
-    <Link href="/admin" className="flex items-center gap-3" aria-label="Dream Dental · კლინიკის პანელი">
-      <LogoMark className="h-10 w-auto" priority />
-      <span className="flex flex-col leading-tight">
-        <span className="text-ink font-display text-base font-semibold">Dream Dental</span>
-        <span className="text-ink-muted text-xs font-medium">კლინიკის პანელი</span>
+    <Link href="/admin" className="flex min-w-0 items-center gap-2.5" aria-label="Dream Dental & Aesthetic Group · კლინიკის პანელი">
+      <LogoMark className="h-10 w-auto shrink-0" priority />
+      <span className="min-w-0">
+        <LogoLockup size="admin" />
+        <span className="text-ink-muted mt-1 block text-[10px] font-medium">კლინიკის პანელი</span>
       </span>
     </Link>
   )

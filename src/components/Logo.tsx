@@ -51,7 +51,7 @@ export function LogoLockup({
   className?: string
   tone?: 'ink' | 'light'
   /** Header lockup stays smaller so the menu and the call button keep their own space. */
-  size?: 'md' | 'header'
+  size?: 'md' | 'header' | 'admin'
 }) {
   return (
     <span className={cn('font-display inline-flex w-max flex-col items-center leading-none font-semibold', className)}>
@@ -60,7 +60,9 @@ export function LogoLockup({
           'text-gold leading-none tracking-tight whitespace-nowrap',
           size === 'header'
             ? 'text-[0.74rem] sm:text-[0.8rem] lg:text-[0.72rem] xl:text-[0.92rem]'
-            : 'text-[0.82rem] lg:text-[0.92rem] xl:text-[1.05rem]',
+            : size === 'admin'
+              ? 'text-[0.68rem]'
+              : 'text-[0.82rem] lg:text-[0.92rem] xl:text-[1.05rem]',
         )}
       >
         Dream Dental &amp; Aesthetic
@@ -70,7 +72,9 @@ export function LogoLockup({
           'mt-1 leading-none',
           size === 'header'
             ? 'text-[0.58rem] tracking-[0.2em] sm:text-[0.64rem] lg:text-[0.56rem] lg:tracking-[0.22em] xl:text-[0.72rem]'
-            : 'text-[0.68rem] tracking-[0.28em] lg:text-[0.74rem] xl:text-[0.84rem]',
+            : size === 'admin'
+              ? 'text-[0.5rem] tracking-[0.18em]'
+              : 'text-[0.68rem] tracking-[0.28em] lg:text-[0.74rem] xl:text-[0.84rem]',
           tone === 'light' ? 'text-white/85' : 'text-brand',
         )}
       >
