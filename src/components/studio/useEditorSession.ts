@@ -3,6 +3,15 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { unstable_rethrow } from 'next/navigation'
 
+function saveError(err: unknown) {
+  const message = err instanceof Error ? err.message : ''
+  if (/invalid server actions request|forbidden|permission denied|unauthorized/i.test(message)) {
+    return 'შეცვლა ვერ მოხერხდა. გვერდი განაახლე და თავიდან სცადე.'
+  }
+  if (message && !message.startsWith('An error occurred')) return message
+  return 'შენახვა ვერ მოხერხდა'
+}
+
 function savedAtLabel() {
   const time = new Date().toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit' })
   return `შენახულია ${time}`
@@ -36,7 +45,7 @@ export function useEditorSession(snapshot: unknown, save: () => Promise<unknown>
           after?.()
         } catch (err) {
           unstable_rethrow(err)
-          setError(err instanceof Error ? err.message : 'შენახვა ვერ მოხერხდა')
+          setError(saveError(err))
         }
       })
     },

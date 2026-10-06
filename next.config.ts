@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '8mb',
+      // Saving from any clinic domain must not be rejected as a cross-site action.
+      allowedOrigins: [PRIMARY_DOMAIN, ...REDIRECT_DOMAINS, 'localhost:3000', '*.vercel.app'],
     },
   },
 

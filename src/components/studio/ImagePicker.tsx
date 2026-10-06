@@ -3,6 +3,38 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { getMedia, listMedia, uploadMedia, type MediaOption } from '../../admin/media'
 
+/** Phone photos are often larger than the host allows, so shrink them in the browser first. */
+async function shrinkForUpload(file: File): Promise<File> {
+  if (file.size < 1_200_000 && /jpe?g|png|webp/i.test(file.type)) return file
+  try {
+    const bitmap = await createImageBitmap(file)
+    const max = 2000
+    const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+    const context = canvas.getContext('2d')
+    if (!context) return file
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close()
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.82))
+    if (!blob) return file
+    const name = file.name.replace(/\.[^.]+$/, '') || 'photo'
+    return new File([blob], `${name}.webp`, { type: 'image/webp' })
+  } catch {
+    return file
+  }
+}
+
+function uploadError(err: unknown) {
+  const message = err instanceof Error ? err.message : ''
+  if (/invalid server actions request|forbidden|permission denied|unauthorized/i.test(message)) {
+    return 'სურათის შეცვლა ვერ მოხერხდა. გვერდი განაახლე და თავიდან სცადე.'
+  }
+  if (message && !message.startsWith('An error occurred')) return message
+  return 'ატვირთვა ვერ მოხერხდა'
+}
+
 type Props = {
   value: unknown
   onChange: (next: number | number[] | undefined) => void
@@ -63,15 +95,16 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
   const onFiles = (files: FileList | null) => {
     if (!files?.length) return
     const file = files[0]
-    const form = new FormData()
-    form.append('file', file)
     setError(null)
     startTransition(async () => {
       try {
+        const ready = await shrinkForUpload(file)
+        const form = new FormData()
+        form.append('file', ready)
         const uploaded = await uploadMedia(form)
         addId(uploaded)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'ატვირთვა ვერ მოხერხდა')
+        setError(uploadError(err))
       }
     })
   }

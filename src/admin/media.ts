@@ -7,8 +7,16 @@ import { requireUser } from './auth'
 import { revalidateTag } from 'next/cache'
 import { CONTENT_TAG } from '../lib/data'
 
-const MAX_BYTES = 6 * 1024 * 1024
-const ALLOWED = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'])
+const MAX_BYTES = 8 * 1024 * 1024
+const ALLOWED = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+  'image/heic',
+  'image/heif',
+])
 
 export type MediaOption = {
   id: number
@@ -25,16 +33,59 @@ function sanitizeFilename(name: string) {
     .slice(0, 120)
 }
 
-function uniqueName(original: string) {
+function uniqueName(original: string, ext?: string | null) {
   const safe = sanitizeFilename(original) || 'upload'
   const stamp = Date.now().toString(36)
-  const ext = safe.includes('.') ? `.${safe.split('.').pop()}` : '.jpg'
+  const fallback = safe.includes('.') ? `.${safe.split('.').pop()}` : '.jpg'
   const base = safe.replace(/\.[^.]+$/, '')
-  return `${base}-${stamp}${ext}`
+  return `${base}-${stamp}${ext || fallback}`
 }
 
+async function blobColumnReady() {
+  const result = await db().execute(sql`
+    select 1 as ok
+    from information_schema.columns
+    where table_schema = 'cms' and table_name = 'media' and column_name = 'blob'
+    limit 1
+  `)
+  return result.rows.length > 0
+}
+
+/**
+ * The column is part of the schema. Changing the table needs an owner, so a
+ * signed-in editor must still be able to upload when that change is refused.
+ */
 async function ensureBlobColumn() {
-  await db().execute(sql`ALTER TABLE cms.media ADD COLUMN IF NOT EXISTS blob text`)
+  if (await blobColumnReady()) return
+  try {
+    await db().execute(sql`ALTER TABLE cms.media ADD COLUMN IF NOT EXISTS blob text`)
+  } catch {
+    if (await blobColumnReady()) return
+    throw new Error('სურათის შენახვა ვერ მოხერხდა')
+  }
+}
+
+async function preparedImage(bytes: Buffer, mimeType: string) {
+  try {
+    const image = sharp(bytes, { failOn: 'none' }).rotate()
+    const meta = await image.metadata()
+    const output = await image
+      .resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer()
+    return {
+      bytes: output,
+      mimeType: 'image/webp',
+      width: meta.width ?? null,
+      height: meta.height ?? null,
+      ext: '.webp',
+    }
+  } catch {
+    if (!ALLOWED.has(mimeType) || mimeType === 'image/heic' || mimeType === 'image/heif') {
+      throw new Error('მხოლოდ JPG, PNG, WEBP ან GIF')
+    }
+    return { bytes, mimeType, width: null, height: null, ext: null as string | null }
+  }
 }
 
 function publicUrl(id: number) {
@@ -54,7 +105,7 @@ export async function uploadMedia(formData: FormData): Promise<MediaOption> {
     throw new Error('აირჩიე სურათი')
   }
   if (file.size > MAX_BYTES) {
-    throw new Error('სურათი 6MB-ზე დიდია')
+    throw new Error('სურათი ძალიან დიდია. უფრო პატარა ფაილი ატვირთე.')
   }
 
   const mimeType = file.type || 'application/octet-stream'
@@ -62,20 +113,19 @@ export async function uploadMedia(formData: FormData): Promise<MediaOption> {
     throw new Error('მხოლოდ JPG, PNG, WEBP ან GIF')
   }
 
-  const filename = uniqueName(file.name)
-  const bytes = Buffer.from(await file.arrayBuffer())
-  const blob = bytes.toString('base64')
-  const meta = await sharp(bytes).metadata().catch(() => null)
+  const prepared = await preparedImage(Buffer.from(await file.arrayBuffer()), mimeType)
+  const filename = uniqueName(file.name, prepared.ext)
+  const blob = prepared.bytes.toString('base64')
 
   const [row] = await db()
     .insert(schema.media)
     .values({
       filename,
       url: '/api/media/file/pending',
-      mimeType,
-      width: meta?.width ?? null,
-      height: meta?.height ?? null,
-      filesize: bytes.length,
+      mimeType: prepared.mimeType,
+      width: prepared.width,
+      height: prepared.height,
+      filesize: prepared.bytes.length,
       blob,
       sizes: {},
       alt: {},
