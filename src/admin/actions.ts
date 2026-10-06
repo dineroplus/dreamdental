@@ -3,12 +3,14 @@
 import { and, asc, eq } from 'drizzle-orm'
 import { revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
+import sharp from 'sharp'
 import { z } from 'zod'
 import { db, schema } from '../db/client'
 import { collections, singletons, type CollectionName, type SingletonName } from '../content/schema'
 import { emptyShape, zodForMap } from '../content/fields'
 import { CONTENT_TAG } from '../lib/data'
 import { login, logout, requireUser } from './auth'
+import { logoWithoutFlatBackground } from './logoMark'
 import { slugFromTitle, titleFromStored } from './slug'
 
 /**
@@ -17,6 +19,49 @@ import { slugFromTitle, titleFromStored } from './slug'
  */
 function revalidateContent() {
   revalidateTag(CONTENT_TAG, 'max')
+}
+
+/** The next logo upload must not bring a white square back onto the site. */
+async function clearLogoBackground(data: Record<string, unknown>) {
+  const identity = data.identity
+  if (!identity || typeof identity !== 'object') return
+  const record = identity as Record<string, unknown>
+  if (typeof record.logo !== 'number') return
+
+  const rows = await db()
+    .select({ blob: schema.media.blob })
+    .from(schema.media)
+    .where(eq(schema.media.id, record.logo))
+    .limit(1)
+  const blob = rows[0]?.blob
+  if (!blob) return
+
+  const png = await logoWithoutFlatBackground(Buffer.from(blob, 'base64'))
+  if (!png) return
+  const meta = await sharp(png).metadata()
+  const filename = `logo-mark-${Date.now().toString(36)}.png`
+
+  const [created] = await db()
+    .insert(schema.media)
+    .values({
+      filename,
+      url: '/api/media/file/pending',
+      mimeType: 'image/png',
+      width: meta.width ?? null,
+      height: meta.height ?? null,
+      filesize: png.length,
+      blob: png.toString('base64'),
+      sizes: {},
+      alt: {},
+      caption: {},
+    })
+    .returning({ id: schema.media.id })
+
+  await db()
+    .update(schema.media)
+    .set({ url: `/api/media/file/${created.id}` })
+    .where(eq(schema.media.id, created.id))
+  record.logo = created.id
 }
 
 export async function loginAction(formData: FormData) {
@@ -173,6 +218,7 @@ export async function saveSingleton(key: SingletonName, data: Record<string, unk
     throw error
   }
   const now = new Date()
+  if (key === 'settings') await clearLogoBackground(parsed)
 
   await db()
     .insert(schema.singletons)
