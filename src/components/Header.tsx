@@ -59,7 +59,38 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             : 'border-b border-transparent bg-transparent',
         )}
       >
-        <div className="container-page grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:h-20 lg:gap-x-6">
+        {/* Phone only. Desktop keeps the bar below, so these classes cannot move it. */}
+        <div className="container-page relative grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
+          <div className="relative z-20 justify-self-start">
+            <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} menuSide="start" />
+          </div>
+
+          <Link
+            href={localePath(locale, '/')}
+            className="absolute left-1/2 z-10 -translate-x-1/2"
+            aria-label={clinicName}
+          >
+            <LogoMark src={logoUrl} alt={clinicName} className="h-9 w-auto" priority />
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? dict.nav.close : dict.nav.menu}
+            className="border-hairline text-ink relative z-20 grid h-10 w-10 shrink-0 place-items-center justify-self-end rounded-full border bg-surface"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              {open ? (
+                <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              ) : (
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        <div className="container-page hidden h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:grid lg:h-20 lg:gap-x-6">
           <Link
             href={localePath(locale, '/')}
             className="flex shrink-0 items-center gap-2"

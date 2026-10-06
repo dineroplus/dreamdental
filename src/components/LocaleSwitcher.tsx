@@ -11,7 +11,16 @@ import { cn } from '../lib/utils'
  * visitor stays on the page they were reading. Rendered as real links, which
  * also gives crawlers a path between language versions.
  */
-export function LocaleSwitcher({ locale, label }: { locale: Locale; label: string }) {
+export function LocaleSwitcher({
+  locale,
+  label,
+  menuSide = 'end',
+}: {
+  locale: Locale
+  label: string
+  /** Phone header opens the list toward the page. Desktop keeps it aligned to the button's end. */
+  menuSide?: 'start' | 'end'
+}) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
@@ -38,7 +47,12 @@ export function LocaleSwitcher({ locale, label }: { locale: Locale; label: strin
       </button>
 
       {open && (
-        <ul className="border-hairline absolute end-0 top-12 z-50 min-w-36 overflow-hidden rounded-2xl border bg-surface py-1 shadow-lift">
+        <ul
+          className={cn(
+            'border-hairline absolute top-12 z-50 min-w-36 overflow-hidden rounded-2xl border bg-surface py-1 shadow-lift',
+            menuSide === 'start' ? 'start-0' : 'end-0',
+          )}
+        >
           {locales.map((code) => (
             <li key={code}>
               <Link
