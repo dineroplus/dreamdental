@@ -225,7 +225,9 @@ export async function newDocumentDefaults(type: CollectionName) {
       slug: `new-${Date.now()}`,
       order: 100,
       featured: false,
-      status: 'draft' as const,
+      // A saved before/after result is meant for the results page. Other
+      // documents stay hidden until "საიტზე ჩანს" is turned on.
+      status: (type === 'cases' ? 'published' : 'draft') as 'draft' | 'published',
     },
   }
 }
