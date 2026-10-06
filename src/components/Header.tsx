@@ -60,17 +60,18 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
         )}
       >
         {/* Phone only. Desktop keeps the bar below, so these classes cannot move it. */}
-        <div className="container-page relative grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
+        <div className="container-page relative grid h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
           <div className="relative z-20 justify-self-start">
             <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} menuSide="start" />
           </div>
 
           <Link
             href={localePath(locale, '/')}
-            className="absolute left-1/2 z-10 -translate-x-1/2"
+            className="absolute left-1/2 z-10 flex max-w-[calc(100%-8.5rem)] -translate-x-1/2 flex-col items-center gap-0.5"
             aria-label={clinicName}
           >
-            <LogoMark src={logoUrl} alt={clinicName} className="h-9 w-auto" priority />
+            <LogoMark src={logoUrl} alt={clinicName} className="h-8 w-auto" priority />
+            {hideWordmark ? null : <LogoLockup size="phone" />}
           </Link>
 
           <button

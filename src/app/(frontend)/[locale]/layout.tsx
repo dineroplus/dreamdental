@@ -221,7 +221,7 @@ export default async function LocaleLayout({
           phone={phonePrimary}
         />
 
-        <main id="main" className="pt-16 lg:pt-20">
+        <main id="main" className="pt-20">
           {children}
         </main>
 
