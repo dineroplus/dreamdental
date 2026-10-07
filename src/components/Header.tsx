@@ -67,11 +67,10 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
 
           <Link
             href={localePath(locale, '/')}
-            className="absolute left-1/2 z-10 flex max-w-[calc(100%-8.5rem)] -translate-x-1/2 flex-col items-center gap-0.5"
+            className="absolute left-1/2 z-10 -translate-x-1/2"
             aria-label={clinicName}
           >
             <LogoMark src={logoUrl} alt={clinicName} className="h-8 w-auto" priority />
-            {hideWordmark ? null : <LogoLockup size="phone" />}
           </Link>
 
           <button
