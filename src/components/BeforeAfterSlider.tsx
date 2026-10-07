@@ -1,8 +1,3 @@
-'use client'
-
-import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
-
 type Props = {
   beforeSrc: string
   afterSrc: string
@@ -10,16 +5,12 @@ type Props = {
   afterAlt: string
   beforeLabel: string
   afterLabel: string
-  hint: string
-  /** Stored photo size. The frame uses it so a new upload is shown whole, not cropped into a fixed box. */
-  imageWidth?: number | null
-  imageHeight?: number | null
+  hint?: string
 }
 
 /**
- * Drag-to-compare treatment result. Pointer events cover mouse, touch and pen
- * with one code path; the handle is also focusable and driven by arrow keys so
- * it works without a pointer at all.
+ * A treatment result shown as two complete photos. The picture keeps the shape
+ * it was uploaded in, so a wide smile is never cropped into a taller frame.
  */
 export function BeforeAfterSlider({
   beforeSrc,
@@ -28,146 +19,32 @@ export function BeforeAfterSlider({
   afterAlt,
   beforeLabel,
   afterLabel,
-  hint,
-  imageWidth,
-  imageHeight,
 }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState(50)
-  const [dragging, setDragging] = useState(false)
-  const [touched, setTouched] = useState(false)
-  // The frame follows the uploaded photo, so a new result is never forced into
-  // a taller box that would cut off the lips.
-  const suppliedRatio = imageWidth && imageHeight ? imageWidth / imageHeight : null
-  const [ratio, setRatio] = useState(suppliedRatio ?? 2)
-
-  const rememberRatio = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget
-    if (naturalWidth > 0 && naturalHeight > 0) setRatio(naturalWidth / naturalHeight)
-  }
-
-  const updateFromClientX = useCallback((clientX: number) => {
-    const el = containerRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const ratio = ((clientX - rect.left) / rect.width) * 100
-    setPosition(Math.min(100, Math.max(0, ratio)))
-  }, [])
-
-  const onPointerDown = (event: React.PointerEvent) => {
-    event.currentTarget.setPointerCapture(event.pointerId)
-    setDragging(true)
-    setTouched(true)
-    updateFromClientX(event.clientX)
-  }
-
-  const onPointerMove = (event: React.PointerEvent) => {
-    if (!dragging) return
-    updateFromClientX(event.clientX)
-  }
-
-  const endDrag = (event: React.PointerEvent) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    }
-    setDragging(false)
-  }
-
-  const onKeyDown = (event: React.KeyboardEvent) => {
-    const step = event.shiftKey ? 10 : 2
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault()
-      setTouched(true)
-      setPosition((p) => Math.max(0, p - step))
-    }
-    if (event.key === 'ArrowRight') {
-      event.preventDefault()
-      setTouched(true)
-      setPosition((p) => Math.min(100, p + step))
-    }
-  }
-
-  // Nudge the handle once on mount so the control is discoverable without a hint.
-  useEffect(() => {
-    if (touched) return
-    const timer = setTimeout(() => {
-      if (!touched) setPosition(58)
-    }, 900)
-    return () => clearTimeout(timer)
-  }, [touched])
-
   return (
-    <div className="mx-auto w-full max-w-lg">
-      <div className="mb-2 flex items-center justify-between px-1 text-xs font-medium tracking-wide">
-        <span className="text-ink-muted">{beforeLabel}</span>
-        <span className="text-brand">{afterLabel}</span>
-      </div>
-      <div
-        ref={containerRef}
-        className="group relative max-h-80 w-full touch-none overflow-hidden rounded-[var(--radius-card)] bg-[#f3ebe3] shadow-[0_10px_28px_rgba(90,50,40,0.08)] select-none"
-        style={{ aspectRatio: ratio }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-      >
-      <Image
-        src={afterSrc}
-        alt={afterAlt}
-        fill
-        sizes="(max-width: 1024px) 100vw, 32rem"
-        className="object-contain"
-        draggable={false}
-        onLoad={rememberRatio}
-      />
-
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{
-          clipPath: `inset(0 ${100 - position}% 0 0)`,
-          transition: dragging ? 'none' : 'clip-path 420ms var(--ease-out-soft)',
-        }}
-      >
-        <Image
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
+      <figure>
+        <figcaption className="text-ink-muted mb-2 px-1 text-xs font-medium tracking-wide">
+          {beforeLabel}
+        </figcaption>
+        {/* The file itself sets the shape. No fill, no cover, no fixed frame. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- intrinsic ratio, so the uploaded frame is not cropped */}
+        <img
           src={beforeSrc}
           alt={beforeAlt}
-          fill
-          sizes="(max-width: 1024px) 100vw, 32rem"
-          className="object-contain"
-          draggable={false}
+          className="block h-auto w-full rounded-[var(--radius-card)] shadow-[0_10px_28px_rgba(90,50,40,0.08)]"
         />
-      </div>
-
-      <div
-        className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.35)]"
-        style={{
-          left: `${position}%`,
-          transition: dragging ? 'none' : 'left 420ms var(--ease-out-soft)',
-        }}
-      >
-        <button
-          type="button"
-          role="slider"
-          aria-label={hint}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(position)}
-          onKeyDown={onKeyDown}
-          className="absolute top-1/2 left-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize place-items-center rounded-full bg-white text-brand shadow-lg ring-1 ring-black/10 transition-transform active:scale-95"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M9 6 4 12l5 6M15 6l5 6-5 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
-      </div>
-      {!touched && <p className="text-ink-muted mt-2 text-center text-[11px]">{hint}</p>}
+      </figure>
+      <figure>
+        <figcaption className="text-brand mb-2 px-1 text-xs font-medium tracking-wide">
+          {afterLabel}
+        </figcaption>
+        {/* eslint-disable-next-line @next/next/no-img-element -- intrinsic ratio, so the uploaded frame is not cropped */}
+        <img
+          src={afterSrc}
+          alt={afterAlt}
+          className="block h-auto w-full rounded-[var(--radius-card)] shadow-[0_10px_28px_rgba(90,50,40,0.08)]"
+        />
+      </figure>
     </div>
   )
 }

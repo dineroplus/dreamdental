@@ -30,8 +30,6 @@ export function CasesSection({
               <BeforeAfterSlider
                 beforeSrc={mediaUrl(item.beforeImage)!}
                 afterSrc={mediaUrl(item.afterImage)!}
-                imageWidth={item.afterImage.width}
-                imageHeight={item.afterImage.height}
                 beforeAlt={mediaAlt(item.beforeImage, `${item.title} - ${dict.labels.before}`)}
                 afterAlt={mediaAlt(item.afterImage, `${item.title} - ${dict.labels.after}`)}
                 beforeLabel={dict.labels.before}
