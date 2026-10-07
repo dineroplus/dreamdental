@@ -290,7 +290,7 @@ function FieldInput({
         />
       )
     case 'image':
-      return <ImagePicker value={value} onChange={onChange} />
+      return <ImagePicker value={value} onChange={onChange} fit={field.fit} />
     case 'imageList':
       return <ImagePicker value={value} onChange={onChange} multiple />
     case 'relation':

@@ -114,7 +114,13 @@ export function CollectionList({
                 <div className="bg-brand-soft h-24 w-24 shrink-0 overflow-hidden rounded-xl">
                   {row.image ? (
                     // eslint-disable-next-line @next/next/no-img-element -- admin thumbnail
-                    <img src={row.image} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={row.image}
+                      alt=""
+                      className={
+                        collection === 'cases' ? 'h-full w-full object-contain' : 'h-full w-full object-cover'
+                      }
+                    />
                   ) : (
                     <div className="text-brand/40 grid h-full place-items-center text-2xl font-semibold">
                       {row.title.charAt(0)}

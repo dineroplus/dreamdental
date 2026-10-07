@@ -39,9 +39,11 @@ type Props = {
   value: unknown
   onChange: (next: number | number[] | undefined) => void
   multiple?: boolean
+  /** `contain` shows the whole photo. Used for before/after results so lips are not cropped in the form. */
+  fit?: 'cover' | 'contain'
 }
 
-export function ImagePicker({ value, onChange, multiple = false }: Props) {
+export function ImagePicker({ value, onChange, multiple = false, fit = 'cover' }: Props) {
   const ids = Array.isArray(value)
     ? value.filter((id): id is number => typeof id === 'number')
     : typeof value === 'number'
@@ -123,9 +125,20 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
         {previews.map((item) => (
-          <figure key={item.id} className="relative h-36 w-36 overflow-hidden rounded-2xl bg-brand-soft">
+          <figure
+            key={item.id}
+            className={
+              fit === 'contain'
+                ? 'relative h-36 w-64 overflow-hidden rounded-2xl bg-brand-soft'
+                : 'relative h-36 w-36 overflow-hidden rounded-2xl bg-brand-soft'
+            }
+          >
             {/* Admin preview; next/image is unnecessary for a local picker. */}
-            <img src={item.url} alt="" className="h-full w-full object-cover" />
+            <img
+              src={item.url}
+              alt=""
+              className={fit === 'contain' ? 'h-full w-full object-contain' : 'h-full w-full object-cover'}
+            />
             <button
               type="button"
               onClick={() => removeId(item.id)}
@@ -180,7 +193,11 @@ export function ImagePicker({ value, onChange, multiple = false }: Props) {
               onClick={() => addId(item)}
               className="h-16 overflow-hidden rounded-xl bg-brand-soft"
             >
-              <img src={item.url} alt="" className="h-full w-full object-cover" />
+              <img
+                src={item.url}
+                alt=""
+                className={fit === 'contain' ? 'h-full w-full object-contain' : 'h-full w-full object-cover'}
+              />
             </button>
           ))}
         </div>

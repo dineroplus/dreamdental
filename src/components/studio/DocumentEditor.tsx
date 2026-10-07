@@ -83,7 +83,12 @@ export function DocumentEditor({
 
   return (
     <div className="space-y-6 pb-4">
-      <EditorPreviewCard title={title} statusLabel={statusLabel} imageId={imageId} />
+      <EditorPreviewCard
+        title={title}
+        statusLabel={statusLabel}
+        imageId={imageId}
+        fit={type === 'cases' ? 'contain' : 'cover'}
+      />
 
       <div className="border-hairline flex flex-wrap items-center gap-4 rounded-2xl border bg-surface p-4">
         <label className="flex min-h-12 items-center gap-3 text-base">

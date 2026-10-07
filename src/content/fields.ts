@@ -42,7 +42,7 @@ export type Field =
   | (Base & { kind: 'boolean' })
   | (Base & { kind: 'select'; options: readonly Option[] })
   | (Base & { kind: 'multiselect'; options: readonly Option[] })
-  | (Base & { kind: 'image' })
+  | (Base & { kind: 'image'; fit?: 'cover' | 'contain' })
   | (Base & { kind: 'imageList' })
   | (Base & { kind: 'relation'; to: string })
   | (Base & { kind: 'relationList'; to: string })

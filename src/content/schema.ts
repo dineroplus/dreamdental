@@ -235,9 +235,16 @@ const caseFields = {
     kind: 'image',
     label: 'ფოტო "მდე"',
     required: true,
-    hint: 'გადაიღე ორივე ფოტო ერთი კუთხიდან, რომ სლაიდერი დაემთხვეს.',
+    fit: 'contain',
+    hint: 'კადრში მთელი ტუჩები და კბილები უნდა ჩანდეს. საიტი ფოტოს არ ჭრის — როგორც ატვირთავ, ისე გამოჩნდება. ორივე კადრი ერთი კუთხიდან გადაიღე.',
   },
-  afterImage: { kind: 'image', label: 'ფოტო "შემდეგ"', required: true },
+  afterImage: {
+    kind: 'image',
+    label: 'ფოტო "შემდეგ"',
+    required: true,
+    fit: 'contain',
+    hint: 'იგივე კუთხე და იგივე კადრი, რაც „მდე“ ფოტოს აქვს, რომ შედარება დაემთხვეს.',
+  },
   description: {
     kind: 'textarea',
     label: 'აღწერა',

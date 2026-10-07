@@ -8,6 +8,8 @@ type Props = {
   statusLabel?: string | null
   imageId?: number | null
   eyebrow?: string
+  /** Results must show the whole smile, matching the public slider. */
+  fit?: 'cover' | 'contain'
 }
 
 /**
@@ -18,6 +20,7 @@ export function EditorPreviewCard({
   statusLabel,
   imageId,
   eyebrow = 'ასე გამოჩნდება საიტზე',
+  fit = 'cover',
 }: Props) {
   const [loaded, setLoaded] = useState<{ id: number; url: string | null } | null>(null)
   const imageUrl = imageId && loaded?.id === imageId ? loaded.url : null
@@ -43,7 +46,15 @@ export function EditorPreviewCard({
         <div className="bg-brand-soft relative aspect-[4/3] sm:aspect-auto sm:min-h-[140px]">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- admin preview only
-            <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={imageUrl}
+              alt=""
+              className={
+                fit === 'contain'
+                  ? 'absolute inset-0 h-full w-full object-contain'
+                  : 'absolute inset-0 h-full w-full object-cover'
+              }
+            />
           ) : (
             <div className="text-ink-muted absolute inset-0 grid place-items-center px-3 text-center text-sm">
               ფოტო არ არის

@@ -67,12 +67,14 @@ async function ensureBlobColumn() {
 
 async function preparedImage(bytes: Buffer, mimeType: string) {
   try {
-    const image = sharp(bytes, { failOn: 'none' }).rotate()
-    const meta = await image.metadata()
-    const output = await image
+    // fit: 'inside' only shrinks oversized files. It never crops, so a smile
+    // photo keeps the lips and teeth the clinic uploaded.
+    const output = await sharp(bytes, { failOn: 'none' })
+      .rotate()
       .resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 82 })
       .toBuffer()
+    const meta = await sharp(output).metadata()
     return {
       bytes: output,
       mimeType: 'image/webp',

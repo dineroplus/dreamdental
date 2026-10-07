@@ -11,6 +11,9 @@ type Props = {
   beforeLabel: string
   afterLabel: string
   hint: string
+  /** Stored photo size. The frame uses it so a new upload is shown whole, not cropped into a fixed box. */
+  imageWidth?: number | null
+  imageHeight?: number | null
 }
 
 /**
@@ -26,11 +29,22 @@ export function BeforeAfterSlider({
   beforeLabel,
   afterLabel,
   hint,
+  imageWidth,
+  imageHeight,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState(50)
   const [dragging, setDragging] = useState(false)
   const [touched, setTouched] = useState(false)
+  // The frame follows the uploaded photo, so a new result is never forced into
+  // a taller box that would cut off the lips.
+  const suppliedRatio = imageWidth && imageHeight ? imageWidth / imageHeight : null
+  const [ratio, setRatio] = useState(suppliedRatio ?? 2)
+
+  const rememberRatio = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget
+    if (naturalWidth > 0 && naturalHeight > 0) setRatio(naturalWidth / naturalHeight)
+  }
 
   const updateFromClientX = useCallback((clientX: number) => {
     const el = containerRef.current
@@ -83,21 +97,28 @@ export function BeforeAfterSlider({
   }, [touched])
 
   return (
-    <div
-      ref={containerRef}
-      className="group relative aspect-4/3 w-full touch-none overflow-hidden rounded-[var(--radius-card)] bg-black/5 select-none"
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={endDrag}
-      onPointerCancel={endDrag}
-    >
+    <div className="mx-auto w-full max-w-lg">
+      <div className="mb-2 flex items-center justify-between px-1 text-xs font-medium tracking-wide">
+        <span className="text-ink-muted">{beforeLabel}</span>
+        <span className="text-brand">{afterLabel}</span>
+      </div>
+      <div
+        ref={containerRef}
+        className="group relative max-h-80 w-full touch-none overflow-hidden rounded-[var(--radius-card)] bg-[#f3ebe3] shadow-[0_10px_28px_rgba(90,50,40,0.08)] select-none"
+        style={{ aspectRatio: ratio }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
       <Image
         src={afterSrc}
         alt={afterAlt}
         fill
-        sizes="(max-width: 768px) 100vw, 50vw"
-        className="object-cover"
+        sizes="(max-width: 1024px) 100vw, 32rem"
+        className="object-contain"
         draggable={false}
+        onLoad={rememberRatio}
       />
 
       <div
@@ -111,18 +132,11 @@ export function BeforeAfterSlider({
           src={beforeSrc}
           alt={beforeAlt}
           fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 32rem"
+          className="object-contain"
           draggable={false}
         />
       </div>
-
-      <span className="pointer-events-none absolute top-3 left-3 rounded-full bg-black/55 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-        {beforeLabel}
-      </span>
-      <span className="pointer-events-none absolute top-3 right-3 rounded-full bg-brand/85 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-        {afterLabel}
-      </span>
 
       <div
         className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.35)]"
@@ -152,12 +166,8 @@ export function BeforeAfterSlider({
           </svg>
         </button>
       </div>
-
-      {!touched && (
-        <span className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1 text-[11px] text-white backdrop-blur-sm">
-          {hint}
-        </span>
-      )}
+      </div>
+      {!touched && <p className="text-ink-muted mt-2 text-center text-[11px]">{hint}</p>}
     </div>
   )
 }

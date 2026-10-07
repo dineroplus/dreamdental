@@ -81,8 +81,10 @@ export default async function CasesPage({ params }: { params: Promise<{ locale: 
               return (
                 <Reveal key={item.id} delay={index % 2} as="article">
                   <BeforeAfterSlider
-                    beforeSrc={mediaUrl(item.beforeImage, 'card')!}
-                    afterSrc={mediaUrl(item.afterImage, 'card')!}
+                    beforeSrc={mediaUrl(item.beforeImage)!}
+                    afterSrc={mediaUrl(item.afterImage)!}
+                    imageWidth={item.afterImage.width}
+                    imageHeight={item.afterImage.height}
                     beforeAlt={mediaAlt(item.beforeImage, `${item.title} - ${dict.labels.before}`)}
                     afterAlt={mediaAlt(item.afterImage, `${item.title} - ${dict.labels.after}`)}
                     beforeLabel={dict.labels.before}
