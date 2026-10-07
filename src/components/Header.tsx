@@ -60,7 +60,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
         )}
       >
         {/* Phone only. Desktop keeps the bar below, so these classes cannot move it. */}
-        <div className="container-page relative grid h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
+        <div className="container-page relative grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
           <div className="relative z-20 justify-self-start">
             <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} menuSide="start" />
           </div>
@@ -70,7 +70,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             className="absolute left-1/2 z-10 -translate-x-1/2"
             aria-label={clinicName}
           >
-            <LogoMark src={logoUrl} alt={clinicName} className="h-8 w-auto" priority />
+            <LogoMark src={logoUrl} alt={clinicName} className="h-11 w-auto" priority />
           </Link>
 
           <button
@@ -155,7 +155,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             transition={{ duration: 0.2 }}
             className="bg-canvas fixed inset-0 z-40 lg:hidden"
           >
-            <nav className="container-page flex h-full flex-col gap-1 overflow-y-auto pt-24 pb-32">
+            <nav className="container-page flex h-full flex-col gap-1 overflow-y-auto pt-16 pb-32">
               {items.map((item, index) => (
                 <motion.div
                   key={item.href}
