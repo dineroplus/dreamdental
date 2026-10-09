@@ -216,12 +216,11 @@ export default async function LocaleLayout({
           locale={locale}
           dict={dict}
           items={navItems}
-          logoUrl={logoUrl}
           clinicName={clinicName}
           phone={phonePrimary}
         />
 
-        <main id="main" className="pt-14 lg:pt-20">
+        <main id="main" className="pt-24">
           {children}
         </main>
 

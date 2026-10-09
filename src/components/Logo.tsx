@@ -11,6 +11,9 @@ type Props = {
   /** Clinic settings logo. Falls back to the bundled lotus mark. */
   src?: string | null
   alt?: string
+  width?: number
+  height?: number
+  sizes?: string
 }
 
 /**
@@ -24,15 +27,18 @@ export function LogoMark({
   priority = false,
   src,
   alt = 'Dream Dental & Aesthetic Group',
+  width = 160,
+  height = 122,
+  sizes = '160px',
 }: Props) {
   return (
     <Image
       src={src || logoSrc}
       alt={alt}
-      width={160}
-      height={122}
+      width={width}
+      height={height}
       priority={priority}
-      sizes="160px"
+      sizes={sizes}
       className={cn(
         'object-contain',
         animated && 'origin-center [animation:ddg-in_.7s_var(--ease-spring)_both]',

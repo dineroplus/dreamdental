@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { LogoLockup, LogoMark } from './Logo'
+import { LogoMark } from './Logo'
 import { LocaleSwitcher } from './LocaleSwitcher'
 import { cn, localePath } from '../lib/utils'
 import type { Locale } from '../i18n/config'
@@ -16,14 +16,14 @@ type Props = {
   locale: Locale
   dict: Dictionary
   items: NavItem[]
-  logoUrl: string | null
-  /** Wide uploads already include the wordmark, so the text lockup is hidden. */
-  hideWordmark?: boolean
   clinicName: string
   phone: string
 }
 
-export function Header({ locale, dict, items, logoUrl, hideWordmark = false, clinicName, phone }: Props) {
+/** Original lockup: lotus plus “Dream Dental & Aesthetic / GROUP”. Transparent. */
+const ORIGINAL_LOCKUP = '/api/media/file/33'
+
+export function Header({ locale, dict, items, clinicName, phone }: Props) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -60,7 +60,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
         )}
       >
         {/* Phone only. Desktop keeps the bar below, so these classes cannot move it. */}
-        <div className="container-page relative grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
+        <div className="container-page relative grid h-24 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
           <div className="relative z-20 justify-self-start">
             <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} menuSide="start" />
           </div>
@@ -70,7 +70,15 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             className="absolute left-1/2 z-10 -translate-x-1/2"
             aria-label={clinicName}
           >
-            <LogoMark src={logoUrl} alt={clinicName} className="h-11 w-auto" priority />
+            <LogoMark
+              src={ORIGINAL_LOCKUP}
+              alt={clinicName}
+              width={758}
+              height={471}
+              sizes="160px"
+              className="h-20 w-auto"
+              priority
+            />
           </Link>
 
           <button
@@ -90,14 +98,22 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
           </button>
         </div>
 
-        <div className="container-page hidden h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:grid lg:h-20 lg:gap-x-6">
+        <div className="container-page hidden h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:grid lg:h-24 lg:gap-x-6">
           <Link
             href={localePath(locale, '/')}
-            className="flex shrink-0 items-center gap-2"
+            className="flex shrink-0 items-center"
             aria-label={clinicName}
           >
-            <LogoMark src={logoUrl} alt={clinicName} className="h-9 w-auto xl:h-10" animated priority />
-            {hideWordmark ? null : <LogoLockup size="header" />}
+            <LogoMark
+              src={ORIGINAL_LOCKUP}
+              alt={clinicName}
+              width={758}
+              height={471}
+              sizes="280px"
+              className="h-20 w-auto"
+              animated
+              priority
+            />
           </Link>
 
           <nav className="hidden min-w-0 items-center justify-center gap-0.5 overflow-x-clip lg:flex" aria-label={dict.nav.menu}>
@@ -155,7 +171,7 @@ export function Header({ locale, dict, items, logoUrl, hideWordmark = false, cli
             transition={{ duration: 0.2 }}
             className="bg-canvas fixed inset-0 z-40 lg:hidden"
           >
-            <nav className="container-page flex h-full flex-col gap-1 overflow-y-auto pt-16 pb-32">
+            <nav className="container-page flex h-full flex-col gap-1 overflow-y-auto pt-28 pb-32">
               {items.map((item, index) => (
                 <motion.div
                   key={item.href}
