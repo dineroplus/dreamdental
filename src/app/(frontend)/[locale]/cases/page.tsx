@@ -79,7 +79,7 @@ export default async function CasesPage({ params }: { params: Promise<{ locale: 
               const doctor = typeof item.doctor === 'object' && item.doctor !== null ? item.doctor : null
 
               return (
-                <Reveal key={item.id} delay={index % 2} as="article">
+                <Reveal key={item.id} delay={index % 2} as="article" className="mx-auto w-full max-w-xl">
                   <BeforeAfterSlider
                     beforeSrc={mediaUrl(item.beforeImage)!}
                     afterSrc={mediaUrl(item.afterImage)!}
