@@ -60,7 +60,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
         )}
       >
         {/* Phone only. Desktop keeps the bar below, so these classes cannot move it. */}
-        <div className="container-page relative grid h-24 grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
+        <div className="container-page relative grid h-[5.25rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center lg:hidden">
           <div className="relative z-20 justify-self-start">
             <LocaleSwitcher locale={locale} label={dict.misc.languageSwitcher} menuSide="start" />
           </div>
@@ -76,7 +76,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
               width={758}
               height={471}
               sizes="160px"
-              className="h-20 w-auto"
+              className="h-[4.5rem] w-auto"
               priority
             />
           </Link>
@@ -98,7 +98,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
           </button>
         </div>
 
-        <div className="container-page hidden h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:grid lg:h-24 lg:gap-x-6">
+        <div className="container-page hidden h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 lg:grid lg:h-[5.25rem] lg:gap-x-6">
           <Link
             href={localePath(locale, '/')}
             className="flex shrink-0 items-center"
@@ -110,7 +110,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
               width={758}
               height={471}
               sizes="280px"
-              className="h-20 w-auto"
+              className="h-[4.5rem] w-auto"
               animated
               priority
             />
@@ -122,7 +122,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
                 key={item.href}
                 href={localePath(locale, item.href)}
                 className={cn(
-                  'rounded-full px-1.5 py-2 text-[0.68rem] font-medium whitespace-nowrap uppercase transition-colors lg:text-[0.72rem] xl:px-2.5 xl:text-[0.78rem]',
+                  'rounded-full px-1.5 py-1 text-[0.68rem] font-medium whitespace-nowrap uppercase transition-colors lg:text-[0.8rem] xl:px-2 xl:text-[0.875rem]',
                   isActive(item.href)
                     ? 'bg-brand-soft text-brand'
                     : 'text-ink-muted hover:text-brand hover:bg-brand-soft/60',
@@ -171,7 +171,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
             transition={{ duration: 0.2 }}
             className="bg-canvas fixed inset-0 z-40 lg:hidden"
           >
-            <nav className="container-page flex h-full flex-col gap-1 overflow-y-auto pt-28 pb-32">
+            <nav className="container-page flex h-full flex-col gap-1 overflow-y-auto pt-24 pb-32">
               {items.map((item, index) => (
                 <motion.div
                   key={item.href}
@@ -182,7 +182,7 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
                   <Link
                     href={localePath(locale, item.href)}
                     className={cn(
-                      'border-hairline/70 flex items-center justify-between border-b py-4 font-display text-xl uppercase',
+                      'border-hairline/70 flex items-center justify-between border-b py-3.5 font-display text-lg uppercase',
                       isActive(item.href) ? 'text-brand' : 'text-ink',
                     )}
                   >
