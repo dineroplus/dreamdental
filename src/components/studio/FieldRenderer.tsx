@@ -11,6 +11,8 @@ const LOCALE_LABEL: Record<Locale, string> = {
   ka: 'ქართული',
   en: 'English',
   ru: 'Русский',
+  he: 'עברית',
+  ar: 'العربية',
 }
 
 const INPUT =
@@ -490,7 +492,7 @@ function itemTitle(item: Record<string, unknown>, titleKey?: string) {
   if (typeof raw === 'string') return raw
   if (raw && typeof raw === 'object') {
     const map = raw as Record<string, unknown>
-    return String(map.ka || map.en || map.ru || '')
+    return String(locales.map((code) => map[code]).find((part) => typeof part === 'string' && part) || '')
   }
   return ''
 }

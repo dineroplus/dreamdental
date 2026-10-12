@@ -1,4 +1,5 @@
 import type { CollectionName, SingletonName } from '../../content/schema'
+import { locales } from '../../i18n/config'
 
 /** Public path for a collection document, or null when there is no detail page. */
 export function documentPreviewPath(type: CollectionName, slug: string | null | undefined): string | null {
@@ -89,7 +90,7 @@ function localizedText(value: unknown): string {
   if (typeof value === 'string' && value.trim()) return value.trim()
   if (value && typeof value === 'object') {
     const map = value as Record<string, unknown>
-    for (const code of ['ka', 'en', 'ru']) {
+    for (const code of locales) {
       const part = map[code]
       if (typeof part === 'string' && part.trim()) return part.trim()
     }

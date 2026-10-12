@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { Inter, Outfit, Noto_Sans_Georgian } from 'next/font/google'
+import { Inter, Outfit, Noto_Sans_Arabic, Noto_Sans_Georgian, Noto_Sans_Hebrew } from 'next/font/google'
 import '../globals.css'
 
-import { locales, htmlLang, isLocale, type Locale } from '../../../i18n/config'
+import { locales, htmlLang, isLocale, localeDir, type Locale } from '../../../i18n/config'
 import { getDictionary } from '../../../i18n/dictionaries'
 import { getNavigation, getSettings } from '../../../lib/data'
 import { CLINIC, SITE_NAME, SITE_URL } from '../../../lib/site'
@@ -31,6 +31,20 @@ const georgian = Noto_Sans_Georgian({
   subsets: ['georgian'],
   variable: '--font-georgian',
   display: 'swap',
+})
+
+const hebrew = Noto_Sans_Hebrew({
+  subsets: ['hebrew', 'latin'],
+  variable: '--font-hebrew',
+  display: 'swap',
+  preload: false,
+})
+
+const arabic = Noto_Sans_Arabic({
+  subsets: ['arabic', 'latin'],
+  variable: '--font-arabic',
+  display: 'swap',
+  preload: false,
 })
 
 export function generateStaticParams() {
@@ -186,7 +200,7 @@ export default async function LocaleLayout({
         closes: closesAt,
       },
     ],
-    availableLanguage: ['ka', 'en', 'ru'],
+    availableLanguage: [...locales],
     sameAs: [settings?.facebook || CLINIC.facebook, settings?.instagram || CLINIC.instagram, settings?.youtube].filter(
       Boolean,
     ),
@@ -195,7 +209,8 @@ export default async function LocaleLayout({
   return (
     <html
       lang={htmlLang[locale]}
-      className={`${inter.variable} ${outfit.variable} ${georgian.variable}`}
+      dir={localeDir(locale)}
+      className={`${inter.variable} ${outfit.variable} ${georgian.variable} ${hebrew.variable} ${arabic.variable}`}
       suppressHydrationWarning
     >
       <head>

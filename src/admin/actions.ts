@@ -183,6 +183,8 @@ const FIELD_LABELS: Record<string, string> = {
   ka: 'ქართული',
   en: 'ინგლისური',
   ru: 'რუსული',
+  he: 'ებრაული',
+  ar: 'არაბული',
   name: 'სახელი',
   specialty: 'სპეციალობა',
 }

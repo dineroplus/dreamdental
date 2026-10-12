@@ -13,6 +13,8 @@ const RAIL_LABELS: Record<Locale, { prev: string; next: string }> = {
   ka: { prev: 'წინა ექიმები', next: 'შემდეგი ექიმები' },
   en: { prev: 'Previous doctors', next: 'Next doctors' },
   ru: { prev: 'Предыдущие врачи', next: 'Следующие врачи' },
+  he: { prev: 'הרופאים הקודמים', next: 'הרופאים הבאים' },
+  ar: { prev: 'الأطباء السابقون', next: 'الأطباء التالون' },
 }
 
 export function DoctorsSection({

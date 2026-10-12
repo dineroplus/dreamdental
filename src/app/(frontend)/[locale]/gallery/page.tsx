@@ -47,12 +47,32 @@ const CATEGORY_LABELS: Record<Locale, Record<Category | 'all', string>> = {
     kids: 'Детская комната',
     equipment: 'Оборудование',
   },
+  he: {
+    all: 'הכול',
+    exterior: 'חזית המרפאה',
+    interior: 'פנים המרפאה',
+    vip: 'חדר VIP',
+    premium: 'חדר Premium',
+    kids: 'חדר ילדים',
+    equipment: 'ציוד',
+  },
+  ar: {
+    all: 'الكل',
+    exterior: 'الواجهة الخارجية للعيادة',
+    interior: 'داخل العيادة',
+    vip: 'غرفة VIP',
+    premium: 'غرفة Premium',
+    kids: 'غرفة الأطفال',
+    equipment: 'الأجهزة',
+  },
 }
 
 const INTRO: Record<Locale, string> = {
   ka: 'გაეცანით ჩვენს სივრცეს ვიზიტამდე: თქვენ გელოდებათ სრულიად დამოუკიდებელი 5 კაბინეტი — მათ შორის Premium, VIP და სპეციალურად მოწყობილი საბავშვო ოთახი. მაქსიმალური უსაფრთხოებისა და კომფორტისთვის, კლინიკა აღჭურვილია ცალკე სასტერილიზაციო და თანამედროვე რენტგენო-დიაგნოსტიკური სივრცეებით.',
   en: "Explore our space before your visit: Five fully independent treatment rooms await you — including our Premium, VIP, and specially designed children's rooms. For your ultimate safety and comfort, our clinic features a dedicated sterilization suite and modern X-ray diagnostic facilities.",
   ru: 'Познакомьтесь с нашей клиникой до визита: Вас ждут 5 полностью независимых кабинетов — в том числе Premium, VIP и специально обустроенный детский кабинет. Для вашей максимальной безопасности и комфорта клиника оснащена отдельной стерилизационной и современной рентген-диагностической зоной.',
+  he: 'הכירו את המרפאה לפני הביקור: מחכים לכם 5 חדרי טיפול עצמאיים לגמרי, ובהם חדרי Premium, VIP וחדר ילדים שעוצב במיוחד. לבטיחות ולנוחות מרביות יש במרפאה חדר עיקור נפרד ומתחם דימות רנטגן מודרני.',
+  ar: 'تعرّفوا على عيادتنا قبل الزيارة: بانتظاركم 5 غرف علاج مستقلة تمامًا، منها غرف Premium وVIP وغرفة أطفال مُجهَّزة خصيصًا. ولأقصى درجات الأمان والراحة تضم العيادة جناح تعقيم منفصلًا ومساحة حديثة للتشخيص بالأشعة.',
 }
 
 /** The gallery page uses the same text as Admin → მთავარი → გალერეის სექცია. */

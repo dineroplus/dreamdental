@@ -1,3 +1,5 @@
+import { locales } from '../i18n/config'
+
 const KA: Record<string, string> = {
   ა: 'a',
   ბ: 'b',
@@ -54,7 +56,7 @@ export function titleFromStored(value: unknown): string {
   if (typeof value === 'string') return value.trim()
   if (value && typeof value === 'object') {
     const map = value as Record<string, unknown>
-    for (const key of ['ka', 'en', 'ru']) {
+    for (const key of locales) {
       const part = map[key]
       if (typeof part === 'string' && part.trim()) return part.trim()
     }

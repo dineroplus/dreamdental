@@ -21,6 +21,8 @@ const INTRO: Record<Locale, string> = {
   ka: 'პრაქტიკული სტატიები მკურნალობის, ფასების და პროფილაქტიკის შესახებ - დაწერილი ჩვენი ექიმების მიერ.',
   en: 'Practical articles about treatments, pricing and prevention - written by our own dentists.',
   ru: 'Практические статьи о лечении, ценах и профилактике - написанные нашими врачами.',
+  he: 'מאמרים מעשיים על טיפולים, מחירים ומניעה, שנכתבו על ידי רופאי השיניים שלנו.',
+  ar: 'مقالات عملية عن العلاجات والأسعار والوقاية، كتبها أطباؤنا.',
 }
 
 export async function generateMetadata({

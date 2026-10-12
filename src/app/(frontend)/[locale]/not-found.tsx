@@ -1,16 +1,19 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { defaultLocale, isLocale, type Locale } from '../../../i18n/config'
 import { getDictionary } from '../../../i18n/dictionaries'
 import { localePath } from '../../../lib/utils'
 import { ArrowIcon, ButtonLink, Icon, Orbs } from '../../../components/ui'
 
 /**
- * Rendered for unknown paths inside a locale. The locale segment is not
- * available to not-found.tsx as a param, so the links fall back to Georgian -
- * which is where an unknown URL should land anyway.
+ * Unknown paths inside a locale. not-found.tsx does not receive the [locale]
+ * param, so the language is read from the URL the visitor actually opened.
  */
 export default function LocaleNotFound() {
-  const locale: Locale = isLocale(defaultLocale) ? defaultLocale : 'ka'
+  const segment = usePathname().split('/')[1] ?? ''
+  const locale: Locale = isLocale(segment) ? segment : defaultLocale
   const dict = getDictionary(locale)
 
   const links = [

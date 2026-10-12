@@ -41,7 +41,7 @@ type Row = typeof schema.documents.$inferSelect
 type MediaRow = Omit<typeof schema.media.$inferSelect, 'blob'>
 
 /** Bump cache keys when the stored shape changes so Vercel does not keep a stale empty snapshot. */
-const CACHE_VERSION = 'cms-v7'
+const CACHE_VERSION = 'cms-v8'
 
 const loadDocuments = unstable_cache(
   async (): Promise<Row[]> =>

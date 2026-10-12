@@ -73,6 +73,7 @@ const DOCTOR_LANGUAGES = [
   { value: 'de', label: 'გერმანული' },
   { value: 'tr', label: 'თურქული' },
   { value: 'ar', label: 'არაბული' },
+  { value: 'he', label: 'ებრაული' },
 ] as const
 
 const GALLERY_CATEGORIES = [

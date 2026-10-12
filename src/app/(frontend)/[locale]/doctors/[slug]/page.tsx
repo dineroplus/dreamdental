@@ -24,6 +24,29 @@ const LANGUAGE_NAMES: Record<string, string> = {
   de: 'Deutsch',
   tr: 'Türkçe',
   ar: 'العربية',
+  he: 'עברית',
+}
+
+/** Spoken-language badges on Hebrew and Arabic pages, in that page's language. */
+const LANGUAGE_NAMES_BY_LOCALE: Partial<Record<Locale, Record<string, string>>> = {
+  he: {
+    ka: 'גאורגית',
+    en: 'אנגלית',
+    ru: 'רוסית',
+    de: 'גרמנית',
+    tr: 'טורקית',
+    ar: 'ערבית',
+    he: 'עברית',
+  },
+  ar: {
+    ka: 'الجورجية',
+    en: 'الإنجليزية',
+    ru: 'الروسية',
+    de: 'الألمانية',
+    tr: 'التركية',
+    ar: 'العربية',
+    he: 'العبرية',
+  },
 }
 
 export async function generateStaticParams() {
@@ -152,7 +175,7 @@ export default async function DoctorDetailPage({
                   <dd className="mt-2 flex flex-wrap gap-1.5">
                     {doctor.languages.map((code) => (
                       <Badge key={code} tone="brand">
-                        {LANGUAGE_NAMES[code] ?? code}
+                        {LANGUAGE_NAMES_BY_LOCALE[locale]?.[code] ?? LANGUAGE_NAMES[code] ?? code}
                       </Badge>
                     ))}
                   </dd>
