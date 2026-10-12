@@ -251,7 +251,6 @@ export default async function LocaleLayout({
           instagram={settings?.instagram || CLINIC.instagram}
           youtube={settings?.youtube || undefined}
           tiktok={settings?.tiktok || undefined}
-          tagline={settings?.tagline}
         />
 
         <MobileActionBar

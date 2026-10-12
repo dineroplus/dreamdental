@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LogoMark, ORIGINAL_LOCKUP } from './Logo'
+import { LogoMark } from './Logo'
 import { uiCaps } from '../lib/georgian'
 import { cn, formatPhone, localePath } from '../lib/utils'
 import type { Locale } from '../i18n/config'
@@ -27,7 +27,6 @@ type Props = {
   instagram?: string
   youtube?: string
   tiktok?: string
-  tagline?: string | null
 }
 
 export function Footer({
@@ -45,7 +44,6 @@ export function Footer({
   instagram,
   youtube,
   tiktok,
-  tagline,
 }: Props) {
   const socials: {
     href?: string
@@ -84,23 +82,18 @@ export function Footer({
   ].filter((s) => Boolean(s.href))
 
   return (
-    <footer className="bg-ink mt-16 text-white/75">
-      <div className="container-page py-12 lg:py-16">
-        <div className="flex flex-col items-center text-center">
-          <Link href={localePath(locale, '/')} className="inline-flex">
-            <LogoMark
-              src={ORIGINAL_LOCKUP}
-              alt={clinicName}
-              width={758}
-              height={471}
-              sizes="240px"
-              className="h-24 w-auto sm:h-28"
-            />
-          </Link>
-          {tagline ? <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">{tagline}</p> : null}
-        </div>
-
-        <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+    <footer className="bg-ink relative mt-16 overflow-hidden text-white/75">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
+        <LogoMark
+          alt=""
+          width={640}
+          height={490}
+          sizes="720px"
+          className="h-[min(34rem,125%)] w-auto max-w-none opacity-[0.1]"
+        />
+      </div>
+      <div className="container-page relative py-12 lg:py-16">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
             <h3 className="font-display text-sm tracking-wide text-white uppercase">
               {uiCaps(dict.labels.address, locale)}
