@@ -47,12 +47,25 @@ export function Footer({
   tiktok,
   tagline,
 }: Props) {
-  const socials = [
-    { href: facebook, label: 'Facebook', path: 'M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1Z' },
+  const socials: {
+    href?: string
+    label: string
+    path: string
+    background?: string
+    filled?: boolean
+  }[] = [
+    {
+      href: facebook,
+      label: 'Facebook',
+      path: 'M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1Z',
+      background: '#1877F2',
+      filled: true,
+    },
     {
       href: instagram,
       label: 'Instagram',
       path: 'M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM17.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Z',
+      background: 'linear-gradient(45deg, #f9ce34, #ee2a7b 55%, #6228d7)',
     },
     { href: youtube, label: 'YouTube', path: 'M21.6 7.2A2.5 2.5 0 0 0 19.8 5.4C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10 15V9l5 3-5 3Z' },
     {
@@ -94,10 +107,20 @@ export function Footer({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label}
-                    className="hover:bg-accent grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors"
+                    style={s.background ? { background: s.background } : undefined}
+                    className={cn(
+                      'grid h-10 w-10 place-items-center rounded-full text-white transition',
+                      s.background ? 'hover:brightness-110' : 'bg-white/10 hover:bg-accent',
+                    )}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d={s.path} stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                      <path
+                        d={s.path}
+                        fill={s.filled ? 'currentColor' : 'none'}
+                        stroke={s.filled ? 'none' : 'currentColor'}
+                        strokeWidth={s.filled ? undefined : 1.7}
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </a>
                 ))}
