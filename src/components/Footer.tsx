@@ -67,28 +67,38 @@ export function Footer({
       path: 'M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM17.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Z',
       background: 'linear-gradient(45deg, #f9ce34, #ee2a7b 55%, #6228d7)',
     },
-    { href: youtube, label: 'YouTube', path: 'M21.6 7.2A2.5 2.5 0 0 0 19.8 5.4C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10 15V9l5 3-5 3Z' },
+    {
+      href: youtube,
+      label: 'YouTube',
+      path: 'M21.6 7.2A2.5 2.5 0 0 0 19.8 5.4C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10 15V9l5 3-5 3Z',
+      background: '#FF0000',
+      filled: true,
+    },
     {
       href: tiktok,
       label: 'TikTok',
       path: 'M19.6 6.7a4.8 4.8 0 0 1-3.8-4.2V2h-3.4v13.7a2.9 2.9 0 0 1-2.9 2.5 2.9 2.9 0 0 1-2.9-2.9 2.9 2.9 0 0 1 2.9-2.9c.3 0 .5 0 .8.1V9.1a6.4 6.4 0 0 0-.8 0A6.3 6.3 0 0 0 3.2 15a6.3 6.3 0 0 0 6.3 6.3 6.3 6.3 0 0 0 6.4-6.3V8.8a8.2 8.2 0 0 0 4.7 1.5V6.8a4.8 4.8 0 0 1-1-.1Z',
+      background: 'linear-gradient(135deg, #25F4EE 0%, #111 42%, #FE2C55 100%)',
+      filled: true,
     },
   ].filter((s) => Boolean(s.href))
 
   return (
     <footer className="bg-ink mt-16 text-white/75">
       <div className="container-page py-12 lg:py-16">
-        <Link href={localePath(locale, '/')} className="inline-flex">
-          <LogoMark
-            src={ORIGINAL_LOCKUP}
-            alt={clinicName}
-            width={758}
-            height={471}
-            sizes="180px"
-            className="h-16 w-auto"
-          />
-        </Link>
-        {tagline ? <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/80">{tagline}</p> : null}
+        <div className="flex flex-col items-center text-center">
+          <Link href={localePath(locale, '/')} className="inline-flex">
+            <LogoMark
+              src={ORIGINAL_LOCKUP}
+              alt={clinicName}
+              width={758}
+              height={471}
+              sizes="240px"
+              className="h-24 w-auto sm:h-28"
+            />
+          </Link>
+          {tagline ? <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">{tagline}</p> : null}
+        </div>
 
         <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
@@ -123,6 +133,7 @@ export function Footer({
                       <path
                         d={s.path}
                         fill={s.filled ? 'currentColor' : 'none'}
+                        fillRule={s.filled ? 'evenodd' : undefined}
                         stroke={s.filled ? 'none' : 'currentColor'}
                         strokeWidth={s.filled ? undefined : 1.7}
                         strokeLinejoin="round"
