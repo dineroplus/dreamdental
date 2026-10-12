@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { LogoMark } from './Logo'
 import { uiCaps } from '../lib/georgian'
 import { cn, formatPhone, localePath } from '../lib/utils'
 import type { Locale } from '../i18n/config'
@@ -83,15 +82,22 @@ export function Footer({
 
   return (
     <footer className="bg-ink relative mt-16 overflow-hidden text-white/75">
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
-        <LogoMark
-          alt=""
-          width={640}
-          height={490}
-          sizes="720px"
-          className="h-[min(34rem,125%)] w-auto max-w-none opacity-[0.1]"
-        />
-      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundColor: 'color-mix(in oklab, white 18%, var(--color-ink))',
+          opacity: 0.9,
+          WebkitMaskImage: 'url(/brand/logo.png)',
+          maskImage: 'url(/brand/logo.png)',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center',
+          WebkitMaskSize: '118% 132%',
+          maskSize: '118% 132%',
+        }}
+      />
       <div className="container-page relative py-12 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
