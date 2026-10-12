@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LogoLockup, LogoMark } from './Logo'
+import { LogoMark, ORIGINAL_LOCKUP } from './Logo'
 import { uiCaps } from '../lib/georgian'
 import { cn, formatPhone, localePath } from '../lib/utils'
 import type { Locale } from '../i18n/config'
@@ -27,8 +27,6 @@ type Props = {
   instagram?: string
   youtube?: string
   tiktok?: string
-  logoUrl?: string | null
-  hideWordmark?: boolean
   tagline?: string | null
 }
 
@@ -47,8 +45,6 @@ export function Footer({
   instagram,
   youtube,
   tiktok,
-  logoUrl,
-  hideWordmark = false,
   tagline,
 }: Props) {
   const socials = [
@@ -71,10 +67,14 @@ export function Footer({
       <div className="container-page py-14 lg:py-20">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2.5 text-white">
-              <LogoMark src={logoUrl} alt={clinicName} className="h-11 w-auto" />
-              {hideWordmark ? null : <LogoLockup tone="light" />}
-            </div>
+            <LogoMark
+              src={ORIGINAL_LOCKUP}
+              alt={clinicName}
+              width={758}
+              height={471}
+              sizes="240px"
+              className="h-36 w-auto"
+            />
             {tagline ? <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/80">{tagline}</p> : null}
             <p className={cn('text-sm leading-relaxed', tagline ? 'mt-3' : 'mt-4')}>
               {addressLine}

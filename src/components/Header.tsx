@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { LogoMark } from './Logo'
+import { LogoMark, ORIGINAL_LOCKUP } from './Logo'
 import { LocaleSwitcher } from './LocaleSwitcher'
 import { cn, localePath } from '../lib/utils'
 import type { Locale } from '../i18n/config'
@@ -19,9 +19,6 @@ type Props = {
   clinicName: string
   phone: string
 }
-
-/** Original lockup: lotus plus “Dream Dental & Aesthetic / GROUP”. Transparent. */
-const ORIGINAL_LOCKUP = '/api/media/file/33'
 
 export function Header({ locale, dict, items, clinicName, phone }: Props) {
   const pathname = usePathname()

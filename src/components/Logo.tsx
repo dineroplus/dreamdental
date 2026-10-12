@@ -3,6 +3,9 @@ import { cn } from '../lib/utils'
 
 import logoSrc from '../../public/brand/logo.png'
 
+/** Original lockup: lotus plus “Dream Dental & Aesthetic / GROUP”. Transparent. */
+export const ORIGINAL_LOCKUP = '/api/media/file/33'
+
 type Props = {
   className?: string
   /** Fades and scales the mark in on mount. Used in the header only. */
