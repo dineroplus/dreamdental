@@ -4,7 +4,8 @@ import { desc, eq, sql } from 'drizzle-orm'
 import sharp from 'sharp'
 import { db, schema } from '../db/client'
 import { requireUser } from './auth'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { locales } from '../i18n/config'
 import { CONTENT_TAG } from '../lib/data'
 
 const MAX_BYTES = 8 * 1024 * 1024
@@ -138,7 +139,8 @@ export async function uploadMedia(formData: FormData): Promise<MediaOption> {
   const url = publicUrl(row.id)
   await db().update(schema.media).set({ url }).where(eq(schema.media.id, row.id))
 
-  revalidateTag(CONTENT_TAG, 'max')
+  updateTag(CONTENT_TAG)
+  for (const locale of locales) revalidatePath(`/${locale}`, 'layout')
   return { id: row.id, url, filename }
 }
 

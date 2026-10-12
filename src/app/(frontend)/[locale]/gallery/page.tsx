@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { isLocale, locales, type Locale } from '../../../../i18n/config'
 import { getDictionary } from '../../../../i18n/dictionaries'
-import { getGallery } from '../../../../lib/data'
+import { getGallery, getHome } from '../../../../lib/data'
 import { buildMetadata } from '../../../../lib/metadata'
 import { cn, localePath, mediaAlt, mediaUrl } from '../../../../lib/utils'
 import { PageHeader } from '../../../../components/PageHeader'
@@ -55,6 +55,14 @@ const INTRO: Record<Locale, string> = {
   ru: 'Познакомьтесь с нашей клиникой до визита: Вас ждут 5 полностью независимых кабинетов — в том числе Premium, VIP и специально обустроенный детский кабинет. Для вашей максимальной безопасности и комфорта клиника оснащена отдельной стерилизационной и современной рентген-диагностической зоной.',
 }
 
+/** The gallery page uses the same text as Admin → მთავარი → გალერეის სექცია. */
+async function galleryIntro(locale: Locale): Promise<string> {
+  const home = await getHome(locale).catch(() => null)
+  const section = home?.sections?.find((item) => item.blockType === 'gallery')
+  const text = [section?.heading, section?.subheading].filter(Boolean).join(': ')
+  return text || INTRO[locale]
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -64,12 +72,13 @@ export async function generateMetadata({
   if (!isLocale(raw)) return {}
   const locale = raw as Locale
   const dict = getDictionary(locale)
+  const intro = await galleryIntro(locale)
 
   return buildMetadata({
     locale,
     path: '/gallery',
     title: `${dict.nav.gallery} - Dream Dental Group`,
-    description: INTRO[locale],
+    description: intro,
   })
 }
 
@@ -84,6 +93,7 @@ export default async function GalleryPage({
   if (!isLocale(raw)) notFound()
   const locale = raw as Locale
   const dict = getDictionary(locale)
+  const intro = await galleryIntro(locale)
 
   const active = CATEGORIES.includes(c as Category) ? (c as Category) : null
   const items = await getGallery(locale).catch(() => [])
@@ -100,7 +110,7 @@ export default async function GalleryPage({
         locale={locale}
         eyebrow={dict.nav.gallery}
         title={active ? labels[active] : dict.nav.gallery}
-        subtitle={INTRO[locale]}
+        subtitle={intro}
         breadcrumbs={[{ label: dict.nav.home, href: '/' }, { label: dict.nav.gallery }]}
       />
 

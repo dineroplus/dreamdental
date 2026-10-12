@@ -1,25 +1,29 @@
 'use server'
 
 import { and, asc, eq } from 'drizzle-orm'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import sharp from 'sharp'
 import { z } from 'zod'
 import { db, schema } from '../db/client'
 import { collections, singletons, type CollectionName, type SingletonName } from '../content/schema'
 import { emptyShape, zodForMap, type FieldMap } from '../content/fields'
-import { defaultLocale } from '../i18n/config'
+import { defaultLocale, locales } from '../i18n/config'
 import { CONTENT_TAG } from '../lib/data'
 import { login, logout, requireUser } from './auth'
 import { logoWithoutFlatBackground } from './logoMark'
 import { slugFromTitle, titleFromStored } from './slug'
 
 /**
- * Next 16 wants a cacheLife profile on `revalidateTag`. `max` marks the tag
- * stale and serves while the next request refreshes in the background.
+ * `updateTag` expires the cached content before the response returns, so the
+ * next refresh shows the save. `revalidateTag(..., 'max')` kept serving the
+ * previous page while a refresh ran in the background.
  */
 function revalidateContent() {
-  revalidateTag(CONTENT_TAG, 'max')
+  updateTag(CONTENT_TAG)
+  for (const locale of locales) {
+    revalidatePath(`/${locale}`, 'layout')
+  }
 }
 
 /** The next logo upload must not bring a white square back onto the site. */
