@@ -1,9 +1,9 @@
-import Image from 'next/image'
 import { ArrowIcon, ButtonLink, SectionHeading } from '../ui'
 import { localePath, mediaAlt, mediaUrl } from '../../lib/utils'
 import type { Locale } from '../../i18n/config'
 import type { Dictionary } from '../../i18n/dictionaries'
 import type { GalleryItem } from '../../content/schema'
+import { PhotoLightbox } from '../PhotoLightbox'
 
 export function GalleryStrip({
   locale,
@@ -28,27 +28,16 @@ export function GalleryStrip({
       </div>
 
       <div className="mt-10">
-        <div className="rail px-5">
-          {usable.slice(0, 10).map((item) => (
-            <figure
-              key={item.id}
-              className="relative h-56 w-[72vw] shrink-0 overflow-hidden rounded-[var(--radius-card)] sm:h-72 sm:w-[46vw] lg:w-[28vw]"
-            >
-              <Image
-                src={mediaUrl(item.image, 'card')!}
-                alt={mediaAlt(item.image, item.title ?? '')}
-                fill
-                sizes="(max-width: 640px) 72vw, (max-width: 1024px) 46vw, 28vw"
-                className="object-cover"
-              />
-              {item.title && (
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-sm font-medium text-white">
-                  {item.title}
-                </figcaption>
-              )}
-            </figure>
-          ))}
-        </div>
+        <PhotoLightbox
+          layout="strip"
+          photos={usable.slice(0, 10).map((item) => ({
+            src: mediaUrl(item.image, 'card')!,
+            full: mediaUrl(item.image) || mediaUrl(item.image, 'card')!,
+            alt: mediaAlt(item.image, item.title ?? ''),
+            title: item.title,
+          }))}
+          labels={{ close: dict.nav.close, previous: dict.labels.previous, next: dict.labels.next }}
+        />
       </div>
 
       <div className="container-page mt-8 text-center">

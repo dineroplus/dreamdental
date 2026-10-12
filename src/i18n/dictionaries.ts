@@ -53,6 +53,8 @@ const ka = {
     allRightsReserved: 'ყველა უფლება დაცულია',
     reviews: 'მიმოხილვა',
     patientReviews: 'რას ამბობენ პაციენტები',
+    previous: 'წინა',
+    next: 'შემდეგი',
   },
   form: {
     name: 'სახელი და გვარი',
@@ -128,6 +130,8 @@ const en: Dictionary = {
     allRightsReserved: 'All rights reserved',
     reviews: 'reviews',
     patientReviews: 'What patients say',
+    previous: 'Previous',
+    next: 'Next',
   },
   form: {
     name: 'Full name',
@@ -201,6 +205,8 @@ const ru: Dictionary = {
     allRightsReserved: 'Все права защищены',
     reviews: 'отзывов',
     patientReviews: 'Что говорят пациенты',
+    previous: 'Назад',
+    next: 'Далее',
   },
   form: {
     name: 'Имя и фамилия',
@@ -274,6 +280,8 @@ const he: Dictionary = {
     allRightsReserved: 'כל הזכויות שמורות',
     reviews: 'ביקורות',
     patientReviews: 'מה המטופלים מספרים',
+    previous: 'הקודם',
+    next: 'הבא',
   },
   form: {
     name: 'שם מלא',
@@ -347,6 +355,8 @@ const ar: Dictionary = {
     allRightsReserved: 'جميع الحقوق محفوظة',
     reviews: 'تقييمات',
     patientReviews: 'ماذا يقول المرضى',
+    previous: 'السابق',
+    next: 'التالي',
   },
   form: {
     name: 'الاسم الكامل',

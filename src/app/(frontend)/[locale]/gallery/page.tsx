@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { isLocale, locales, type Locale } from '../../../../i18n/config'
@@ -8,7 +7,7 @@ import { getGallery, getHome } from '../../../../lib/data'
 import { buildMetadata } from '../../../../lib/metadata'
 import { cn, localePath, mediaAlt, mediaUrl } from '../../../../lib/utils'
 import { PageHeader } from '../../../../components/PageHeader'
-import { Reveal } from '../../../../components/motion/Reveal'
+import { PhotoLightbox, type GalleryPhoto } from '../../../../components/PhotoLightbox'
 
 export const revalidate = 300
 
@@ -73,6 +72,18 @@ const INTRO: Record<Locale, string> = {
   ru: 'Познакомьтесь с нашей клиникой до визита: Вас ждут 5 полностью независимых кабинетов — в том числе Premium, VIP и специально обустроенный детский кабинет. Для вашей максимальной безопасности и комфорта клиника оснащена отдельной стерилизационной и современной рентген-диагностической зоной.',
   he: 'הכירו את המרפאה לפני הביקור: מחכים לכם 5 חדרי טיפול עצמאיים לגמרי, ובהם חדרי Premium, VIP וחדר ילדים שעוצב במיוחד. לבטיחות ולנוחות מרביות יש במרפאה חדר עיקור נפרד ומתחם דימות רנטגן מודרני.',
   ar: 'تعرّفوا على عيادتنا قبل الزيارة: بانتظاركم 5 غرف علاج مستقلة تمامًا، منها غرف Premium وVIP وغرفة أطفال مُجهَّزة خصيصًا. ولأقصى درجات الأمان والراحة تضم العيادة جناح تعقيم منفصلًا ومساحة حديثة للتشخيص بالأشعة.',
+}
+
+function toPhoto(
+  item: { image: Parameters<typeof mediaUrl>[0]; title?: string | null },
+  fallback: string,
+): GalleryPhoto {
+  return {
+    src: mediaUrl(item.image, 'card')!,
+    full: mediaUrl(item.image) || mediaUrl(item.image, 'card')!,
+    alt: mediaAlt(item.image, item.title ?? fallback),
+    title: item.title,
+  }
 }
 
 /** The gallery page uses the same text as Admin → მთავარი → გალერეის სექცია. */
@@ -164,28 +175,11 @@ export default async function GalleryPage({
         {shown.length === 0 ? (
           <p className="text-ink-muted py-16 text-center text-sm">-</p>
         ) : (
-          /* Masonry via CSS columns: rows stay tight regardless of photo ratio. */
-          <div className="gap-3 [column-count:2] md:gap-4 md:[column-count:3]">
-            {shown.map((item, index) => (
-              <Reveal key={item.id} delay={index % 3} className="mb-3 break-inside-avoid md:mb-4">
-                <figure className="group relative overflow-hidden rounded-[var(--radius-card)]">
-                  <Image
-                    src={mediaUrl(item.image, 'card')!}
-                    alt={mediaAlt(item.image, item.title ?? labels[item.category as Category] ?? '')}
-                    width={800}
-                    height={600}
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                    className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                  />
-                  {item.title && (
-                    <figcaption className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/75 to-transparent p-4 text-sm font-medium text-white transition-transform duration-300 group-hover:translate-y-0">
-                      {item.title}
-                    </figcaption>
-                  )}
-                </figure>
-              </Reveal>
-            ))}
-          </div>
+          <PhotoLightbox
+            layout="masonry"
+            photos={shown.map((item) => toPhoto(item, labels[item.category as Category] ?? ''))}
+            labels={{ close: dict.nav.close, previous: dict.labels.previous, next: dict.labels.next }}
+          />
         )}
       </section>
     </>

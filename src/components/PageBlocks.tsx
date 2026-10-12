@@ -2,6 +2,8 @@ import Image from 'next/image'
 import { ButtonLink, ArrowIcon, SectionHeading } from './ui'
 import { Reveal } from './motion/Reveal'
 import { RichText } from './RichText'
+import { PhotoLightbox } from './PhotoLightbox'
+import { getDictionary } from '../i18n/dictionaries'
 import { localePath, mediaAlt, mediaDimensions, mediaUrl } from '../lib/utils'
 import type { Locale } from '../i18n/config'
 import type { Page } from '../content/schema'
@@ -86,25 +88,20 @@ export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks
           case 'gallery': {
             const images = (block.images ?? []).filter((img) => mediaUrl(img))
             if (images.length === 0) return null
+            const dict = getDictionary(locale)
             return (
               <section key={block.id} className="section">
                 <div className="container-page">
                   {block.heading && <SectionHeading title={block.heading} />}
-                  <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-                    {images.map((img, index) => (
-                      <Reveal key={index} delay={index % 3}>
-                        <figure className="relative aspect-4/3 overflow-hidden rounded-[var(--radius-card)]">
-                          <Image
-                            src={mediaUrl(img, 'card')!}
-                            alt={mediaAlt(img)}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-500 hover:scale-105"
-                          />
-                        </figure>
-                      </Reveal>
-                    ))}
-                  </div>
+                  <PhotoLightbox
+                    layout="grid"
+                    photos={images.map((img) => ({
+                      src: mediaUrl(img, 'card')!,
+                      full: mediaUrl(img) || mediaUrl(img, 'card')!,
+                      alt: mediaAlt(img),
+                    }))}
+                    labels={{ close: dict.nav.close, previous: dict.labels.previous, next: dict.labels.next }}
+                  />
                 </div>
               </section>
             )
