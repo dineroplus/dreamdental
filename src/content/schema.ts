@@ -76,11 +76,12 @@ const DOCTOR_LANGUAGES = [
 ] as const
 
 const GALLERY_CATEGORIES = [
+  { value: 'exterior', label: 'კლინიკის ექსტერიერი' },
   { value: 'interior', label: 'კლინიკის ინტერიერი' },
+  { value: 'vip', label: 'VIP ოთახი' },
+  { value: 'premium', label: 'Premium ოთახი' },
+  { value: 'kids', label: 'ბავშვთა ოთახი' },
   { value: 'equipment', label: 'აპარატურა' },
-  { value: 'team', label: 'გუნდი' },
-  { value: 'kids', label: 'საბავშვო ოთახი (Dream Land)' },
-  { value: 'vip', label: 'VIP ოთახი (Dream Box)' },
 ] as const
 
 const TESTIMONIAL_SOURCES = [

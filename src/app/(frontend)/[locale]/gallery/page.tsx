@@ -16,40 +16,43 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
-const CATEGORIES = ['interior', 'equipment', 'team', 'kids', 'vip'] as const
+const CATEGORIES = ['exterior', 'interior', 'vip', 'premium', 'kids', 'equipment'] as const
 type Category = (typeof CATEGORIES)[number]
 
 const CATEGORY_LABELS: Record<Locale, Record<Category | 'all', string>> = {
   ka: {
     all: 'ყველა',
+    exterior: 'კლინიკის ექსტერიერი',
     interior: 'კლინიკის ინტერიერი',
+    vip: 'VIP ოთახი',
+    premium: 'Premium ოთახი',
+    kids: 'ბავშვთა ოთახი',
     equipment: 'აპარატურა',
-    team: 'გუნდი',
-    kids: 'Dream Land - ბავშვთა ოთახი',
-    vip: 'Dream Box - VIP კაბინეტი',
   },
   en: {
     all: 'All',
+    exterior: 'Clinic exterior',
     interior: 'Clinic interior',
+    vip: 'VIP room',
+    premium: 'Premium room',
+    kids: "Children's room",
     equipment: 'Equipment',
-    team: 'Our team',
-    kids: 'Dream Land - kids room',
-    vip: 'Dream Box - VIP room',
   },
   ru: {
     all: 'Все',
+    exterior: 'Экстерьер клиники',
     interior: 'Интерьер клиники',
+    vip: 'VIP-комната',
+    premium: 'Premium-комната',
+    kids: 'Детская комната',
     equipment: 'Оборудование',
-    team: 'Наша команда',
-    kids: 'Dream Land - детская',
-    vip: 'Dream Box - VIP кабинет',
   },
 }
 
 const INTRO: Record<Locale, string> = {
-  ka: 'შემოგვიხედეთ ვიზიტამდე - რვა ცალკე ბოქსი, სარენტგენო ოთახი, საკუთარი სატექნიკო ლაბორატორია, ბავშვთა Dream Land და VIP კაბინეტი Dream Box.',
-  en: 'Look inside before you visit - eight separate treatment boxes, an X-ray room, our own dental laboratory, the Dream Land kids room and the Dream Box VIP suite.',
-  ru: 'Загляните к нам до визита - восемь отдельных боксов, рентген-кабинет, собственная зуботехническая лаборатория, детская Dream Land и VIP-кабинет Dream Box.',
+  ka: 'გაეცანით ჩვენს სივრცეს ვიზიტამდე: თქვენ გელოდებათ სრულიად დამოუკიდებელი 5 კაბინეტი — მათ შორის Premium, VIP და სპეციალურად მოწყობილი საბავშვო ოთახი. მაქსიმალური უსაფრთხოებისა და კომფორტისთვის, კლინიკა აღჭურვილია ცალკე სასტერილიზაციო და თანამედროვე რენტგენო-დიაგნოსტიკური სივრცეებით.',
+  en: "Explore our space before your visit: Five fully independent treatment rooms await you — including our Premium, VIP, and specially designed children's rooms. For your ultimate safety and comfort, our clinic features a dedicated sterilization suite and modern X-ray diagnostic facilities.",
+  ru: 'Познакомьтесь с нашей клиникой до визита: Вас ждут 5 полностью независимых кабинетов — в том числе Premium, VIP и специально обустроенный детский кабинет. Для вашей максимальной безопасности и комфорта клиника оснащена отдельной стерилизационной и современной рентген-диагностической зоной.',
 }
 
 export async function generateMetadata({
