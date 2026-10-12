@@ -75,12 +75,15 @@ const INTRO: Record<Locale, string> = {
 }
 
 function toPhoto(
-  item: { image: Parameters<typeof mediaUrl>[0]; title?: string | null },
+  item: { image?: Parameters<typeof mediaUrl>[0]; title?: string | null },
   fallback: string,
-): GalleryPhoto {
+): GalleryPhoto | null {
+  const src = mediaUrl(item.image, 'card')
+  const full = mediaUrl(item.image) || src
+  if (!src || !full) return null
   return {
-    src: mediaUrl(item.image, 'card')!,
-    full: mediaUrl(item.image) || mediaUrl(item.image, 'card')!,
+    src,
+    full,
     alt: mediaAlt(item.image, item.title ?? fallback),
     title: item.title,
   }
@@ -177,7 +180,10 @@ export default async function GalleryPage({
         ) : (
           <PhotoLightbox
             layout="masonry"
-            photos={shown.map((item) => toPhoto(item, labels[item.category as Category] ?? ''))}
+            photos={shown.flatMap((item) => {
+              const photo = toPhoto(item, labels[item.category as Category] ?? '')
+              return photo ? [photo] : []
+            })}
             labels={{ close: dict.nav.close, previous: dict.labels.previous, next: dict.labels.next }}
           />
         )}
