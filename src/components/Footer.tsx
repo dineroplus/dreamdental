@@ -77,19 +77,25 @@ export function Footer({
 
   return (
     <footer className="bg-ink mt-16 text-white/75">
-      <div className="container-page py-14 lg:py-20">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <div className="container-page py-12 lg:py-16">
+        <Link href={localePath(locale, '/')} className="inline-flex">
+          <LogoMark
+            src={ORIGINAL_LOCKUP}
+            alt={clinicName}
+            width={758}
+            height={471}
+            sizes="180px"
+            className="h-16 w-auto"
+          />
+        </Link>
+        {tagline ? <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/80">{tagline}</p> : null}
+
+        <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
-            <LogoMark
-              src={ORIGINAL_LOCKUP}
-              alt={clinicName}
-              width={758}
-              height={471}
-              sizes="240px"
-              className="h-36 w-auto"
-            />
-            {tagline ? <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/80">{tagline}</p> : null}
-            <p className={cn('text-sm leading-relaxed', tagline ? 'mt-3' : 'mt-4')}>
+            <h3 className="font-display text-sm tracking-wide text-white uppercase">
+              {uiCaps(dict.labels.address, locale)}
+            </h3>
+            <p className="mt-4 text-sm leading-relaxed">
               {addressLine}
               {city ? `, ${city}` : ''}
             </p>
