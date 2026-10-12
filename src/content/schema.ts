@@ -157,7 +157,7 @@ const serviceFields = {
     addLabel: 'პუნქტის დამატება',
     titleKey: 'text',
     fields: {
-      text: { kind: 'text', label: 'ტექსტი', localized: true, required: true },
+      text: { kind: 'textarea', label: 'ტექსტი', localized: true, required: true },
       icon: { kind: 'select', label: 'იკონი', options: HIGHLIGHT_ICONS },
     },
   },

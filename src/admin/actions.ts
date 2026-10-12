@@ -20,9 +20,13 @@ import { slugFromTitle, titleFromStored } from './slug'
  * previous page while a refresh ran in the background.
  */
 function revalidateContent() {
-  updateTag(CONTENT_TAG)
-  for (const locale of locales) {
-    revalidatePath(`/${locale}`, 'layout')
+  try {
+    updateTag(CONTENT_TAG)
+    for (const locale of locales) {
+      revalidatePath(`/${locale}`, 'layout')
+    }
+  } catch (error) {
+    console.error('content revalidation failed', error)
   }
 }
 
@@ -108,7 +112,7 @@ async function uniqueSlug(type: CollectionName, desired: string, ignoreId: numbe
 }
 
 function stripEmpty(value: unknown): unknown {
-  if (value === '') return undefined
+  if (value === '' || value === null) return undefined
   if (Array.isArray(value)) return value.map(stripEmpty)
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {}
@@ -164,6 +168,38 @@ function withoutBlankRows(fields: FieldMap, data: Record<string, unknown>): Reco
   return next
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  title: 'დასახელება',
+  shortTitle: 'მოკლე დასახელება',
+  excerpt: 'მოკლე აღწერა',
+  body: 'აღწერა',
+  highlights: 'უპირატესობა',
+  faq: 'კითხვა',
+  question: 'კითხვა',
+  answer: 'პასუხი',
+  text: 'ტექსტი',
+  icon: 'იკონი',
+  image: 'სურათი',
+  ka: 'ქართული',
+  en: 'ინგლისური',
+  ru: 'რუსული',
+  name: 'სახელი',
+  specialty: 'სპეციალობა',
+}
+
+/** The red bar used to say only “fill required fields”, with no hint which one. */
+function requiredFieldsMessage(error: z.ZodError): string {
+  const issue = error.issues[0]
+  if (!issue) return 'შეავსე აუცილებელი ველები'
+  const parts = issue.path.flatMap((part) => {
+    if (typeof part === 'number') return [String(part + 1)]
+    const label = FIELD_LABELS[String(part)]
+    return label ? [label] : []
+  })
+  if (parts.length === 0) return 'შეავსე აუცილებელი ველები'
+  return `შეავსე აუცილებელი ველი: ${parts.join(', ')}`
+}
+
 export async function saveDocument(
   type: CollectionName,
   id: number | null,
@@ -180,7 +216,7 @@ export async function saveDocument(
     parsed = zodForMap(definition.fields).parse(cleaned) as Record<string, unknown>
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error('შეავსე აუცილებელი ველები')
+      throw new Error(requiredFieldsMessage(error))
     }
     throw error
   }
@@ -264,7 +300,7 @@ export async function saveSingleton(key: SingletonName, data: Record<string, unk
     parsed = zodForMap(definition.fields).parse(cleaned) as Record<string, unknown>
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error('შეავსე აუცილებელი ველები')
+      throw new Error(requiredFieldsMessage(error))
     }
     throw error
   }
