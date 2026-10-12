@@ -82,22 +82,22 @@ export function Footer({
 
   return (
     <footer className="bg-ink relative mt-16 overflow-hidden text-white/75">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundColor: 'color-mix(in oklab, white 18%, var(--color-ink))',
-          opacity: 0.9,
-          WebkitMaskImage: 'url(/brand/logo.png)',
-          maskImage: 'url(/brand/logo.png)',
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          maskPosition: 'center',
-          WebkitMaskSize: '118% 132%',
-          maskSize: '118% 132%',
-        }}
-      />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute top-1/2 left-1/2 h-[62%] w-[188%] -translate-x-1/2 -translate-y-1/2 -rotate-[14deg]"
+          style={{
+            backgroundColor: 'color-mix(in oklab, white 8%, var(--color-ink))',
+            WebkitMaskImage: 'url(/brand/logo.png)',
+            maskImage: 'url(/brand/logo.png)',
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskPosition: 'center',
+            WebkitMaskSize: '100% 100%',
+            maskSize: '100% 100%',
+          }}
+        />
+      </div>
       <div className="container-page relative py-12 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
