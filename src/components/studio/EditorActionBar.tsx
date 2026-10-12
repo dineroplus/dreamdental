@@ -9,6 +9,7 @@ type Props = {
   onPreview?: (() => void) | null
   previewHint?: string | null
   onDelete?: (() => void) | null
+  onDuplicate?: (() => void) | null
   saveLabel?: string
   previewLabel?: string
 }
@@ -25,6 +26,7 @@ export function EditorActionBar({
   onPreview,
   previewHint,
   onDelete,
+  onDuplicate,
   saveLabel = 'შენახვა',
   previewLabel = 'საიტზე ნახვა',
 }: Props) {
@@ -41,6 +43,16 @@ export function EditorActionBar({
             className="text-ink-muted hover:text-accent min-h-12 rounded-xl px-4 text-base font-medium disabled:opacity-60"
           >
             წაშლა
+          </button>
+        ) : null}
+        {onDuplicate ? (
+          <button
+            type="button"
+            onClick={onDuplicate}
+            disabled={pending}
+            className="text-ink-muted hover:text-brand min-h-12 rounded-xl px-4 text-base font-medium disabled:opacity-60"
+          >
+            ასლის შექმნა
           </button>
         ) : null}
 

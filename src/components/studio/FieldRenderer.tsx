@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { getMedia } from '../../admin/media'
 import { locales, type Locale } from '../../i18n/config'
 import { emptyShape, emptyValue, type Field, type FieldMap } from '../../content/fields'
@@ -13,6 +13,46 @@ const LOCALE_LABEL: Record<Locale, string> = {
   ru: 'Русский',
   he: 'עברית',
   ar: 'العربية',
+}
+
+const PRIMARY_LOCALES: Locale[] = ['ka', 'en', 'ru']
+const EXTRA_LOCALES: Locale[] = ['he', 'ar']
+
+const TOOL =
+  'border-hairline text-ink hover:border-brand hover:text-brand min-h-9 rounded-lg border bg-surface px-3 text-sm font-semibold disabled:opacity-40'
+
+function fillEmptyFromGeorgian(value: unknown, locale: Locale): { next: unknown; copied: number } {
+  let copied = 0
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk)
+    if (!node || typeof node !== 'object') return node
+    const record = node as Record<string, unknown>
+    const keys = Object.keys(record)
+    const localized = keys.length > 0 && keys.every((key) => (locales as readonly string[]).includes(key))
+    if (localized) {
+      const georgian = record.ka
+      const current = record[locale]
+      const empty = typeof current !== 'string' || current.trim() === ''
+      if (typeof georgian === 'string' && georgian.trim() && empty) {
+        copied += 1
+        return { ...record, [locale]: georgian }
+      }
+      return record
+    }
+    const next: Record<string, unknown> = {}
+    for (const [key, item] of Object.entries(record)) next[key] = walk(item)
+    return next
+  }
+  return { next: walk(value), copied }
+}
+
+function moveAt<T>(items: T[], index: number, delta: number): T[] {
+  const target = index + delta
+  if (target < 0 || target >= items.length) return items
+  const copy = [...items]
+  const [item] = copy.splice(index, 1)
+  copy.splice(target, 0, item)
+  return copy
 }
 
 const INPUT =
@@ -31,32 +71,89 @@ type Props = {
   embedded?: boolean
 }
 
+function LocaleButton({
+  code,
+  active,
+  onClick,
+}: {
+  code: Locale
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        active
+          ? 'bg-brand min-h-11 rounded-xl px-5 py-2.5 text-base font-semibold text-white'
+          : 'bg-brand-soft text-brand min-h-11 rounded-xl px-5 py-2.5 text-base font-semibold'
+      }
+    >
+      {LOCALE_LABEL[code]}
+    </button>
+  )
+}
+
 export function FieldRenderer({ fields, value, onChange, embedded = false }: Props) {
   const [locale, setLocale] = useState<Locale>('ka')
+  const [extraOpen, setExtraOpen] = useState(false)
+  const [copyNote, setCopyNote] = useState<string | null>(null)
+  const showExtra = extraOpen || EXTRA_LOCALES.includes(locale)
 
   const body = <FieldSet fields={fields} value={value} onChange={onChange} />
 
   if (embedded) return body
 
+  const copyFromGeorgian = () => {
+    const filled = fillEmptyFromGeorgian(value, locale)
+    if (filled.copied === 0) {
+      setCopyNote('ცარიელი ველი არ დარჩა')
+      return
+    }
+    onChange(filled.next as Record<string, unknown>)
+    setCopyNote(`${filled.copied} ველი შეივსო ქართულიდან. გადაამოწმე და შეინახე.`)
+  }
+
   return (
     <LocaleCtx.Provider value={locale}>
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center gap-3">
-          {locales.map((code) => (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {PRIMARY_LOCALES.map((code) => (
+              <LocaleButton key={code} code={code} active={locale === code} onClick={() => setLocale(code)} />
+            ))}
             <button
-              key={code}
               type="button"
-              onClick={() => setLocale(code)}
-              className={
-                locale === code
-                  ? 'bg-brand min-h-11 rounded-xl px-5 py-2.5 text-base font-semibold text-white'
-                  : 'bg-brand-soft text-brand min-h-11 rounded-xl px-5 py-2.5 text-base font-semibold'
-              }
+              onClick={() => {
+                if (showExtra) {
+                  setExtraOpen(false)
+                  if (EXTRA_LOCALES.includes(locale)) setLocale('ka')
+                  return
+                }
+                setExtraOpen(true)
+              }}
+              className="text-ink-muted hover:text-brand min-h-11 rounded-xl px-3 text-sm font-semibold"
             >
-              {LOCALE_LABEL[code]}
+              {showExtra ? 'ებრაული და არაბული ▲' : 'ებრაული და არაბული'}
             </button>
-          ))}
-          <p className="text-ink-muted text-sm">ჯერ ქართული შეავსე. სხვა ენები სურვილისამებრ.</p>
+          </div>
+          {showExtra ? (
+            <div className="flex flex-wrap gap-2">
+              {EXTRA_LOCALES.map((code) => (
+                <LocaleButton key={code} code={code} active={locale === code} onClick={() => setLocale(code)} />
+              ))}
+            </div>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-ink-muted text-sm">ჯერ ქართული შეავსე. სხვა ენები სურვილისამებრ.</p>
+            {locale !== 'ka' ? (
+              <button type="button" onClick={copyFromGeorgian} className={TOOL}>
+                ცარიელი ველები ქართულიდან
+              </button>
+            ) : null}
+            {copyNote ? <p className="text-ink text-sm">{copyNote}</p> : null}
+          </div>
         </div>
         {body}
       </div>
@@ -204,15 +301,16 @@ function FieldInput({
 
   switch (field.kind) {
     case 'textarea':
-    case 'markdown':
       return (
         <textarea
           className={INPUT}
-          rows={field.kind === 'markdown' ? 8 : (field.rows ?? 4)}
+          rows={field.rows ?? 4}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value)}
         />
       )
+    case 'markdown':
+      return <MarkdownField value={value} onChange={onChange} />
     case 'number':
       return (
         <input
@@ -292,9 +390,9 @@ function FieldInput({
         />
       )
     case 'image':
-      return <ImagePicker value={value} onChange={onChange} fit={field.fit} />
+      return <ImagePicker value={value} onChange={onChange} fit={field.fit} locale={locale} />
     case 'imageList':
-      return <ImagePicker value={value} onChange={onChange} multiple />
+      return <ImagePicker value={value} onChange={onChange} multiple locale={locale} />
     case 'relation':
       return <RelationPicker to={field.to} value={value} onChange={onChange} />
     case 'relationList':
@@ -441,6 +539,113 @@ function ColorInput({
   )
 }
 
+function applyMarkup(
+  current: string,
+  start: number,
+  end: number,
+  kind: 'bold' | 'list' | 'heading',
+): { next: string; from: number; to: number } {
+  if (kind === 'bold') {
+    const selected = current.slice(start, end) || 'ტექსტი'
+    const wrapped = `**${selected}**`
+    return {
+      next: current.slice(0, start) + wrapped + current.slice(end),
+      from: start + 2,
+      to: start + 2 + selected.length,
+    }
+  }
+  const lineStart = current.lastIndexOf('\n', Math.max(0, start - 1)) + 1
+  const lineEnd = current.indexOf('\n', end)
+  const endAt = lineEnd === -1 ? current.length : lineEnd
+  const block = current.slice(lineStart, endAt)
+  const lines = (block || (kind === 'list' ? 'პუნქტი' : 'სათაური')).split('\n')
+  const formatted = lines
+    .map((line) => {
+      if (kind === 'heading') return line.startsWith('## ') ? line : `## ${line}`
+      return line.startsWith('- ') ? line : `- ${line}`
+    })
+    .join('\n')
+  return {
+    next: current.slice(0, lineStart) + formatted + current.slice(endAt),
+    from: lineStart,
+    to: lineStart + formatted.length,
+  }
+}
+
+function MarkdownField({ value, onChange }: { value: unknown; onChange: (next: unknown) => void }) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  const text = typeof value === 'string' ? value : ''
+
+  const apply = (kind: 'bold' | 'list' | 'heading') => {
+    const el = ref.current
+    const start = el?.selectionStart ?? text.length
+    const end = el?.selectionEnd ?? text.length
+    const result = applyMarkup(text, start, end, kind)
+    onChange(result.next)
+    requestAnimationFrame(() => {
+      el?.focus()
+      el?.setSelectionRange(result.from, result.to)
+    })
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className={TOOL} onClick={() => apply('bold')}>
+          მუქი
+        </button>
+        <button type="button" className={TOOL} onClick={() => apply('list')}>
+          სია
+        </button>
+        <button type="button" className={TOOL} onClick={() => apply('heading')}>
+          სათაური
+        </button>
+      </div>
+      <textarea
+        ref={ref}
+        className={INPUT}
+        rows={8}
+        value={text}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
+  )
+}
+
+function ShiftButtons({
+  index,
+  total,
+  onMove,
+  onRemove,
+  stacked = false,
+}: {
+  index: number
+  total: number
+  onMove: (delta: number) => void
+  onRemove: () => void
+  stacked?: boolean
+}) {
+  return (
+    <div className={stacked ? 'flex shrink-0 flex-col items-stretch gap-1' : 'flex shrink-0 items-center gap-1'}>
+      <button type="button" aria-label="ზემოთ" disabled={index === 0} onClick={() => onMove(-1)} className={TOOL}>
+        ↑
+      </button>
+      <button
+        type="button"
+        aria-label="ქვემოთ"
+        disabled={index === total - 1}
+        onClick={() => onMove(1)}
+        className={TOOL}
+      >
+        ↓
+      </button>
+      <button type="button" onClick={onRemove} className="text-accent min-h-9 rounded-lg px-2 text-sm font-semibold">
+        წაშლა
+      </button>
+    </div>
+  )
+}
+
 function ListEditor({
   field,
   value,
@@ -466,13 +671,12 @@ function ListEditor({
               name={`${index}`}
             />
           </div>
-          <button
-            type="button"
-            className="text-ink-muted text-sm font-medium"
-            onClick={() => onChange(value.filter((_, i) => i !== index))}
-          >
-            წაშლა
-          </button>
+          <ShiftButtons
+            index={index}
+            total={value.length}
+            onMove={(delta) => onChange(moveAt(value, index, delta))}
+            onRemove={() => onChange(value.filter((_, i) => i !== index))}
+          />
         </div>
       ))}
       <button
@@ -486,9 +690,14 @@ function ListEditor({
   )
 }
 
-function itemTitle(item: Record<string, unknown>, titleKey?: string) {
+function itemTitle(item: Record<string, unknown>, field: Extract<Field, { kind: 'objectList' }>) {
+  const titleKey = field.titleKey
   if (!titleKey) return ''
   const raw = item[titleKey]
+  const child = field.fields[titleKey]
+  if (child?.kind === 'select' && typeof raw === 'string') {
+    return child.options.find((option) => option.value === raw)?.label || raw
+  }
   if (typeof raw === 'string') return raw
   if (raw && typeof raw === 'object') {
     const map = raw as Record<string, unknown>
@@ -512,43 +721,43 @@ function ObjectListEditor({
   return (
     <div className="space-y-3">
       {value.map((item, index) => (
-        <div key={index} className="border-hairline relative overflow-hidden rounded-2xl border bg-surface">
-          <button
-            type="button"
-            className="text-ink-muted hover:text-accent absolute top-2.5 right-11 z-10 min-h-9 rounded-lg px-2 text-sm font-medium"
-            onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))}
-          >
-            წაშლა
-          </button>
-          <details
-            open={openAll || index >= initialCount || undefined}
-            className="group/item"
-          >
-          <summary className="hover:bg-canvas flex min-h-12 cursor-pointer list-none items-center gap-3 py-2 pr-28 pl-4">
-            <span className="bg-brand-soft text-brand grid h-7 w-7 shrink-0 place-items-center rounded-lg text-sm font-semibold">
-              {index + 1}
-            </span>
-            <span className="text-ink min-w-0 flex-1 truncate text-base font-medium">
-              {itemTitle(item, field.titleKey) || `ჩანაწერი ${index + 1}`}
-            </span>
-            <span className="text-ink-faint absolute right-4 text-sm transition group-open/item:rotate-180">▾</span>
-          </summary>
-          <div className="border-hairline space-y-4 border-t p-4">
-            {Object.entries(field.fields).map(([key, child]) => (
-              <FieldControl
-                key={key}
-                name={key}
-                field={child}
-                value={item[key]}
-                onChange={(next) => {
-                  const copy = [...value]
-                  copy[index] = { ...item, [key]: next }
-                  onChange(copy)
-                }}
-              />
-            ))}
+        <div key={index} className="border-hairline flex items-start gap-2 overflow-hidden rounded-2xl border bg-surface">
+          <details open={openAll || index >= initialCount || undefined} className="group/item min-w-0 flex-1">
+            <summary className="hover:bg-canvas flex min-h-12 cursor-pointer list-none items-center gap-3 py-2 pr-3 pl-4">
+              <span className="bg-brand-soft text-brand grid h-7 w-7 shrink-0 place-items-center rounded-lg text-sm font-semibold">
+                {index + 1}
+              </span>
+              <span className="text-ink min-w-0 flex-1 truncate text-base font-medium">
+                {itemTitle(item, field) || `ჩანაწერი ${index + 1}`}
+              </span>
+              {item.enabled === false ? <span className="text-ink-faint shrink-0 text-sm">გამორთული</span> : null}
+              <span className="text-ink-faint text-sm transition group-open/item:rotate-180">▾</span>
+            </summary>
+            <div className="border-hairline space-y-4 border-t p-4">
+              {Object.entries(field.fields).map(([key, child]) => (
+                <FieldControl
+                  key={key}
+                  name={key}
+                  field={child}
+                  value={item[key]}
+                  onChange={(next) => {
+                    const copy = [...value]
+                    copy[index] = { ...item, [key]: next }
+                    onChange(copy)
+                  }}
+                />
+              ))}
+            </div>
+          </details>
+          <div className="py-2 pr-2">
+            <ShiftButtons
+              stacked
+              index={index}
+              total={value.length}
+              onMove={(delta) => onChange(moveAt(value, index, delta))}
+              onRemove={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))}
+            />
           </div>
-        </details>
         </div>
       ))}
       <button
@@ -583,9 +792,9 @@ function BlocksEditor({
             key={String(block.id ?? index)}
             className="border-hairline space-y-3 rounded-2xl border p-4"
           >
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <select
-                className={INPUT}
+                className={`${INPUT} min-w-[12rem] flex-1`}
                 value={type}
                 onChange={(event) => {
                   const nextType = event.target.value
@@ -605,13 +814,12 @@ function BlocksEditor({
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                className="text-ink-muted text-sm font-medium"
-                onClick={() => onChange(value.filter((_, i) => i !== index))}
-              >
-                წაშლა
-              </button>
+              <ShiftButtons
+                index={index}
+                total={value.length}
+                onMove={(delta) => onChange(moveAt(value, index, delta))}
+                onRemove={() => onChange(value.filter((_, i) => i !== index))}
+              />
             </div>
             {definition
               ? Object.entries(definition.fields).map(([key, child]) => (

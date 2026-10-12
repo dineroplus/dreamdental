@@ -105,7 +105,7 @@ const TESTIMONIAL_SOURCES = [
 const faqField = {
   kind: 'objectList',
   label: 'ხშირად დასმული კითხვები',
-  hint: 'ჩანს გვერდზე და იგზავნება Google-ში FAQ structured data-დ.',
+  hint: 'კითხვა და პასუხი, რომელიც გვერდზე ჩანს.',
   addLabel: 'კითხვის დამატება',
   titleKey: 'question',
   fields: {
@@ -520,7 +520,7 @@ const homeFields = {
   sections: {
     kind: 'objectList',
     label: 'სექციების თანმიმდევრობა',
-    hint: 'გადაათრიე რიგის შესაცვლელად. მონიშვნის მოხსნა მალავს სექციას წაშლის გარეშე.',
+    hint: 'ისრებით შეცვალე რიგი. „ჩართული“-ს მოხსნა მალავს სექციას წაშლის გარეშე.',
     addLabel: 'სექციის დამატება',
     titleKey: 'blockType',
     fields: {
@@ -567,7 +567,16 @@ const settingsFields = {
     fields: {
       clinicName: { kind: 'text', label: 'კლინიკის სახელი', localized: true },
       tagline: { kind: 'text', label: 'სლოგანი', localized: true },
-      logo: { kind: 'image', label: 'ლოგო' },
+      headerLogo: {
+        kind: 'image',
+        label: 'ლოგო ზედა ზოლში',
+        hint: 'სრული ლოგო წარწერით. ცარიელი დატოვე და დარჩება ახლანდელი.',
+      },
+      logo: {
+        kind: 'image',
+        label: 'ნიშანი',
+        hint: 'ფუტერის ფონის ნიშანი. ცარიელი დატოვე და დარჩება ახლანდელი.',
+      },
       favicon: { kind: 'image', label: 'Favicon' },
       defaultShareImage: {
         kind: 'image',
@@ -619,7 +628,7 @@ const settingsFields = {
   stats: {
     kind: 'objectList',
     label: 'ნდობის მაჩვენებლები',
-    hint: 'ანიმირებული მრიცხველები მთავარ გვერდზე.',
+    hint: 'რიცხვები მთავარ გვერდზე.',
     addLabel: 'მაჩვენებლის დამატება',
     titleKey: 'label',
     fields: {
@@ -629,7 +638,7 @@ const settingsFields = {
         kind: 'text',
         label: 'ტექსტური მნიშვნელობა',
         localized: true,
-        hint: 'ანაცვლებს რიცხვს და არ ანიმირდება; სიტყვები პატარა შრიფტით ჩანს. მაგ.: 2013 წლიდან',
+        hint: 'რიცხვის ნაცვლად წინადადება. მაგ.: 2013 წლიდან',
       },
       label: { kind: 'text', label: 'წარწერა', localized: true, required: true },
     },
@@ -682,14 +691,14 @@ const navigationFields = {
     kind: 'objectList',
     label: 'ზედა მენიუ',
     addLabel: 'პუნქტის დამატება',
-    titleKey: 'href',
+    titleKey: 'label',
     fields: {
       ...navigationLink,
       children: {
         kind: 'objectList',
         label: 'ჩამოსაშლელი პუნქტები',
         addLabel: 'ქვეპუნქტის დამატება',
-        titleKey: 'href',
+        titleKey: 'label',
         fields: navigationLink,
       },
     },
@@ -705,7 +714,7 @@ const navigationFields = {
         kind: 'objectList',
         label: 'ბმულები',
         addLabel: 'ბმულის დამატება',
-        titleKey: 'href',
+        titleKey: 'label',
         fields: navigationLink,
       },
     },
@@ -740,7 +749,7 @@ const themeFields = {
   motionLevel: {
     kind: 'select',
     label: 'ანიმაციები',
-    hint: 'მომხმარებლის "reduce motion" პარამეტრი ყოველთვის უპირატესია.',
+    hint: 'საიტის მოძრაობა. ვინც ტელეფონში ანიმაციას თიშავს, მაინც მშვიდ ვერსიას ნახავს.',
     options: [
       { value: 'full', label: 'სრული — პარალაქსი, გამოჩენა, მრიცხველები' },
       { value: 'subtle', label: 'შერბილებული — მხოლოდ გადასვლები' },

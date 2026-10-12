@@ -18,9 +18,21 @@ type Props = {
   items: NavItem[]
   clinicName: string
   phone: string
+  logoSrc?: string | null
+  logoWidth?: number
+  logoHeight?: number
 }
 
-export function Header({ locale, dict, items, clinicName, phone }: Props) {
+export function Header({
+  locale,
+  dict,
+  items,
+  clinicName,
+  phone,
+  logoSrc,
+  logoWidth = 758,
+  logoHeight = 471,
+}: Props) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -68,10 +80,10 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
             aria-label={clinicName}
           >
             <LogoMark
-              src={ORIGINAL_LOCKUP}
+              src={logoSrc || ORIGINAL_LOCKUP}
               alt={clinicName}
-              width={758}
-              height={471}
+              width={logoWidth}
+              height={logoHeight}
               sizes="160px"
               className="h-[4.5rem] w-auto"
               priority
@@ -102,10 +114,10 @@ export function Header({ locale, dict, items, clinicName, phone }: Props) {
             aria-label={clinicName}
           >
             <LogoMark
-              src={ORIGINAL_LOCKUP}
+              src={logoSrc || ORIGINAL_LOCKUP}
               alt={clinicName}
-              width={758}
-              height={471}
+              width={logoWidth}
+              height={logoHeight}
               sizes="280px"
               className="h-[4.5rem] w-auto"
               animated

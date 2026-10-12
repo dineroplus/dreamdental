@@ -23,6 +23,7 @@ export type MediaOption = {
   id: number
   url: string
   filename: string
+  alt?: Record<string, string>
 }
 
 function sanitizeFilename(name: string) {
@@ -95,6 +96,27 @@ function publicUrl(id: number) {
   return `/api/media/file/${id}`
 }
 
+function asAlt(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object') return {}
+  const out: Record<string, string> = {}
+  for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof entry === 'string') out[key] = entry
+  }
+  return out
+}
+
+function toOption(row: { id: number; url: string; filename: string; alt?: unknown }): MediaOption {
+  return {
+    id: row.id,
+    filename: row.filename,
+    alt: asAlt(row.alt),
+    url:
+      row.url.startsWith('/api/media') || row.url.startsWith('/media') || row.url.startsWith('http')
+        ? row.url
+        : publicUrl(row.id),
+  }
+}
+
 /**
  * Stores the file in Postgres. Vercel’s filesystem does not keep writes, so
  * clinic photos have to live in the database and be served from `/api/media`.
@@ -157,13 +179,7 @@ export async function listMedia(): Promise<MediaOption[]> {
     .orderBy(desc(schema.media.id))
     .limit(80)
 
-  return rows.map((row) => ({
-    id: row.id,
-    url: row.url.startsWith('/api/media') || row.url.startsWith('/media') || row.url.startsWith('http')
-      ? row.url
-      : publicUrl(row.id),
-    filename: row.filename,
-  }))
+  return rows.map((row) => toOption(row))
 }
 
 export async function getMedia(id: number): Promise<MediaOption | null> {
@@ -173,18 +189,27 @@ export async function getMedia(id: number): Promise<MediaOption | null> {
       id: schema.media.id,
       url: schema.media.url,
       filename: schema.media.filename,
+      alt: schema.media.alt,
     })
     .from(schema.media)
     .where(eq(schema.media.id, id))
     .limit(1)
   const row = rows[0]
-  if (!row) return null
-  return {
-    id: row.id,
-    url:
-      row.url.startsWith('/api/media') || row.url.startsWith('/media') || row.url.startsWith('http')
-        ? row.url
-        : publicUrl(row.id),
-    filename: row.filename,
-  }
+  return row ? toOption(row) : null
+}
+
+export async function updateMediaAlt(id: number, locale: string, alt: string) {
+  await requireUser()
+  if (!locales.includes(locale as (typeof locales)[number])) return { ok: true as const }
+  const rows = await db()
+    .select({ alt: schema.media.alt })
+    .from(schema.media)
+    .where(eq(schema.media.id, id))
+    .limit(1)
+  if (!rows[0]) return { ok: false as const }
+  const next = { ...asAlt(rows[0].alt), [locale]: alt.trim() }
+  await db().update(schema.media).set({ alt: next }).where(eq(schema.media.id, id))
+  updateTag(CONTENT_TAG)
+  for (const code of locales) revalidatePath(`/${code}`, 'layout')
+  return { ok: true as const }
 }

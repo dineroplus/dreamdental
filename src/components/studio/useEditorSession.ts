@@ -37,7 +37,18 @@ export function useEditorSession(snapshot: unknown, save: () => Promise<unknown>
       setMessage(null)
       startTransition(async () => {
         try {
-          await save()
+          const result = await save()
+          const warning =
+            result &&
+            typeof result === 'object' &&
+            'warning' in result &&
+            typeof result.warning === 'string'
+              ? result.warning
+              : null
+          if (warning) {
+            setError(warning)
+            return
+          }
           setSaved(current)
           setMessage(savedAtLabel())
           if (timer.current) window.clearTimeout(timer.current)

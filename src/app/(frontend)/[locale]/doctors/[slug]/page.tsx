@@ -189,7 +189,7 @@ export default async function DoctorDetailPage({
 
             {doctor.credentials && doctor.credentials.length > 0 && (
               <ul className="mt-8 space-y-3">
-                {doctor.credentials.map((item, index) => (
+                {doctor.credentials.filter(Boolean).map((item, index) => (
                   <li key={`${index}-${item}`} className="flex gap-3">
                     <Icon name="check" className="text-accent mt-0.5 h-5 w-5 shrink-0" />
                     <span className="text-ink-muted text-sm leading-relaxed">{item}</span>

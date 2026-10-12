@@ -12,7 +12,7 @@ import {
   previewImageId,
   previewTitle,
 } from './previewUrls'
-import { deleteDocument, saveDocument, type DocumentMeta } from '../../admin/actions'
+import { deleteDocument, duplicateDocument, saveDocument, type DocumentMeta } from '../../admin/actions'
 import { collections, type CollectionName } from '../../content/schema'
 import type { FieldMap } from '../../content/fields'
 
@@ -81,6 +81,18 @@ export function DocumentEditor({
     })
   }
 
+  const onDuplicate = () => {
+    if (!id) return
+    if (dirty && !confirm('შეუნახავი ცვლილება ასლში არ გადავა. გავაგრძელოთ?')) return
+    startTransition(async () => {
+      try {
+        await duplicateDocument(type, id)
+      } catch (err) {
+        unstable_rethrow(err)
+      }
+    })
+  }
+
   return (
     <div className="space-y-6 pb-4">
       <EditorPreviewCard
@@ -90,7 +102,8 @@ export function DocumentEditor({
         fit={type === 'cases' ? 'contain' : 'cover'}
       />
 
-      <div className="border-hairline flex flex-wrap items-center gap-4 rounded-2xl border bg-surface p-4">
+      <div className="border-hairline space-y-3 rounded-2xl border bg-surface p-4">
+        <div className="flex flex-wrap items-center gap-4">
         <label className="flex min-h-12 items-center gap-3 text-base">
           <input
             type="checkbox"
@@ -126,6 +139,24 @@ export function DocumentEditor({
             />
           </label>
         ) : null}
+        </div>
+        {showOrder ? (
+          <p className="text-ink-muted text-sm">
+            პატარა რიცხვი სიაში უფრო ზემოთ დგას. სიიდან ისრებითაც გადაადგილდება.
+          </p>
+        ) : null}
+        <label className="block max-w-md space-y-1">
+          <span className="text-ink-muted text-sm">ბმული</span>
+          <input
+            className="border-hairline w-full rounded-xl border px-3 py-2.5 text-base"
+            value={meta.slug.startsWith('new-') ? '' : meta.slug}
+            placeholder="შეივსება სახელიდან"
+            onChange={(event) =>
+              setMeta({ ...meta, slug: event.target.value.trim() || `new-${id ?? 'item'}` })
+            }
+          />
+        </label>
+        <p className="text-ink-muted text-sm">ცარიელი დატოვე და ბმული სახელიდან შეივსება.</p>
       </div>
 
       <FieldRenderer fields={fields} value={data} onChange={setData} />
@@ -139,6 +170,7 @@ export function DocumentEditor({
         onPreview={previewUrl ? onPreview : null}
         previewHint={previewHint}
         onDelete={id ? onDelete : null}
+        onDuplicate={id ? onDuplicate : null}
       />
     </div>
   )

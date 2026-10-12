@@ -145,7 +145,8 @@ export type View<FM> = Shape<FM, 'view'>
 /* Runtime validation                                                          */
 /* -------------------------------------------------------------------------- */
 
-function leafSchema(field: Field): z.ZodTypeAny {
+function leafSchema(field: Field, relax: boolean): z.ZodTypeAny {
+  const required = Boolean(field.required) && !relax
   switch (field.kind) {
     case 'text':
     case 'textarea':
@@ -154,7 +155,7 @@ function leafSchema(field: Field): z.ZodTypeAny {
     case 'url':
     case 'color':
     case 'date':
-      return field.required ? z.string().trim().min(1) : z.string()
+      return required ? z.string().trim().min(1) : z.string()
     case 'number': {
       let schema = z.number()
       if (field.min !== undefined) schema = schema.min(field.min)
@@ -174,19 +175,19 @@ function leafSchema(field: Field): z.ZodTypeAny {
     case 'relationList':
       return z.array(z.number().int().positive())
     case 'list':
-      return z.array(zodFor(field.of))
+      return z.array(zodFor(field.of, true))
     case 'objectList':
-      return z.array(zodForMap(field.fields))
+      return z.array(zodForMap(field.fields, true))
     case 'group':
-      return zodForMap(field.fields)
+      return zodForMap(field.fields, relax)
     case 'blocks':
-      return z.array(blocksSchema(field.blocks))
+      return z.array(blocksSchema(field.blocks, true))
   }
 }
 
-function blocksSchema(blocks: Record<string, BlockDef>): z.ZodTypeAny {
+function blocksSchema(blocks: Record<string, BlockDef>, relax = false): z.ZodTypeAny {
   const members = Object.entries(blocks).map(([type, block]) =>
-    z.object({ type: z.literal(type), id: z.string() }).extend(shapeOf(block.fields)),
+    z.object({ type: z.literal(type), id: z.string() }).extend(shapeOf(block.fields, relax)),
   )
   // A single block type cannot form a discriminated union.
   if (members.length === 1) return members[0]
@@ -201,25 +202,27 @@ function localizedSchema(inner: z.ZodTypeAny, required?: boolean): z.ZodTypeAny 
   return z.object(shape)
 }
 
-export function zodFor(field: Field): z.ZodTypeAny {
-  const base = leafSchema(field)
+export function zodFor(field: Field, relax = false): z.ZodTypeAny {
+  const base = leafSchema(field, relax)
+  const required = Boolean(field.required) && !relax
   if (field.localized) {
-    const schema = localizedSchema(base, field.required)
-    return field.required ? schema : schema.optional()
+    const schema = localizedSchema(base, required)
+    return required ? schema : schema.optional()
   }
-  return field.required ? base : base.optional()
+  return required ? base : base.optional()
 }
 
-function shapeOf(fields: FieldMap): Record<string, z.ZodTypeAny> {
+function shapeOf(fields: FieldMap, relax = false): Record<string, z.ZodTypeAny> {
   const shape: Record<string, z.ZodTypeAny> = {}
-  for (const [name, field] of Object.entries(fields)) shape[name] = zodFor(field)
+  for (const [name, field] of Object.entries(fields)) shape[name] = zodFor(field, relax)
   return shape
 }
 
-export function zodForMap(fields: FieldMap): z.ZodObject {
+export function zodForMap(fields: FieldMap, relax = false): z.ZodObject {
   // Unknown keys are dropped rather than rejected so removing a field from the
   // schema never blocks saving a document that still carries the old value.
-  return z.object(shapeOf(fields))
+  // List rows are relaxed: a half-written question still saves with the page.
+  return z.object(shapeOf(fields, relax))
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useMemo, useState, useTransition } from 'react'
+import { moveDocument } from '../../admin/actions'
 import type { CollectionName } from '../../content/schema'
 import { documentPreviewPath } from './previewUrls'
 import { StudioIcon } from './StudioIcon'
@@ -29,8 +31,12 @@ export function CollectionList({
   singular: string
   showFeatured: boolean
 }) {
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
+  const [pending, startTransition] = useTransition()
+  const [moveError, setMoveError] = useState<string | null>(null)
+  const canSort = filter === 'all' && query.trim() === ''
 
   const counts = useMemo(
     () => ({
@@ -49,6 +55,18 @@ export function CollectionList({
       return true
     })
   }, [rows, query, filter])
+
+  function shift(id: number, direction: 'up' | 'down') {
+    setMoveError(null)
+    startTransition(async () => {
+      try {
+        await moveDocument(collection, id, direction)
+        router.refresh()
+      } catch {
+        setMoveError('რიგი ვერ შეიცვალა. თავიდან სცადე.')
+      }
+    })
+  }
 
   if (rows.length === 0) {
     return (
@@ -102,11 +120,17 @@ export function CollectionList({
         </div>
       </div>
 
+      {canSort ? (
+        <p className="text-ink-muted text-sm">ისრებით შეცვალე რიგი — ზედა ჩანაწერი საიტზე პირველი ჩანს.</p>
+      ) : null}
+      {moveError ? <p className="text-accent text-sm font-medium">{moveError}</p> : null}
+
       {visible.length === 0 ? (
         <p className="text-ink-muted py-10 text-center text-base">ვერაფერი მოიძებნა.</p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {visible.map((row) => {
+            const orderIndex = rows.findIndex((item) => item.id === row.id)
             const sitePath = row.status === 'published' ? documentPreviewPath(collection, row.slug) : null
             return (
               <div key={row.id} className={`${card} group relative flex gap-4 p-3 transition hover:border-brand`}>
@@ -136,18 +160,42 @@ export function CollectionList({
                     {showFeatured && row.featured ? <span className={badge('featured')}>მთავარზე</span> : null}
                   </div>
                 </div>
-                {sitePath ? (
-                  <a
-                    href={sitePath}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="საიტზე ნახვა"
-                    className="text-ink-muted hover:text-brand hover:bg-brand-soft relative z-10 self-start rounded-lg p-2"
-                  >
-                    <StudioIcon name="external" className="h-4 w-4" />
-                    <span className="sr-only">საიტზე ნახვა</span>
-                  </a>
-                ) : null}
+                <div className="relative z-10 flex flex-col items-end gap-1">
+                  {canSort ? (
+                    <>
+                      <button
+                        type="button"
+                        aria-label="ზემოთ"
+                        disabled={pending || orderIndex <= 0}
+                        onClick={() => shift(row.id, 'up')}
+                        className="border-hairline text-ink hover:border-brand hover:text-brand min-h-8 min-w-8 rounded-lg border bg-surface text-sm font-semibold disabled:opacity-40"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="ქვემოთ"
+                        disabled={pending || orderIndex === rows.length - 1}
+                        onClick={() => shift(row.id, 'down')}
+                        className="border-hairline text-ink hover:border-brand hover:text-brand min-h-8 min-w-8 rounded-lg border bg-surface text-sm font-semibold disabled:opacity-40"
+                      >
+                        ↓
+                      </button>
+                    </>
+                  ) : null}
+                  {sitePath ? (
+                    <a
+                      href={sitePath}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="საიტზე ნახვა"
+                      className="text-ink-muted hover:text-brand hover:bg-brand-soft rounded-lg p-2"
+                    >
+                      <StudioIcon name="external" className="h-4 w-4" />
+                      <span className="sr-only">საიტზე ნახვა</span>
+                    </a>
+                  ) : null}
+                </div>
               </div>
             )
           })}

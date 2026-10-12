@@ -26,6 +26,7 @@ type Props = {
   instagram?: string
   youtube?: string
   tiktok?: string
+  markSrc?: string | null
 }
 
 export function Footer({
@@ -43,7 +44,9 @@ export function Footer({
   instagram,
   youtube,
   tiktok,
+  markSrc,
 }: Props) {
+  const mark = markSrc || '/brand/logo.png'
   const socials: {
     href?: string
     label: string
@@ -87,8 +90,8 @@ export function Footer({
           className="absolute top-1/2 left-1/2 h-[62%] w-[188%] -translate-x-1/2 -translate-y-1/2 -rotate-[14deg]"
           style={{
             backgroundColor: 'color-mix(in oklab, white 8%, var(--color-ink))',
-            WebkitMaskImage: 'url(/brand/logo.png)',
-            maskImage: 'url(/brand/logo.png)',
+            WebkitMaskImage: `url("${mark}")`,
+            maskImage: `url("${mark}")`,
             WebkitMaskRepeat: 'no-repeat',
             maskRepeat: 'no-repeat',
             WebkitMaskPosition: 'center',

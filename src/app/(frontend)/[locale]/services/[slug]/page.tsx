@@ -164,7 +164,7 @@ export default async function ServiceDetailPage({
 
             {service.highlights && service.highlights.length > 0 && (
               <ul className="card mt-4 space-y-3 p-6">
-                {service.highlights.map((item, index) => (
+                {service.highlights.filter((item) => item.text).map((item, index) => (
                   <li key={`${index}-${item.text}`} className="flex gap-3">
                     <Icon name={item.icon} className="text-accent mt-0.5 h-5 w-5 shrink-0" />
                     <span className="text-ink-muted text-sm leading-relaxed">{item.text}</span>

@@ -7,7 +7,7 @@ import { locales, htmlLang, isLocale, localeDir, type Locale } from '../../../i1
 import { getDictionary } from '../../../i18n/dictionaries'
 import { getNavigation, getSettings } from '../../../lib/data'
 import { CLINIC, SITE_NAME, SITE_URL } from '../../../lib/site'
-import { mediaUrl } from '../../../lib/utils'
+import { isMedia, mediaUrl } from '../../../lib/utils'
 import { ThemeStyle } from '../../../components/ThemeStyle'
 import { Header, type NavItem } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
@@ -168,7 +168,7 @@ export default async function LocaleLayout({
     email: settings?.email || CLINIC.email,
     foundingDate: String(CLINIC.foundedYear),
     image: mediaUrl(settings?.defaultShareImage) ?? undefined,
-    logo: mediaUrl(settings?.logo) ?? undefined,
+    logo: mediaUrl(settings?.headerLogo) ?? mediaUrl(settings?.logo) ?? undefined,
     priceRange: '$$',
     currenciesAccepted: 'GEL',
     paymentAccepted: 'Cash, Credit Card, Debit Card',
@@ -230,6 +230,9 @@ export default async function LocaleLayout({
           items={navItems}
           clinicName={clinicName}
           phone={phonePrimary}
+          logoSrc={mediaUrl(settings?.headerLogo)}
+          logoWidth={isMedia(settings?.headerLogo) ? (settings.headerLogo.width ?? 758) : 758}
+          logoHeight={isMedia(settings?.headerLogo) ? (settings.headerLogo.height ?? 471) : 471}
         />
 
         <main id="main" className="pt-[5.25rem]">
@@ -251,6 +254,7 @@ export default async function LocaleLayout({
           instagram={settings?.instagram || CLINIC.instagram}
           youtube={settings?.youtube || undefined}
           tiktok={settings?.tiktok || undefined}
+          markSrc={mediaUrl(settings?.logo)}
         />
 
         <MobileActionBar

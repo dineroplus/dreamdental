@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { db, schema } from '../db/client'
 import { collections, singletons, type CollectionName, type SingletonName } from '../content/schema'
 import { emptyShape, zodForMap, type FieldMap } from '../content/fields'
-import { defaultLocale, locales } from '../i18n/config'
+import { locales } from '../i18n/config'
 import { CONTENT_TAG } from '../lib/data'
 import { login, logout, requireUser } from './auth'
 import { logoWithoutFlatBackground } from './logoMark'
@@ -87,7 +87,7 @@ export async function logoutAction() {
 }
 
 const metaSchema = z.object({
-  slug: z.string().trim().min(1),
+  slug: z.string().trim(),
   order: z.number().int(),
   featured: z.boolean(),
   status: z.enum(['draft', 'published']),
@@ -124,14 +124,16 @@ function stripEmpty(value: unknown): unknown {
   return value
 }
 
-/** A new list row is empty until the Georgian text is filled in. */
-function georgianText(value: unknown): string {
-  if (typeof value === 'string') return value.trim()
+const TEXT_KINDS = new Set(['text', 'textarea', 'markdown', 'slug', 'url'])
+
+function hasAnyText(value: unknown): boolean {
+  if (typeof value === 'string') return value.trim() !== ''
   if (value && typeof value === 'object') {
-    const text = (value as Record<string, unknown>)[defaultLocale]
-    return typeof text === 'string' ? text.trim() : ''
+    return Object.values(value as Record<string, unknown>).some(
+      (part) => typeof part === 'string' && part.trim() !== '',
+    )
   }
-  return ''
+  return false
 }
 
 function rowIsBlank(fields: FieldMap, item: unknown): boolean {
@@ -140,29 +142,36 @@ function rowIsBlank(fields: FieldMap, item: unknown): boolean {
   const required = Object.entries(fields).filter(([, field]) => field.required)
   if (required.length === 0) return false
   return required.every(([key, field]) => {
-    if (field.kind === 'text' || field.kind === 'textarea' || field.kind === 'markdown') {
-      return georgianText(record[key]) === ''
-    }
+    if (TEXT_KINDS.has(field.kind)) return !hasAnyText(record[key])
     return record[key] == null || record[key] === ''
   })
 }
 
-/**
- * Drop list rows the editor added but never filled in. Otherwise one empty row
- * makes the whole save fail, so a deletion on the same page never sticks.
- */
-function withoutBlankRows(fields: FieldMap, data: Record<string, unknown>): Record<string, unknown> {
+/** Drop rows that were added and never filled. Half-written rows are kept. */
+function prepareFields(fields: FieldMap, data: Record<string, unknown>): Record<string, unknown> {
   const next = { ...data }
   for (const [name, field] of Object.entries(fields)) {
     if (field.kind === 'objectList' && Array.isArray(next[name])) {
       next[name] = next[name].filter((item) => !rowIsBlank(field.fields, item))
+    } else if (field.kind === 'list' && Array.isArray(next[name])) {
+      const textual =
+        field.of.localized || field.of.kind === 'text' || field.of.kind === 'textarea' || field.of.kind === 'markdown'
+      next[name] = next[name].filter((item) => (textual ? hasAnyText(item) : item != null && item !== ''))
+    } else if (field.kind === 'blocks' && Array.isArray(next[name])) {
+      next[name] = next[name].filter((block) => {
+        if (!block || typeof block !== 'object') return false
+        const record = block as Record<string, unknown>
+        const definition = field.blocks[String(record.type)]
+        if (!definition) return false
+        return !rowIsBlank(definition.fields, record)
+      })
     } else if (
       field.kind === 'group' &&
       next[name] &&
       typeof next[name] === 'object' &&
       !Array.isArray(next[name])
     ) {
-      next[name] = withoutBlankRows(field.fields, next[name] as Record<string, unknown>)
+      next[name] = prepareFields(field.fields, next[name] as Record<string, unknown>)
     }
   }
   return next
@@ -187,6 +196,22 @@ const FIELD_LABELS: Record<string, string> = {
   ar: 'არაბული',
   name: 'სახელი',
   specialty: 'სპეციალობა',
+  beforeImage: 'მდე',
+  afterImage: 'შემდეგ',
+  patientName: 'პაციენტის სახელი',
+  quote: 'გამოხმაურება',
+  heading: 'სათაური',
+  content: 'ტექსტი',
+  label: 'წარწერა',
+  value: 'მნიშვნელობა',
+  description: 'აღწერა',
+  photo: 'ფოტო',
+  heroTitle: 'მთავარი სათაური',
+  phone: 'ტელეფონი',
+  address: 'მისამართი',
+  email: 'ელფოსტა',
+  category: 'კატეგორია',
+  publishedAt: 'თარიღი',
 }
 
 /** The red bar used to say only “fill required fields”, with no hint which one. */
@@ -214,8 +239,8 @@ export async function saveDocument(
 
   let parsed: Record<string, unknown>
   try {
-    const cleaned = withoutBlankRows(definition.fields, stripEmpty(data) as Record<string, unknown>)
-    parsed = zodForMap(definition.fields).parse(cleaned) as Record<string, unknown>
+    const prepared = prepareFields(definition.fields, stripEmpty(data) as Record<string, unknown>)
+    parsed = zodForMap(definition.fields).parse(prepared) as Record<string, unknown>
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(requiredFieldsMessage(error))
@@ -226,12 +251,12 @@ export async function saveDocument(
   const now = new Date()
 
   const title = titleFromStored(parsed[definition.titleKey])
-  const slugNeedsFill = !safeMeta.slug || safeMeta.slug.startsWith('new-')
-  const slug = await uniqueSlug(
-    type,
-    slugNeedsFill ? slugFromTitle(title) : safeMeta.slug,
-    id,
-  )
+  const typedSlug = safeMeta.slug
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+  const slugNeedsFill = !typedSlug || safeMeta.slug.startsWith('new-')
+  const slug = await uniqueSlug(type, slugNeedsFill ? slugFromTitle(title) : typedSlug, id)
 
   if (id) {
     await db()
@@ -282,6 +307,88 @@ export async function saveDocument(
   redirect(`/admin/${type}/${created.id}`)
 }
 
+/** Move a card up or down in the clinic list. The top card is first on the site. */
+export async function moveDocument(type: CollectionName, id: number, direction: 'up' | 'down') {
+  const user = await requireUser()
+  if (!collections[type]) throw new Error('unknown collection')
+  const docs = await db()
+    .select({ id: schema.documents.id })
+    .from(schema.documents)
+    .where(eq(schema.documents.type, type))
+    .orderBy(asc(schema.documents.order), asc(schema.documents.id))
+  const index = docs.findIndex((doc) => doc.id === id)
+  const target = direction === 'up' ? index - 1 : index + 1
+  if (index < 0 || target < 0 || target >= docs.length) return { ok: true as const }
+
+  const next = [...docs]
+  const [item] = next.splice(index, 1)
+  next.splice(target, 0, item)
+  const now = new Date()
+  for (const [position, doc] of next.entries()) {
+    await db()
+      .update(schema.documents)
+      .set(
+        doc.id === id
+          ? { order: (position + 1) * 10, updatedAt: now, updatedBy: user.id }
+          : { order: (position + 1) * 10 },
+      )
+      .where(eq(schema.documents.id, doc.id))
+  }
+  revalidateContent()
+  return { ok: true as const }
+}
+
+/** A hidden copy, so a similar service or doctor does not start from a blank page. */
+export async function duplicateDocument(type: CollectionName, id: number) {
+  const user = await requireUser()
+  const definition = collections[type]
+  if (!definition) throw new Error('unknown collection')
+  const rows = await db()
+    .select()
+    .from(schema.documents)
+    .where(and(eq(schema.documents.id, id), eq(schema.documents.type, type)))
+    .limit(1)
+  const source = rows[0]
+  if (!source) throw new Error('ჩანაწერი ვერ მოიძებნა')
+
+  const data = { ...(source.data as Record<string, unknown>) }
+  const titleValue = data[definition.titleKey]
+  if (titleValue && typeof titleValue === 'object') {
+    const map = { ...(titleValue as Record<string, unknown>) }
+    if (typeof map.ka === 'string' && !map.ka.endsWith('(ასლი)')) map.ka = `${map.ka} (ასლი)`
+    data[definition.titleKey] = map
+  }
+
+  const orders = await db()
+    .select({ order: schema.documents.order })
+    .from(schema.documents)
+    .where(eq(schema.documents.type, type))
+  const maxOrder = orders.reduce((max, row) => Math.max(max, row.order ?? 0), 0)
+  const slug = await uniqueSlug(type, slugFromTitle(titleFromStored(data[definition.titleKey])), null)
+
+  const [created] = await db()
+    .insert(schema.documents)
+    .values({
+      type,
+      slug,
+      order: maxOrder + 10,
+      featured: false,
+      status: 'draft',
+      data,
+      updatedBy: user.id,
+    })
+    .returning({ id: schema.documents.id })
+
+  await db().insert(schema.revisions).values({
+    target: type,
+    documentId: created.id,
+    data,
+    createdBy: user.id,
+  })
+  revalidateContent()
+  redirect(`/admin/${type}/${created.id}`)
+}
+
 export async function deleteDocument(type: CollectionName, id: number) {
   await requireUser()
   await db()
@@ -298,8 +405,8 @@ export async function saveSingleton(key: SingletonName, data: Record<string, unk
 
   let parsed: Record<string, unknown>
   try {
-    const cleaned = withoutBlankRows(definition.fields, stripEmpty(data) as Record<string, unknown>)
-    parsed = zodForMap(definition.fields).parse(cleaned) as Record<string, unknown>
+    const prepared = prepareFields(definition.fields, stripEmpty(data) as Record<string, unknown>)
+    parsed = zodForMap(definition.fields).parse(prepared) as Record<string, unknown>
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(requiredFieldsMessage(error))
