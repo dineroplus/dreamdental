@@ -510,19 +510,26 @@ function ObjectListEditor({
   return (
     <div className="space-y-3">
       {value.map((item, index) => (
-        <details
-          key={index}
-          open={openAll || index >= initialCount || undefined}
-          className="border-hairline group/item overflow-hidden rounded-2xl border bg-surface"
-        >
-          <summary className="hover:bg-canvas flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-2">
+        <div key={index} className="border-hairline relative overflow-hidden rounded-2xl border bg-surface">
+          <button
+            type="button"
+            className="text-ink-muted hover:text-accent absolute top-2.5 right-11 z-10 min-h-9 rounded-lg px-2 text-sm font-medium"
+            onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))}
+          >
+            წაშლა
+          </button>
+          <details
+            open={openAll || index >= initialCount || undefined}
+            className="group/item"
+          >
+          <summary className="hover:bg-canvas flex min-h-12 cursor-pointer list-none items-center gap-3 py-2 pr-28 pl-4">
             <span className="bg-brand-soft text-brand grid h-7 w-7 shrink-0 place-items-center rounded-lg text-sm font-semibold">
               {index + 1}
             </span>
             <span className="text-ink min-w-0 flex-1 truncate text-base font-medium">
               {itemTitle(item, field.titleKey) || `ჩანაწერი ${index + 1}`}
             </span>
-            <span className="text-ink-faint text-sm transition group-open/item:rotate-180">▾</span>
+            <span className="text-ink-faint absolute right-4 text-sm transition group-open/item:rotate-180">▾</span>
           </summary>
           <div className="border-hairline space-y-4 border-t p-4">
             {Object.entries(field.fields).map(([key, child]) => (
@@ -538,17 +545,9 @@ function ObjectListEditor({
                 }}
               />
             ))}
-            <button
-              type="button"
-              className="text-ink-muted hover:text-accent min-h-11 rounded-xl px-2 text-sm font-medium"
-              onClick={() => {
-                if (confirm('წავშალოთ ეს ჩანაწერი?')) onChange(value.filter((_, i) => i !== index))
-              }}
-            >
-              ამ ჩანაწერის წაშლა
-            </button>
           </div>
         </details>
+        </div>
       ))}
       <button
         type="button"

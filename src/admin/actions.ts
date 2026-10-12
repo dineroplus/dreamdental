@@ -7,7 +7,8 @@ import sharp from 'sharp'
 import { z } from 'zod'
 import { db, schema } from '../db/client'
 import { collections, singletons, type CollectionName, type SingletonName } from '../content/schema'
-import { emptyShape, zodForMap } from '../content/fields'
+import { emptyShape, zodForMap, type FieldMap } from '../content/fields'
+import { defaultLocale } from '../i18n/config'
 import { CONTENT_TAG } from '../lib/data'
 import { login, logout, requireUser } from './auth'
 import { logoWithoutFlatBackground } from './logoMark'
@@ -115,6 +116,50 @@ function stripEmpty(value: unknown): unknown {
   return value
 }
 
+/** A new list row is empty until the Georgian text is filled in. */
+function georgianText(value: unknown): string {
+  if (typeof value === 'string') return value.trim()
+  if (value && typeof value === 'object') {
+    const text = (value as Record<string, unknown>)[defaultLocale]
+    return typeof text === 'string' ? text.trim() : ''
+  }
+  return ''
+}
+
+function rowIsBlank(fields: FieldMap, item: unknown): boolean {
+  if (!item || typeof item !== 'object') return true
+  const record = item as Record<string, unknown>
+  const required = Object.entries(fields).filter(([, field]) => field.required)
+  if (required.length === 0) return false
+  return required.every(([key, field]) => {
+    if (field.kind === 'text' || field.kind === 'textarea' || field.kind === 'markdown') {
+      return georgianText(record[key]) === ''
+    }
+    return record[key] == null || record[key] === ''
+  })
+}
+
+/**
+ * Drop list rows the editor added but never filled in. Otherwise one empty row
+ * makes the whole save fail, so a deletion on the same page never sticks.
+ */
+function withoutBlankRows(fields: FieldMap, data: Record<string, unknown>): Record<string, unknown> {
+  const next = { ...data }
+  for (const [name, field] of Object.entries(fields)) {
+    if (field.kind === 'objectList' && Array.isArray(next[name])) {
+      next[name] = next[name].filter((item) => !rowIsBlank(field.fields, item))
+    } else if (
+      field.kind === 'group' &&
+      next[name] &&
+      typeof next[name] === 'object' &&
+      !Array.isArray(next[name])
+    ) {
+      next[name] = withoutBlankRows(field.fields, next[name] as Record<string, unknown>)
+    }
+  }
+  return next
+}
+
 export async function saveDocument(
   type: CollectionName,
   id: number | null,
@@ -127,7 +172,8 @@ export async function saveDocument(
 
   let parsed: Record<string, unknown>
   try {
-    parsed = zodForMap(definition.fields).parse(stripEmpty(data)) as Record<string, unknown>
+    const cleaned = withoutBlankRows(definition.fields, stripEmpty(data) as Record<string, unknown>)
+    parsed = zodForMap(definition.fields).parse(cleaned) as Record<string, unknown>
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error('შეავსე აუცილებელი ველები')
@@ -210,7 +256,8 @@ export async function saveSingleton(key: SingletonName, data: Record<string, unk
 
   let parsed: Record<string, unknown>
   try {
-    parsed = zodForMap(definition.fields).parse(stripEmpty(data)) as Record<string, unknown>
+    const cleaned = withoutBlankRows(definition.fields, stripEmpty(data) as Record<string, unknown>)
+    parsed = zodForMap(definition.fields).parse(cleaned) as Record<string, unknown>
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error('შეავსე აუცილებელი ველები')
