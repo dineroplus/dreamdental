@@ -320,6 +320,22 @@ const galleryFields = {
   description: { kind: 'textarea', label: 'აღწერა', localized: true },
 } as const satisfies FieldMap
 
+/** A homepage section the clinic can drop onto any page. Empty title keeps the homepage wording. */
+function liveSection(label: string) {
+  return {
+    label,
+    fields: {
+      heading: {
+        kind: 'text' as const,
+        label: 'სათაური',
+        localized: true,
+        hint: 'ცარიელი დატოვე და მთავარი გვერდის სათაური გამოჩნდება.',
+      },
+      subheading: { kind: 'textarea' as const, label: 'ქვესათაური', localized: true },
+    },
+  }
+}
+
 const pageBlocks = {
   richText: {
     label: 'ტექსტი',
@@ -384,6 +400,16 @@ const pageBlocks = {
       buttonHref: { kind: 'text', label: 'ღილაკის ბმული' },
     },
   },
+  stats: liveSection('ნდობის მაჩვენებლები'),
+  services: liveSection('სერვისების ბადე'),
+  whyUs: liveSection('რატომ ჩვენ'),
+  cases: liveSection('მდე / შემდეგ'),
+  doctors: liveSection('ექიმები'),
+  testimonials: liveSection('გამოხმაურებები'),
+  kids: liveSection('ბავშვთა სტომატოლოგია'),
+  tourism: liveSection('დენტალური ტურიზმი'),
+  galleryStrip: liveSection('გალერეის ზოლი'),
+  contact: liveSection('კონტაქტი და რუკა'),
 } as const satisfies Record<string, { label: string; fields: FieldMap }>
 
 const pageFields = {

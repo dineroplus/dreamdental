@@ -5,8 +5,22 @@ import { RichText } from './RichText'
 import { PhotoLightbox } from './PhotoLightbox'
 import { getDictionary } from '../i18n/dictionaries'
 import { localePath, mediaAlt, mediaDimensions, mediaUrl } from '../lib/utils'
+import { renderHomeSection } from './home/HomeView'
 import type { Locale } from '../i18n/config'
 import type { Page } from '../content/schema'
+
+const LIVE_SECTIONS = new Set<string>([
+  'stats',
+  'services',
+  'whyUs',
+  'cases',
+  'doctors',
+  'testimonials',
+  'kids',
+  'tourism',
+  'galleryStrip',
+  'contact',
+])
 
 type Blocks = NonNullable<Page['layout']>
 
@@ -14,12 +28,26 @@ type Blocks = NonNullable<Page['layout']>
  * Renders the block layout editors compose in /admin. Every block is
  * self-contained so blocks can be reordered without the page falling apart.
  */
-export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks | null }) {
+export async function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks | null }) {
   if (!blocks || blocks.length === 0) return null
 
-  return (
-    <>
-      {blocks.map((block) => {
+  const rendered = await Promise.all(
+    blocks.map(async (block) => {
+      if (LIVE_SECTIONS.has(block.type)) {
+        const node = await renderHomeSection(locale, block.type, {
+          heading: 'heading' in block ? block.heading : null,
+          subheading: 'subheading' in block ? block.subheading : null,
+        })
+        return node ? <div key={block.id}>{node}</div> : null
+      }
+      return renderStaticBlock(locale, block)
+    }),
+  )
+
+  return <>{rendered}</>
+}
+
+function renderStaticBlock(locale: Locale, block: Blocks[number]) {
         switch (block.type) {
           case 'richText':
             return (
@@ -141,7 +169,4 @@ export function PageBlocks({ locale, blocks }: { locale: Locale; blocks?: Blocks
           default:
             return null
         }
-      })}
-    </>
-  )
 }
